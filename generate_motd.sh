@@ -1,24 +1,24 @@
 #!/bin/bash
 
-# Script name: generate_motd.sh
-# Version: 1.15.01.09
-# Author: Willem D'Haese
-# Created on: 10/02/2014
-# Purpose: Bash script that will dynamically generate a message of they day for users logging in.
+# Script name: 		generate_motd.sh
+# Version: 			1.15.01.09
+# Created on: 		10/02/2014
+# Author: 			Willem D'Haese
+# Purpose:  		Bash tool to display system information after logging into a Linux CentOS server.
+# On Github:		https://github.com/willemdh/generate_motd
+# On OutsideIT:		http://outsideit.net/generate-motd
 # History:
-#       10/02/2014 => Creation date
-#       15/11/2014 => Added yum update info: "00 0 * * * /usr/local/bin/count_yum_updates.sh > /tmp/yum_updates.txt"
-#       17/11/2014 => Added root information and cleanup memory
-#       18/11/2014 => Edits to memory output, cleanup yum for 0 updates
-#       09/01/2014 => Using printf to avoid missing leading zeroes
+#	10/02/2014 => Creation date
+#	15/11/2014 => Added yum update info: "00 0 * * * /usr/local/bin/count_yum_updates.sh > /tmp/yum_updates.txt"
+#	17/11/2014 => Added root information and cleanup memory
+#	18/11/2014 => Edits to memory output, cleanup yum for 0 updates
+#	09/01/2014 => Using printf to avoid missing leading zeroes
 # Copyright:
-# This program is free software: you can redistribute it and/or modify it under the terms of the
-# GNU General Public License as published by the Free Software Foundation, either version 3 of
-# the License, or (at your option) any later version.
-# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.You should have received a copy of the GNU
-# General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#	This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published
+#	by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. This program is distributed 
+#	in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+#	PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public 
+#	License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 for i in {17..21} {21..17} ; do SHORTBLUESCHEME+="\e[38;5;${i}m#\e[0m"  ; done ;
 for i in {17..21} {21..17} ; do BLUESCHEME+="\e[38;5;${i}m#\e[0m\e[38;5;${i}m#\e[0m"  ; done ;

@@ -1,4 +1,4 @@
-# Bash tool to display system information after logging into a CentOS server
+# Bash tool to display system information after logging into a Linux CentOS server
 
 ### Idea
 
