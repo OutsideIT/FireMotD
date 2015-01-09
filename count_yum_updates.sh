@@ -1,12 +1,13 @@
 #!/bin/sh
 
 # Script name: count_yum_updates.sh
-# Version: 0.14.11.15
+# Version: 0.14.11.18
 # Author: Willem D'Haese
 # Created on: 15/11/2014
-# Purpose: Bash script that will dynamically generate a message of they day for users logging in.
+# Purpose: Bash script that will output total number of yum updates
 # History:
 #       15/11/2014 => Script creation
+#       18/11/2014 => if statement in case 0 updates available (else -1)
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation, either version 3 of
@@ -18,8 +19,13 @@
 
 IFACE=eth0
 
-if [ -n "$(/sbin/ifconfig $IFACE | /bin/grep RUNNING)" ]; then  
-        /usr/bin/yum -d 0 check-update 2>/dev/null | echo $(($(wc -l)-1))
+if [ -n "$(/sbin/ifconfig $IFACE | /bin/grep RUNNING)" ]; then
+        YUMCOUNT=`/usr/bin/yum -d 0 check-update 2>/dev/null | echo $(($(wc -l)-1))`
+        if [ $YUMCOUNT == -1 ]; then
+                YUMCOUNT=0
+        fi
+        echo "$YUMCOUNT"
 fi
 
 exit 0
+
