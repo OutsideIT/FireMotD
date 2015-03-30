@@ -1,13 +1,14 @@
-# Bash tool to display system information after logging into a Linux CentOS server
+# Bash tool to display system information after logging into a Linux CentOS or Red Hat system
 
 ### Idea
 
-Checks Microsoft Windows enabled scheduled tasks excluding defined folders and task patterns, returning state of tasks  
-with name, author, exit code and performance data to Nagios.
+This tool displays useful system information after logging into a Linux CentOS or Red Hat system, such as
+version, CPU information, memory, disk information. And with the help of count_yum_updates.sh the number of
+yum updates also shows.
 
 ### Status
 
-In development. 
+Production ready. Please visit http://outsideit.net/generate-motd for more information.
 
 ### How To
 
@@ -15,12 +16,11 @@ Please check http://outsideit.net/generate-motd for more information on how to u
 
 ### Help
 
-If happen to find a bug, please create an issue on GitHub. Please include console's output and reproduction 
-step in your bug report. 
+In case you find a bug or have a feature request, please make an issue on GitHub.
 
 ### On Nagios Exchange
 
-
+http://exchange.nagios.org/directory/Utilities/Bash-tool-to-display-system-information-after-logging-into-a-Linux-CentOS-server/details
 
 ### Copyright
 
