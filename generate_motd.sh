@@ -1,24 +1,24 @@
 #!/bin/bash
 
-# Script name: 		generate_motd.sh
-# Version: 		v1.4.15
-# Created on: 		10/02/2014
-# Author: 		Willem D'Haese
-# Purpose: 			Bash script that will dynamically generate a message of they day for users logging in.
-# On GitHub: 		https://github.com/willemdh/generate_motd
-# On OutsideIT:		http://outsideit.net/generate-motd
+# Script name:          generate_motd.sh
+# Version:              v1.4.15
+# Created on:           10/02/2014
+# Author:               Willem D'Haese
+# Purpose:              Bash script that will dynamically generate a message of they day for users logging in.
+# On GitHub:            https://github.com/willemdh/generate_motd
+# On OutsideIT:         http://outsideit.net/generate-motd
 # Recent History:
 #       17/11/2014 => Added root information and cleanup memory
 #       18/11/2014 => Edits to memory output, cleanup yum for 0 updates
 #       09/01/2014 => Using printf to avoid missing leading zeroes
 #       30/03/2015 => Replaced ifconfig with ip route so it works on CentOS 6 and 7
-#	15/04/2015 => Prep for GitHub release
+#       15/04/2015 => Prep for GitHub release and 16 color version
 # Copyright:
-#	This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published
-#	by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. This program is distributed
-#	in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-#	PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public
-#	License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#       This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published
+#       by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. This program is distributed 
+#       in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+#       PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public 
+#       License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Some fun from the past
 # for i in {17..21} {21..17} ; do ShortBlueScheme+="\e[38;5;${i}m#\e[0m"  ; done ;
@@ -81,7 +81,8 @@ $PreHostScheme$LightBlueScheme\e[1;36m$HostScheme$LightBlueScheme\e[1;34m$PostHo
 \e[0;34m##     \e[1;33mRelease \e[1;34m= \e[0;32m`cat /etc/*release | head -n 1`
 \e[0;34m##      \e[1;33mKernel \e[1;34m= \e[0;32m`uname -rs`
 \e[0;34m##      \e[1;33mUptime \e[1;34m= \e[0;32m`awk '{print int($1/3600)":"int(($1%3600)/60)":"int($1%60)}' /proc/uptime`
-\e[0;34m##    \e[1;33mCPU Util \e[1;34m= \e[0;32m`LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } $\e[0;34m##    \e[1;33mCPU Load \e[1;34m= \e[0;32m`uptime | grep -ohe '[s:][: ].*' | awk '{ print "1m: "$2 " 5m: "$3 " 15m: " $4}'`
+\e[0;34m##    \e[1;33mCPU Util \e[1;34m= \e[0;32m`LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field "%"}' | tail -1`
+\e[0;34m##    \e[1;33mCPU Load \e[1;34m= \e[0;32m`uptime | grep -ohe '[s:][: ].*' | awk '{ print "1m: "$2 " 5m: "$3 " 15m: " $4}'`
 \e[0;34m##      \e[1;33mMemory \e[1;34m= \e[0;32mFree: ${MemFree}GB, Used: ${MemUsed}GB, Total: ${MemTotal}GB
 \e[0;34m##        \e[1;33mSwap \e[1;34m= \e[0;32mFree: ${SwapFree}GB, Used: ${SwapUsed}GB, Total: ${SwapTotal}GB
 \e[0;34m##        \e[1;33mRoot \e[1;34m= \e[0;32mFree: ${RootFree}GB, Used: ${RootUsed}GB, Total: ${RootTotal}GB
@@ -91,3 +92,7 @@ $PreHostScheme$LightBlueScheme\e[1;36m$HostScheme$LightBlueScheme\e[1;34m$PostHo
 $PreHostScheme$LightBlueScheme$HostScheme$LightBlueScheme\e[1;34m$PostHostScheme$BlueScheme
 \e[0;37m
 "
+
+
+
+
