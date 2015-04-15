@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script name: 		generate_motd.sh
-# Version: 			v1.4.13
+# Version: 			v1.4.15
 # Created on: 		10/02/2014
 # Author: 			Willem D'Haese
 # Purpose: 			Bash script that will dynamically generate a message of they day for users logging in.
@@ -12,7 +12,7 @@
 #       18/11/2014 => Edits to memory output, cleanup yum for 0 updates
 #       09/01/2014 => Using printf to avoid missing leading zeroes
 #       30/03/2015 => Replaced ifconfig with ip route so it works on CentOS 6 and 7
-#		13/04/2015 => Prep for GitHub release
+#		15/04/2015 => Prep for GitHub release and 16 color version
 # Copyright:
 #	This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published
 #	by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. This program is distributed 
