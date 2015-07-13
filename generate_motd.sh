@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script name:          generate_motd.sh
-# Version:              v1.4.15
+# Version:              v1.7.13
 # Created on:           10/02/2014
 # Author:               Willem D'Haese
 # Purpose:              Bash script that will dynamically generate a message of they day for users logging in.
@@ -65,11 +65,7 @@ Hostname=`hostname`
 HostChars=$((${#Hostname} + 8))
 LeftoverChars=$((MaxLeftOverChars - HostCHars -10))
 PreHostScheme=$BlueScheme$BlueScheme$LightBlueScheme$LightBlueScheme
-#HostCyanScheme=`printf '\e[1;36m#' $(seq 1 $HostChars)`
 HostScheme=`head -c $HostChars /dev/zero|tr '\0' '#'`
-#HostBlueScheme=`printf '%0.s\e[1;34m#' $(seq 1 $HostChars)`
-#HostBlueScheme=`head -c $HostChars /dev/zero|tr '\0' '#'`
-#PostHostScheme=`printf '%0.s\e[1;34m#' $(seq 1 $LeftoverChars)`
 PostHostScheme=`head -c $LeftoverChars /dev/zero|tr '\0' '#'`
 
 # Output

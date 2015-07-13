@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Script name: 		generate_motd.sh
-# Version: 			v1.4.15
-# Created on: 		10/02/2014
-# Author: 			Willem D'Haese
-# Purpose: 			Bash script that will dynamically generate a message of they day for users logging in.
-# On GitHub: 		https://github.com/willemdh/generate_motd
-# On OutsideIT:		http://outsideit.net/generate-motd
+# Script name: 			generate_motd.sh
+# Version: 				v1.4.15
+# Created on: 			10/02/2014
+# Author: 				Willem D'Haese
+# Purpose: 				Bash script that will dynamically generate a message of they day for users logging in.
+# On GitHub: 			https://github.com/willemdh/generate_motd
+# On OutsideIT:			http://outsideit.net/generate-motd
 # Recent History:
 #       17/11/2014 => Added root information and cleanup memory
 #       18/11/2014 => Edits to memory output, cleanup yum for 0 updates
@@ -14,11 +14,11 @@
 #       30/03/2015 => Replaced ifconfig with ip route so it works on CentOS 6 and 7
 #		15/04/2015 => Prep for GitHub release and 16 color version
 # Copyright:
-#	This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published
-#	by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. This program is distributed 
-#	in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-#	PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public 
-#	License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#		This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published
+#		by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. This program is distributed 
+#		in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+#		PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public 
+#		License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 for i in {17..21} {21..17} ; do ShortBlueScheme+="\e[38;5;${i}m#\e[0m"  ; done ;
 for i in {17..21} {21..17} ; do BlueScheme+="\e[38;5;${i}m#\e[0m\e[38;5;${i}m#\e[0m"  ; done ;
