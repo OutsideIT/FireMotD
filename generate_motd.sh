@@ -8,11 +8,11 @@
 # On GitHub:            https://github.com/willemdh/generate_motd
 # On OutsideIT:         http://outsideit.net/generate-motd
 # Recent History:
-#       17/11/2014 => Added root information and cleanup memory
 #       18/11/2014 => Edits to memory output, cleanup yum for 0 updates
 #       09/01/2014 => Using printf to avoid missing leading zeroes
 #       30/03/2015 => Replaced ifconfig with ip route so it works on CentOS 6 and 7
 #       15/04/2015 => Prep for GitHub release and 16 color version
+#	13/07/2015 => Massive cleanup, prep for custom color themes and added days to uptime and number of cores
 # Copyright:
 #       This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published
 #       by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. This program is distributed 
@@ -30,6 +30,10 @@
 #\e[0;36m => Cyan
 #\e[1;34m => Light Blue
 #\e[1;36m => Light Cyan
+
+# CPU Utilisation
+CpuUtil=`LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1`
+CpuProc="`cat /proc/cpuinfo | grep processor | wc -l` core(s)."
 
 # Memory usage Information
 MemFreeB=`cat /proc/meminfo | grep MemFree | awk {'print $2'}`
@@ -55,37 +59,62 @@ RootFree=`printf "%0.2f\n" $(bc -q <<< scale=2\;$RootFreeB/1024/1024)`
 RootUsed=`printf "%0.2f\n" $(bc -q <<< scale=2\;$RootUsedB/1024/1024)`
 RootTotal=`printf "%0.2f\n" $(bc -q <<< scale=2\;$RootTotalB/1024/1024)`
 
-# Schemes
-BlueScheme="\e[0;34m#####"
-CyanScheme="\e[0;36m#####"
-LightBlueScheme="\e[1;34m#####"
-LightCyanScheme="\e[1;36m#####"
+# Markup
 MaxLeftOverChars=35
 Hostname=`hostname`
 HostChars=$((${#Hostname} + 8))
 LeftoverChars=$((MaxLeftOverChars - HostCHars -10))
-PreHostScheme=$BlueScheme$BlueScheme$LightBlueScheme$LightBlueScheme
-HostScheme=`head -c $HostChars /dev/zero|tr '\0' '#'`
-PostHostScheme=`head -c $LeftoverChars /dev/zero|tr '\0' '#'`
+
+# 16 Color Blue Frame Scheme
+# Blue
+Sch1="\e[0;34m#####"
+# Light Blue
+Sch2="\e[1;34m#####"
+# Light Cyan
+Sch3="\e[1;36m#####"
+# Cyan
+Sch4="\e[0;36m#####"
+# Pre-Host Scheme
+PrHS=$Sch1$Sch1$Sch2$Sch2
+# Host Scheme Top
+HST="\e[1;36m`head -c $HostChars /dev/zero|tr '\0' '#'`"
+# Host Scheme Top Filler
+HSF="\e[1;36m###"
+# Host Scheme Bot
+HSB="\e[1;34m`head -c $HostChars /dev/zero|tr '\0' '#'`"
+# Post Host Scheme
+PHS="\e[1;34m`head -c $LeftoverChars /dev/zero|tr '\0' '#'`"
+# Front Scheme
+FrS="\e[0;34m##"
+# Equal Scheme
+ES="\e[1;34m="
+
+# 16 Color Green Value Scheme
+# Green Value Color
+VC="\e[0;32m"
+# Light Green Value Color
+VCL="\e[1;32m"
+# Light Yellow Key Color
+KS="\e[1;33m"
 
 # Output
 echo -e "
-$PreHostScheme$LightBlueScheme\e[1;36m$HostScheme$LightBlueScheme\e[1;34m$PostHostScheme$BlueScheme
-$PreHostScheme$LightCyanScheme\e[1;36m### \e[1;32m$Hostname \e[1;36m###$LightCyanScheme\e[1;34m$PostHostScheme$BlueScheme
-$PreHostScheme$LightBlueScheme\e[1;36m$HostScheme$LightBlueScheme\e[1;34m$PostHostScheme$BlueScheme
-\e[0;34m##          \e[1;33mIp \e[1;34m= \e[0;32m`ip route get 8.8.8.8 | head -1 | cut -d' ' -f8`
-\e[0;34m##     \e[1;33mRelease \e[1;34m= \e[0;32m`cat /etc/*release | head -n 1`
-\e[0;34m##      \e[1;33mKernel \e[1;34m= \e[0;32m`uname -rs`
-\e[0;34m##      \e[1;33mUptime \e[1;34m= \e[0;32m`awk '{print int($1/3600)":"int(($1%3600)/60)":"int($1%60)}' /proc/uptime`
-\e[0;34m##    \e[1;33mCPU Util \e[1;34m= \e[0;32m`LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field "%"}' | tail -1`
-\e[0;34m##    \e[1;33mCPU Load \e[1;34m= \e[0;32m`uptime | grep -ohe '[s:][: ].*' | awk '{ print "1m: "$2 " 5m: "$3 " 15m: " $4}'`
-\e[0;34m##      \e[1;33mMemory \e[1;34m= \e[0;32mFree: ${MemFree}GB, Used: ${MemUsed}GB, Total: ${MemTotal}GB
-\e[0;34m##        \e[1;33mSwap \e[1;34m= \e[0;32mFree: ${SwapFree}GB, Used: ${SwapUsed}GB, Total: ${SwapTotal}GB
-\e[0;34m##        \e[1;33mRoot \e[1;34m= \e[0;32mFree: ${RootFree}GB, Used: ${RootUsed}GB, Total: ${RootTotal}GB
-\e[0;34m##     \e[1;33mUpdates \e[1;34m= \e[0;32m`cat /tmp/yum_updates.txt` yum updates available
-\e[0;34m##    \e[1;33mSessions \e[1;34m= \e[0;32m`who | grep $USER | wc -l` sessions
-\e[0;34m##   \e[1;33mProcesses \e[1;34m= \e[0;32m`ps -Afl | wc -l` running processes of `ulimit -u` maximum processes
-$PreHostScheme$LightBlueScheme$HostScheme$LightBlueScheme\e[1;34m$PostHostScheme$BlueScheme
+$PrHS$Sch2$HST$Sch2$PHS$Sch1
+$PrHS$Sch3$HSF $VCL$Hostname $HSF$Sch3$PHS$Sch1
+$PrHS$Sch2$HST$Sch2$PHS$Sch1
+$FrS          ${KS}Ip $ES ${VCL}`ip route get 8.8.8.8 | head -1 | cut -d' ' -f8`
+$FrS     ${KS}Release $ES ${VC}`cat /etc/*release | head -n 1`
+$FrS      ${KS}Kernel $ES ${VC}`uname -rs`
+$FrS      ${KS}Uptime $ES ${VC}`awk '{print int($1/86400)" day(s) "int($1%86400/3600)":"int(($1%3600)/60)":"int($1%60)}' /proc/uptime`
+$FrS    ${KS}CPU Util $ES ${VCL}$CpuUtil ${VC}% average CPU usage over $CpuProc
+$FrS    ${KS}CPU Load $ES ${VC}`uptime | grep -ohe '[s:][: ].*' | awk '{ print "1m: "$2 " 5m: "$3 " 15m: " $4}'`
+$FrS      ${KS}Memory $ES ${VC}Free: ${VCL}${MemFree}${VC} GB, Used: ${VCL}${MemUsed}${VC} GB, Total: ${VCL}${MemTotal}${VC} GB
+$FrS        ${KS}Swap $ES ${VC}Free: ${VCL}${SwapFree}${VC} GB, Used: ${VCL}${SwapUsed}${VC} GB, Total: ${VCL}${SwapTotal}${VC} GB
+$FrS        ${KS}Root $ES ${VC}Free: ${VCL}${RootFree}${VC} GB, Used: ${VCL}${RootUsed}${VC} GB, Total: ${VCL}${RootTotal}${VC} GB
+$FrS     ${KS}Updates $ES ${VCL}`cat /tmp/yum_updates.txt` ${VC}yum updates available.
+$FrS    ${KS}Sessions $ES ${VCL}`who | grep $USER | wc -l` ${VC}sessions
+$FrS   ${KS}Processes $ES ${VCL}`ps -Afl | wc -l` ${VC}running processes of ${VCL}`ulimit -u` ${VC}maximum processes
+$PrHS$Sch2$HSB$Sch2$PHS$Sch1
 \e[0;37m
 "
 
