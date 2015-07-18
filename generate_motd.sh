@@ -89,7 +89,33 @@ FrS="\e[0;34m##"
 # Equal Scheme
 ES="\e[1;34m="
 
+# 16 Color Red Frame Scheme
+# Red
+Sch1="\e[0;31m#####"
+# Light Red
+Sch2="\e[1;31m#####"
+# Light Yellow
+Sch3="\e[1;33m#####"
+# Yellow
+Sch4="\e[0;33m#####"
+# Pre-Host Scheme
+PrHS=$Sch1$Sch1$Sch2$Sch2
+# Host Scheme Top
+HST="\e[1;33m`head -c $HostChars /dev/zero|tr '\0' '#'`"
+# Host Scheme Top Filler
+HSF="\e[1;33m###"
+# Host Scheme Bot
+HSB="\e[0;31m`head -c $HostChars /dev/zero|tr '\0' '#'`"
+# Post Host Scheme
+PHS="\e[2;31m`head -c $LeftoverChars /dev/zero|tr '\0' '#'`"
+# Front Scheme
+FrS="\e[0;31m##"
+# Equal Scheme
+ES="\e[1;31m="
+
 # 16 Color Green Value Scheme
+# Host Color
+HC="\e[1;32m"
 # Green Value Color
 VC="\e[0;32m"
 # Light Green Value Color
@@ -97,10 +123,20 @@ VCL="\e[1;32m"
 # Light Yellow Key Color
 KS="\e[1;33m"
 
+# 16 Color Green Value Scheme
+# Host Color
+HC="\e[1;37m"
+# Green Value Color
+VC="\e[0;33m"
+# Light Green Value Color
+VCL="\e[1;33m"
+# Light Yellow Key Color
+KS="\e[0;37m"
+
 # Output
 echo -e "
 $PrHS$Sch2$HST$Sch2$PHS$Sch1
-$PrHS$Sch3$HSF $VCL$Hostname $HSF$Sch3$PHS$Sch1
+$PrHS$Sch3$HSF $HC$Hostname $HSF$Sch3$PHS$Sch1
 $PrHS$Sch2$HST$Sch2$PHS$Sch1
 $FrS          ${KS}Ip $ES ${VCL}`ip route get 8.8.8.8 | head -1 | cut -d' ' -f8`
 $FrS     ${KS}Release $ES ${VC}`cat /etc/*release | head -n 1`
