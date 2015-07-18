@@ -113,6 +113,7 @@ FrS="\e[0;31m##"
 # Equal Scheme
 ES="\e[1;31m="
 
+
 # 16 Color Green Value Scheme
 # Host Color
 HC="\e[1;32m"
