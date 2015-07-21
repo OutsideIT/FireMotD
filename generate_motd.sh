@@ -8,7 +8,6 @@
 # On GitHub:            https://github.com/willemdh/generate_motd
 # On OutsideIT:         http://outsideit.net/generate-motd
 # Recent History:
-#       18/11/2014 => Edits to memory output, cleanup yum for 0 updates
 #       09/01/2014 => Using printf to avoid missing leading zeroes
 #       30/03/2015 => Replaced ifconfig with ip route so it works on CentOS 6 and 7
 #       15/04/2015 => Prep for GitHub release and 16 color version
@@ -65,6 +64,7 @@ MaxLeftOverChars=35
 Hostname=`hostname`
 HostChars=$((${#Hostname} + 8))
 LeftoverChars=$((MaxLeftOverChars - HostCHars -10))
+
 
 if [[ $Theme = "Blue" ]] ; then 
 
