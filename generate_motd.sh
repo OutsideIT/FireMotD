@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script name:          generate_motd.sh
-# Version:              v2.0.7.21
+# Version:              v2.03.7.21
 # Created on:           10/02/2014
 # Author:               Willem D'Haese
 # Purpose:              Bash script that will dynamically generate a message of they day for users logging in.
@@ -22,7 +22,7 @@
 # Examples:
 #	Blanco 	=> ./generate_motd.sh
 #	Blue 	=> ./generate_motd.sh Blue
-#       Red    	=> ./generate_motd.sh Red
+#   Red    	=> ./generate_motd.sh Red
 
 # Some fun from the past
 # for i in {17..21} {21..17} ; do ShortBlueScheme+="\e[38;5;${i}m#\e[0m"  ; done ;

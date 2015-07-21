@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Script name:			count_yum_updates.sh
-# Version:				v2.01.7.21
+# Version:				v2.03.7.21
 # Created on:			15/11/2014
 # Author:				Willem D'Haese
 # Purpose:				Bash script that will dynamically generate a message of they day for users logging in.
