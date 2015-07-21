@@ -1,10 +1,9 @@
-# Bash tool to display system information after logging into a Linux CentOS or Red Hat system
+# Bash tool to display system information after logging into a Linux system
 
 ### Idea
 
-This tool displays useful system information after logging into a Linux CentOS or Red Hat system, such as
-version, CPU information, memory, disk information. And with the help of count_yum_updates.sh the number of
-yum updates also shows.
+This tool displays useful system information after logging into a Linux system, such as version, CPU information, 
+memory, disk information. And with the help of count_yum_updates.sh the number of yum updates also shows.
 
 ### Status
 
@@ -20,7 +19,7 @@ In case you find a bug or have a feature request, please make an issue on GitHub
 
 ### On Nagios Exchange
 
-http://exchange.nagios.org/directory/Utilities/Bash-tool-to-display-system-information-after-logging-into-a-Linux-CentOS-server/details
+https://exchange.nagios.org/directory/Utilities/MotD-Generator/details
 
 ### Copyright
 
