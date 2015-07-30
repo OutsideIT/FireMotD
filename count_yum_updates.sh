@@ -1,18 +1,18 @@
 #!/bin/sh
 
 # Script name:			count_yum_updates.sh
-# Version:				v2.03.7.21
+# Version:				v2.04.150730
 # Created on:			15/11/2014
 # Author:				Willem D'Haese
 # Purpose:				Bash script that will dynamically generate a message of they day for users logging in.
 # On GitHub:			https://github.com/willemdh/generate_motd
 # On OutsideIT:			http://outsideit.net/generate-motd
 # Recent History:
-#		18/11/2014 => if statement in case 0 updates available (else -1)
 #		30/03/2015 => Cleanup, better compatibility with CentOS 7
 #		13/04/2015 => Prep for GitHub release
 #		15/04/2015 => 16 color version
 #		21/07/2015 => Introduction of red and blue theme
+#       30/07/2015 => Added exticode and cleanup
 # Copyright:
 #		This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published
 #		by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. This program is distributed 

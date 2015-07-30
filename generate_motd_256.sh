@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script name: 			generate_motd.sh
-# Version: 				v1.4.15
+# Version: 				v1.4.150415
 # Created on: 			10/02/2014
 # Author: 				Willem D'Haese
 # Purpose: 				Bash script that will dynamically generate a message of they day for users logging in.
