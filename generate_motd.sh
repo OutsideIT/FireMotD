@@ -1,18 +1,18 @@
 #!/bin/bash
 
 # Script name:          generate_motd.sh
-# Version:              v2.04.150730
+# Version:              v2.05.150812
 # Created on:           10/02/2014
 # Author:               Willem D'Haese
 # Purpose:              Bash script that will dynamically generate a message of they day for users logging in.
 # On GitHub:            https://github.com/willemdh/generate_motd
 # On OutsideIT:         http://outsideit.net/generate-motd
 # Recent History:
-#       30/03/2015 => Replaced ifconfig with ip route so it works on CentOS 6 and 7
 #       15/04/2015 => Prep for GitHub release and 16 color version
 #       13/07/2015 => Massive cleanup, prep for custom color themes and added days to uptime and number of cores
 #       21/07/2015 => Introduction of 'Red' and 'Blue' themes
 #       30/07/2015 => Added exticode and cleanup
+#	12/08/2015 => Added version to output
 # Copyright:
 #       This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published
 #       by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. This program is distributed
@@ -30,6 +30,11 @@
 # for i in {17..21} {21..17} ; do LongBlueScheme+="\e[38;5;${i}m#\e[0m\e[38;5;${i}m#\e[0m\e[38;5;${i}m#"  ; done ;
 
 Theme=$1
+
+ScriptName="`readlink -e $0`"
+echo "Script name: $ScriptName"
+ScriptVersion=`cat $ScriptName | grep "# Version:" | awk {'print $3'}`
+echo "Version: $ScriptVersion"
 
 # CPU Utilisation
 CpuUtil=`LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1`
@@ -135,7 +140,7 @@ fi
 
 echo -e "
 $PrHS$Sch2$HST$Sch2$PHS$Sch1
-$PrHS$Sch3$HSF $HC$Hostname $HSF$Sch3$PHS$Sch1
+$PrHS$Sch3$HSF $HC$Hostname $HSF$Sch3$HSF$ScriptVersion$Sch1
 $PrHS$Sch2$HST$Sch2$PHS$Sch1
 $FrS          ${KS}Ip $ES ${VCL}`ip route get 8.8.8.8 | head -1 | cut -d' ' -f8`
 $FrS     ${KS}Release $ES ${VC}`cat /etc/*release | head -n 1`
