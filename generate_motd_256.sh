@@ -4,7 +4,8 @@
 # Version: 				v1.4.150415
 # Created on: 			10/02/2014
 # Author: 				Willem D'Haese
-# Purpose: 				Bash script that will dynamically generate a message of they day for users logging in.
+# Purpose: 				Bash script that will dynamically generate a message of they day for users logging in. Only useful  when terminal
+#						supports 256 colors.
 # On GitHub: 			https://github.com/willemdh/generate_motd
 # On OutsideIT:			http://outsideit.net/generate-motd
 # Recent History:
