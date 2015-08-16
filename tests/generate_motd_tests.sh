@@ -2,8 +2,6 @@
 
 # This is a test with one or more asserts
 testSampleScriptParameters() {
-  # Load sample_script.sh for testing
-  . sample_script.sh
 
   echo "Executing 3 Asserts..."
 
