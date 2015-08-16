@@ -10,5 +10,9 @@ testSampleScriptParameters() {
   # Add asserts here ...
 }
 
+function testWeCanWriteTests () {
+    assertEquals "it works" "it works"
+}
+
 # Execute shunit2 to run the tests
 . shunit2-2.1.6/src/shunit2
