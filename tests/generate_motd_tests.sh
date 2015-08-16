@@ -6,7 +6,7 @@ testSampleScriptParameters() {
   echo "Executing 3 Asserts..."
 
   # 'Check MemFreeB' "[ '${MemFreeB}' == '/bin/bash' ]"
-  assertTrue 'Check MemTotalB' "[ $MemTotalB -ge 1024 -a $MemTotalB -le 68719476736 ]"
+  # assertTrue 'Check MemTotalB' "[ $MemTotalB -ge 1024 -a $MemTotalB -le 68719476736 ]"
 }
 
 
