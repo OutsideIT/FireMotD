@@ -8,11 +8,11 @@
 # On GitHub:            https://github.com/willemdh/generate_motd
 # On OutsideIT:         http://outsideit.net/generate-motd
 # Recent History:
-#       13/07/2015 => Massive cleanup, prep for custom color themes and added days to uptime and number of cores
-#       21/07/2015 => Introduction of 'Red' and 'Blue' themes
-#       30/07/2015 => Added exticode and cleanup
+#	13/07/2015 => Massive cleanup, prep for custom color themes and added days to uptime and number of cores
+#	21/07/2015 => Introduction of 'Red' and 'Blue' themes
+#	30/07/2015 => Added exticode and cleanup
 #	12/08/2015 => Added version to output
-# 	13/08/2015 => Finalized version insertion
+#	13/08/2015 => Finalized version insertion
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
 # License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any 
