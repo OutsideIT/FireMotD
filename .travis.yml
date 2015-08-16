@@ -4,4 +4,4 @@ before_script:
     - curl -L "https://shunit2.googlecode.com/files/shunit2-2.1.6.tgz" | tar zx
 
 script:
-    - bash test\generate_motd_test.sh
+    - bash test/generate_motd_test.sh
