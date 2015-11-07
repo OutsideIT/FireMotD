@@ -47,6 +47,7 @@ ScriptVersion=" `cat $ScriptName | grep "# Version:" | awk {'print $3'} | tr -cd
 #SysManufacturer=`sudo dmidecode -s system-manufacturer`
 #SysVersion=`sudo dmidecode -s system-version`
 SysDmi=`dmesg | grep "DMI:" | cut -c "21-" | sed 's/, B.*//'`
+VmwarePlatform=`dmesg | grep "DMI:" | cut -c "6-"  | sed 's/, B.*//'`
 
 # CPU Utilisation
 CpuUtil=`LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1`
