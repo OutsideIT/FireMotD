@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:          generate_motd.sh
-# Version:              v2.21.150816
+# Version:              v2.23.151107
 # Created on:           10/02/2014
 # Author:               Willem D'Haese
 # Purpose:              Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:            https://github.com/willemdh/generate_motd
 # On OutsideIT:         http://outsideit.net/generate-motd
 # Recent History:
-#   21/07/15 => Introduction of 'Red' and 'Blue' themes
 #   30/07/15 => Added exticode and cleanup
 #   12/08/15 => Added version to output
 #   13/08/15 => Finalized version insertion
 #   16/08/15 => Merged yum count into this script
+#   07/11/15 => Width two chars smaller, added dmesg platform info
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -28,10 +28,6 @@
 #   Blue    => ./generate_motd.sh Blue
 #   Red     => ./generate_motd.sh Red
 #   yum     => ./generate_motd.sh yum
-# Some fun from the past
-# for i in {17..21} {21..17} ; do ShortBlueScheme+="\e[38;5;${i}m#\e[0m"  ; done ;
-# for i in {17..21} {21..17} ; do BlueScheme+="\e[38;5;${i}m#\e[0m\e[38;5;${i}m#\e[0m"  ; done ;
-# for i in {17..21} {21..17} ; do LongBlueScheme+="\e[38;5;${i}m#\e[0m\e[38;5;${i}m#\e[0m\e[38;5;${i}m#"  ; done ;
 
 Theme=$1
 
@@ -46,6 +42,11 @@ fi
 
 ScriptName="`readlink -e $0`"
 ScriptVersion=" `cat $ScriptName | grep "# Version:" | awk {'print $3'} | tr -cd '[[:digit:].-]' | sed 's/.\{2\}$//'` "
+
+# Infrastructure
+#SysManufacturer=`sudo dmidecode -s system-manufacturer`
+#SysVersion=`sudo dmidecode -s system-version`
+SysDmi=`dmesg | grep "DMI:" | cut -c "21-" | sed 's/, B.*//'`
 
 # CPU Utilisation
 CpuUtil=`LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1`
@@ -84,7 +85,7 @@ LeftoverChars=$((MaxLeftOverChars - HostCHars -10))
 if [[ $Theme = "Blue" ]] ; then
         # 16 Color Blue Frame Scheme
         # Blue
-        Sch1="\e[0;34m#####"
+        Sch1="\e[0;34m####"
         # Light Blue
         Sch2="\e[1;34m#####"
         # Light Cyan
@@ -121,7 +122,7 @@ if [[ $Theme = "Blue" ]] ; then
 elif [[ $Theme = "Red" ]] ; then
         # 16 Color Red Frame Scheme
         # Red
-        Sch1="\e[0;31m#####"
+        Sch1="\e[0;31m####"
         # Light Red
         Sch2="\e[1;31m#####"
         # Light Yellow
@@ -164,6 +165,7 @@ $PrHS$Sch2$HST$Sch2$PHS$Sch1
 $FrS          ${KS}Ip $ES ${VCL}`ip route get 8.8.8.8 | head -1 | cut -d' ' -f8`
 $FrS     ${KS}Release $ES ${VC}`cat /etc/*release | head -n 1`
 $FrS      ${KS}Kernel $ES ${VC}`uname -rs`
+$FrS    ${KS}Platform $ES ${VC}$SysDmi
 $FrS      ${KS}Uptime $ES ${VC}`awk '{print int($1/86400)" day(s) "int($1%86400/3600)":"int(($1%3600)/60)":"int($1%60)}' /proc/uptime`
 $FrS    ${KS}CPU Util $ES ${VCL}$CpuUtil ${VC}% average CPU usage over $CpuProc
 $FrS    ${KS}CPU Load $ES ${VC}`uptime | grep -ohe '[s:][: ].*' | awk '{ print "1m: "$2 " 5m: "$3 " 15m: " $4}'`
