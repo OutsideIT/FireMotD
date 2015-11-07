@@ -7,9 +7,9 @@ memory, disk information.
 
 ### Screenshots
 
-![MotD Generator Blue 01](/../screenshots/generate_motd_01.png?raw=true "MotD Generator Blue 01")
+![MotD Generator Blue 01](/../screenshots/generate-motd-blue-01.png?raw=true "MotD Generator Blue 01")
 
-![MotD Generator Red 01](/../screenshots/generate_motd_03.png?raw=true "MotD Generator Blue 03")
+![MotD Generator Red 01](/../screenshots/generate-motd-red-01.png?raw=true "MotD Generator Blue 03")
 
 ### Status
 
