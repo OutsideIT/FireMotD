@@ -12,7 +12,7 @@
 #   12/08/15 => Added version to output
 #   13/08/15 => Finalized version insertion
 #   16/08/15 => Merged yum count into this script
-#   07/11/15 => Width two chars smaller, added dmesg platform info
+#   07/11/15 => Width two chars smaller, added dmesg platform info and writelog
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -30,7 +30,7 @@
 #   yum     => ./generate_motd.sh yum
 
 Theme=$1
-
+Verbose=1
 if [[ $Theme = "yum" ]] ; then
 	YumCount=`/usr/bin/yum -d 0 check-update 2>/dev/null | echo $(($(wc -l)-1))`
 	if [ $YumCount == -1 ]; then
@@ -40,12 +40,39 @@ if [[ $Theme = "yum" ]] ; then
 	exit 0
 fi
 
-ScriptName="`readlink -e $0`"
-ScriptVersion=" `cat $ScriptName | grep "# Version:" | awk {'print $3'} | tr -cd '[[:digit:].-]' | sed 's/.\{2\}$//'` "
+writelog () {
+  if [ -z "$1" ] ; then echo "WriteLog: Log parameter #1 is zero length. Please debug..." ; exit 1
+  else
+    if [ -z "$2" ] ; then echo "WriteLog: Severity parameter #2 is zero length. Please debug..." ; exit 1
+    else
+      if [ -z "$3" ] ; then echo "WriteLog: Message parameter #3 is zero length. Please debug..." ; exit 1 ; fi
+    fi
+  fi
+  Now=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+  if [ $1 = "Verbose" -a $Verbose = 1 ] ; then echo "$Now: $2: $3"
+  elif [ $1 = "Verbose" -a $Verbose = 0 ] ; then :
+  elif [ $1 = "Output" ] ; then echo "${Now}: $2: $3"
+  elif [ -f $1 ] ; then echo "${Now}: $2: $3" >> $1
+  fi
+}
 
+
+ScriptName="`readlink -e $0`"
+writelog Verbose Info "Scriptname: $ScriptName"
+ScriptVersion=" `cat $ScriptName | grep "# Version:" | awk {'print $3'} | tr -cd '[[:digit:].-]' | sed 's/.\{2\}$//'` "
+writelog Verbose Info "Script Version: $ScriptVersion"
 # Infrastructure
 #SysManufacturer=`sudo dmidecode -s system-manufacturer`
 #SysVersion=`sudo dmidecode -s system-version`
+Dmi=`dmesg | grep "DMI:"`
+writelog Verbose Info "DMI: $Dmi"
+if [[ $Dmi == *"QEMU"* ]]
+then
+  Platform=`dmesg | grep "DMI:" | cut -c "21-" | sed 's/, B.*//'`
+elif [[ $Dmi == *"VMware"* ]]
+then
+  Platform=`dmesg | grep "DMI:" | cut -c "6-"  | sed 's/, B.*//'`
+fi
 SysDmi=`dmesg | grep "DMI:" | cut -c "21-" | sed 's/, B.*//'`
 VmwarePlatform=`dmesg | grep "DMI:" | cut -c "6-"  | sed 's/, B.*//'`
 
@@ -166,7 +193,7 @@ $PrHS$Sch2$HST$Sch2$PHS$Sch1
 $FrS          ${KS}Ip $ES ${VCL}`ip route get 8.8.8.8 | head -1 | cut -d' ' -f8`
 $FrS     ${KS}Release $ES ${VC}`cat /etc/*release | head -n 1`
 $FrS      ${KS}Kernel $ES ${VC}`uname -rs`
-$FrS    ${KS}Platform $ES ${VC}$SysDmi
+$FrS    ${KS}Platform $ES ${VC}$Platform
 $FrS      ${KS}Uptime $ES ${VC}`awk '{print int($1/86400)" day(s) "int($1%86400/3600)":"int(($1%3600)/60)":"int($1%60)}' /proc/uptime`
 $FrS    ${KS}CPU Util $ES ${VCL}$CpuUtil ${VC}% average CPU usage over $CpuProc
 $FrS    ${KS}CPU Load $ES ${VC}`uptime | grep -ohe '[s:][: ].*' | awk '{ print "1m: "$2 " 5m: "$3 " 15m: " $4}'`
