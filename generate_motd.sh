@@ -9,11 +9,19 @@
 # On GitHub:            https://github.com/willemdh/generate_motd
 # On OutsideIT:         http://outsideit.net/generate-motd
 # Recent History:
+<<<<<<< HEAD
 #   21/07/15 => Introduction of 'Red' and 'Blue' themes
 #   30/07/15 => Added exticode and cleanup
 #   12/08/15 => Added version to output
 #   13/08/15 => Finalized version insertion
 #   16/08/15 => Merged yum count into this script
+=======
+#       21/07/15 => Introduction of 'Red' and 'Blue' themes
+#       30/07/15 => Added exticode and cleanup
+#	12/08/15 => Added version to output
+# 	13/08/15 => Finalized version insertion
+#	16/08/15 => Merged yum count into this script
+>>>>>>> 7cd7ea02b81f7bc98ef8fafa5b71ca896a07fb2b
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -25,10 +33,17 @@
 # GNU General Public License along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 # Examples:
+<<<<<<< HEAD
 #   Blanco  => ./generate_motd.sh
 #   Blue    => ./generate_motd.sh Blue
 #   Red     => ./generate_motd.sh Red
 #   yum     => ./generate_motd.sh yum
+=======
+#       Blanco  => ./generate_motd.sh
+#       Blue    => ./generate_motd.sh Blue
+#       Red     => ./generate_motd.sh Red
+#	yum	=> ./generate_motd.sh yum
+>>>>>>> 7cd7ea02b81f7bc98ef8fafa5b71ca896a07fb2b
 
 # Some fun from the past
 # for i in {17..21} {21..17} ; do ShortBlueScheme+="\e[38;5;${i}m#\e[0m"  ; done ;
@@ -36,6 +51,15 @@
 # for i in {17..21} {21..17} ; do LongBlueScheme+="\e[38;5;${i}m#\e[0m\e[38;5;${i}m#\e[0m\e[38;5;${i}m#"  ; done ;
 
 Theme=$1
+
+if [[ $Theme = "yum" ]] ; then
+	YumCount=`/usr/bin/yum -d 0 check-update 2>/dev/null | echo $(($(wc -l)-1))`
+	if [ $YumCount == -1 ]; then
+        	YumCount=0
+	fi
+	echo "$YumCount"
+	exit 0
+fi
 
 ScriptName="`readlink -e $0`"
 ScriptVersion=" `cat $ScriptName | grep "# Version:" | awk {'print $3'} | tr -cd '[[:digit:].-]' | sed 's/.\{2\}$//'` "
