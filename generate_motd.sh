@@ -30,7 +30,7 @@
 #   yum     => ./generate_motd.sh yum
 
 Theme=$1
-Verbose=1
+Verbose=0
 if [[ $Theme = "yum" ]] ; then
 	YumCount=`/usr/bin/yum -d 0 check-update 2>/dev/null | echo $(($(wc -l)-1))`
 	if [ $YumCount == -1 ]; then
@@ -56,25 +56,24 @@ writelog () {
   fi
 }
 
-
+# Script Info
 ScriptName="`readlink -e $0`"
 writelog Verbose Info "Scriptname: $ScriptName"
 ScriptVersion=" `cat $ScriptName | grep "# Version:" | awk {'print $3'} | tr -cd '[[:digit:].-]' | sed 's/.\{2\}$//'` "
 writelog Verbose Info "Script Version: $ScriptVersion"
+
 # Infrastructure
 #SysManufacturer=`sudo dmidecode -s system-manufacturer`
 #SysVersion=`sudo dmidecode -s system-version`
 Dmi=`dmesg | grep "DMI:"`
 writelog Verbose Info "DMI: $Dmi"
-if [[ $Dmi == *"QEMU"* ]]
-then
+if [[ $Dmi == *"QEMU"* ]] ; then
   Platform=`dmesg | grep "DMI:" | cut -c "21-" | sed 's/, B.*//'`
-elif [[ $Dmi == *"VMware"* ]]
-then
+elif [[ $Dmi == *"VMware"* ]] ; then
   Platform=`dmesg | grep "DMI:" | cut -c "6-"  | sed 's/, B.*//'`
+else
+  Platform="Unknown."
 fi
-SysDmi=`dmesg | grep "DMI:" | cut -c "21-" | sed 's/, B.*//'`
-VmwarePlatform=`dmesg | grep "DMI:" | cut -c "6-"  | sed 's/, B.*//'`
 
 # CPU Utilisation
 CpuUtil=`LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1`
@@ -167,8 +166,8 @@ elif [[ $Theme = "Red" ]] ; then
         HSB="\e[0;31m`head -c $HostChars /dev/zero|tr '\0' '#'`"
         # Post Host Scheme
         PHS="\e[2;31m`head -c $LeftoverChars /dev/zero|tr '\0' '#'`"
-	# Host Version Filler
-	HVF="\e[2;31m`head -c 9 /dev/zero|tr '\0' '#'`"
+		# Host Version Filler
+		HVF="\e[2;31m`head -c 9 /dev/zero|tr '\0' '#'`"
         # Front Scheme
         FrS="\e[0;31m##"
         # Equal Scheme
