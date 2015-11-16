@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:          generate_motd.sh
-# Version:              v2.23.151107
+# Version:              v2.26.151116
 # Created on:           10/02/2014
 # Author:               Willem D'Haese
 # Purpose:              Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:            https://github.com/willemdh/generate_motd
 # On OutsideIT:         http://outsideit.net/generate-motd
 # Recent History:
-#   30/07/15 => Added exticode and cleanup
 #   12/08/15 => Added version to output
 #   13/08/15 => Finalized version insertion
 #   16/08/15 => Merged yum count into this script
 #   07/11/15 => Width two chars smaller, added dmesg platform info and writelog
+#   16/11/15 => Support for Fujitsu servers
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -71,8 +71,10 @@ if [[ $Dmi == *"QEMU"* ]] ; then
   Platform=`dmesg | grep "DMI:" | cut -c "21-" | sed 's/, B.*//'`
 elif [[ $Dmi == *"VMware"* ]] ; then
   Platform=`dmesg | grep "DMI:" | cut -c "6-"  | sed 's/, B.*//'`
+elif [[ $Dmi == *"FUJITSU"* ]] ; then
+  Platform=`dmesg | grep "DMI:" | cut -c "6-"  | sed 's/, B.*//'`
 else
-  Platform="Unknown."
+  Platform="Unknown"
 fi
 
 # CPU Utilisation
