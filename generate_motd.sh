@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:          generate_motd.sh
-# Version:              v2.26.151116
+# Version:              v2.27.151201
 # Created on:           10/02/2014
 # Author:               Willem D'Haese
 # Purpose:              Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:            https://github.com/willemdh/generate_motd
 # On OutsideIT:         http://outsideit.net/generate-motd
 # Recent History:
-#   12/08/15 => Added version to output
 #   13/08/15 => Finalized version insertion
 #   16/08/15 => Merged yum count into this script
 #   07/11/15 => Width two chars smaller, added dmesg platform info and writelog
 #   16/11/15 => Support for Fujitsu servers
+#   01/12/15 => Separated OsVersion and replaced cut with sed for DMI mesg
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -32,12 +32,12 @@
 Theme=$1
 Verbose=0
 if [[ $Theme = "yum" ]] ; then
-	YumCount=`/usr/bin/yum -d 0 check-update 2>/dev/null | echo $(($(wc -l)-1))`
-	if [ $YumCount == -1 ]; then
-        	YumCount=0
-	fi
-	echo "$YumCount"
-	exit 0
+        YumCount=`/usr/bin/yum -d 0 check-update 2>/dev/null | echo $(($(wc -l)-1))`
+        if [ $YumCount == -1 ]; then
+                YumCount=0
+        fi
+        echo "$YumCount"
+        exit 0
 fi
 
 writelog () {
@@ -62,17 +62,19 @@ writelog Verbose Info "Scriptname: $ScriptName"
 ScriptVersion=" `cat $ScriptName | grep "# Version:" | awk {'print $3'} | tr -cd '[[:digit:].-]' | sed 's/.\{2\}$//'` "
 writelog Verbose Info "Script Version: $ScriptVersion"
 
+OsVersion=`cat /etc/*release | head -n 1`
+
 # Infrastructure
 #SysManufacturer=`sudo dmidecode -s system-manufacturer`
 #SysVersion=`sudo dmidecode -s system-version`
 Dmi=`dmesg | grep "DMI:"`
 writelog Verbose Info "DMI: $Dmi"
 if [[ $Dmi == *"QEMU"* ]] ; then
-  Platform=`dmesg | grep "DMI:" | cut -c "21-" | sed 's/, B.*//'`
+  Platform=`dmesg | grep "DMI:" | sed 's/^.*QEMU/QEMU/' | sed 's/, B.*//'`
 elif [[ $Dmi == *"VMware"* ]] ; then
-  Platform=`dmesg | grep "DMI:" | cut -c "6-"  | sed 's/, B.*//'`
-elif [[ $Dmi == *"FUJITSU"* ]] ; then
-  Platform=`dmesg | grep "DMI:" | cut -c "6-"  | sed 's/, B.*//'`
+  Platform=`dmesg | grep "DMI:" | sed 's/^.*VMware/VMware/' | sed 's/, B.*//'`
+elif [[ $Dmi == *"FUJITSU PRIMERGY"* ]] ; then
+  Platform=`dmesg | grep "DMI:" | sed 's/^.*FUJITSU PRIMERGY/Fujitsu Primergy/' | sed 's/, B.*//'`
 else
   Platform="Unknown"
 fi
@@ -192,7 +194,7 @@ $PrHS$Sch2$HST$Sch2$PHS$Sch1
 $PrHS$Sch3$HSF $HC$Hostname $HSF$Sch3$HSF$HVF$SVC$ScriptVersion$Sch1
 $PrHS$Sch2$HST$Sch2$PHS$Sch1
 $FrS          ${KS}Ip $ES ${VCL}`ip route get 8.8.8.8 | head -1 | cut -d' ' -f8`
-$FrS     ${KS}Release $ES ${VC}`cat /etc/*release | head -n 1`
+$FrS     ${KS}Release $ES ${VC}$OsVersion
 $FrS      ${KS}Kernel $ES ${VC}`uname -rs`
 $FrS    ${KS}Platform $ES ${VC}$Platform
 $FrS      ${KS}Uptime $ES ${VC}`awk '{print int($1/86400)" day(s) "int($1%86400/3600)":"int(($1%3600)/60)":"int($1%60)}' /proc/uptime`
@@ -207,3 +209,4 @@ $FrS   ${KS}Processes $ES ${VCL}`ps -Afl | wc -l` ${VC}running processes of ${VC
 $PrHS$Sch2$HSB$Sch2$PHS$Sch1
 \e[0;37m"
 exit 0
+
