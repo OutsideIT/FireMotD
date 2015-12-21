@@ -1,18 +1,18 @@
 #!/bin/bash
 # Script name:          generate_motd.sh
-# Version:              v2.27.151201
+# Version:              v2.28.151221
 # Created on:           10/02/2014
 # Author:               Willem D'Haese
 # Purpose:              Bash script that will dynamically generate a message
 #                       of they day for users logging in.
 # On GitHub:            https://github.com/willemdh/generate_motd
-# On OutsideIT:         http://outsideit.net/generate-motd
+# On OutsideIT:         https://outsideit.net/generate-motd
 # Recent History:
-#   13/08/15 => Finalized version insertion
 #   16/08/15 => Merged yum count into this script
 #   07/11/15 => Width two chars smaller, added dmesg platform info and writelog
 #   16/11/15 => Support for Fujitsu servers
 #   01/12/15 => Separated OsVersion and replaced cut with sed for DMI mesg
+#   21/12/15 => Added PHP version
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -107,6 +107,9 @@ RootFree=`printf "%0.2f\n" $(bc -q <<< scale=2\;$RootFreeB/1024/1024)`
 RootUsed=`printf "%0.2f\n" $(bc -q <<< scale=2\;$RootUsedB/1024/1024)`
 RootTotal=`printf "%0.2f\n" $(bc -q <<< scale=2\;$RootTotalB/1024/1024)`
 
+# PHP Version
+PhpVersion=$(/usr/bin/php -v 2>/dev/null | grep -oE '^PHP\s[0-9]+\.[0-9]+\.[0-9]+' | awk '{ print $2}')
+echo "PHP= $PhpVersion"
 # Markup
 MaxLeftOverChars=35
 Hostname=`hostname`
@@ -170,8 +173,8 @@ elif [[ $Theme = "Red" ]] ; then
         HSB="\e[0;31m`head -c $HostChars /dev/zero|tr '\0' '#'`"
         # Post Host Scheme
         PHS="\e[2;31m`head -c $LeftoverChars /dev/zero|tr '\0' '#'`"
-		# Host Version Filler
-		HVF="\e[2;31m`head -c 9 /dev/zero|tr '\0' '#'`"
+	# Host Version Filler
+	HVF="\e[2;31m`head -c 9 /dev/zero|tr '\0' '#'`"
         # Front Scheme
         FrS="\e[0;31m##"
         # Equal Scheme
@@ -205,8 +208,11 @@ $FrS        ${KS}Swap $ES ${VC}Free: ${VCL}${SwapFree}${VC} GB, Used: ${VCL}${Sw
 $FrS        ${KS}Root $ES ${VC}Free: ${VCL}${RootFree}${VC} GB, Used: ${VCL}${RootUsed}${VC} GB, Total: ${VCL}${RootTotal}${VC} GB
 $FrS     ${KS}Updates $ES ${VCL}`cat /tmp/yum_updates.txt` ${VC}yum updates available.
 $FrS    ${KS}Sessions $ES ${VCL}`who | grep $USER | wc -l` ${VC}sessions
-$FrS   ${KS}Processes $ES ${VCL}`ps -Afl | wc -l` ${VC}running processes of ${VCL}`ulimit -u` ${VC}maximum processes
-$PrHS$Sch2$HSB$Sch2$PHS$Sch1
-\e[0;37m"
+$FrS   ${KS}Processes $ES ${VCL}`ps -Afl | wc -l` ${VC}running processes of ${VCL}`ulimit -u` ${VC}maximum processes"
+if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
+	echo -e "$FrS    ${KS}PHP Info $ES ${VC}Version: $PhpVersion"
+fi
+echo -e "$PrHS$Sch2$HSB$Sch2$PHS$Sch1"
+
 exit 0
 
