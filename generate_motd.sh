@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:          generate_motd.sh
-# Version:              v2.28.151221
+# Version:              v2.29.151222
 # Created on:           10/02/2014
 # Author:               Willem D'Haese
 # Purpose:              Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:            https://github.com/willemdh/generate_motd
 # On OutsideIT:         https://outsideit.net/generate-motd
 # Recent History:
-#   16/08/15 => Merged yum count into this script
 #   07/11/15 => Width two chars smaller, added dmesg platform info and writelog
 #   16/11/15 => Support for Fujitsu servers
 #   01/12/15 => Separated OsVersion and replaced cut with sed for DMI mesg
 #   21/12/15 => Added PHP version
+#   22/12/15 => Cleanup  for release
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -56,19 +56,10 @@ writelog () {
   fi
 }
 
-# Script Info
 ScriptName="`readlink -e $0`"
-writelog Verbose Info "Scriptname: $ScriptName"
 ScriptVersion=" `cat $ScriptName | grep "# Version:" | awk {'print $3'} | tr -cd '[[:digit:].-]' | sed 's/.\{2\}$//'` "
-writelog Verbose Info "Script Version: $ScriptVersion"
-
 OsVersion=`cat /etc/*release | head -n 1`
-
-# Infrastructure
-#SysManufacturer=`sudo dmidecode -s system-manufacturer`
-#SysVersion=`sudo dmidecode -s system-version`
 Dmi=`dmesg | grep "DMI:"`
-writelog Verbose Info "DMI: $Dmi"
 if [[ $Dmi == *"QEMU"* ]] ; then
   Platform=`dmesg | grep "DMI:" | sed 's/^.*QEMU/QEMU/' | sed 's/, B.*//'`
 elif [[ $Dmi == *"VMware"* ]] ; then
@@ -78,39 +69,28 @@ elif [[ $Dmi == *"FUJITSU PRIMERGY"* ]] ; then
 else
   Platform="Unknown"
 fi
-
-# CPU Utilisation
 CpuUtil=`LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1`
 CpuProc="`cat /proc/cpuinfo | grep processor | wc -l` core(s)."
-
-# Memory usage Information
 MemFreeB=`cat /proc/meminfo | grep MemFree | awk {'print $2'}`
 MemTotalB=`cat /proc/meminfo | grep MemTotal | awk {'print $2'}`
 MemUsedB=`expr $MemTotalB - $MemFreeB`
 MemFree=`printf "%0.2f\n" $(bc -q <<< scale=2\;$MemFreeB/1024/1024)`
 MemUsed=`printf "%0.2f\n" $(bc -q <<< scale=2\;$MemUsedB/1024/1024)`
 MemTotal=`printf "%0.2f\n" $(bc -q <<< scale=2\;$MemTotalB/1024/1024)`
-
-# Swap Usage Information
 SwapFreeB=`cat /proc/meminfo | grep SwapFree | awk {'print $2'}`
 SwapTotalB=`cat /proc/meminfo | grep SwapTotal | awk {'print $2'}`
 SwapUsedB=`expr $SwapTotalB - $SwapFreeB`
 SwapFree=`printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapFreeB/1024/1024)`
 SwapUsed=`printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapUsedB/1024/1024)`
 SwapTotal=`printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapTotalB/1024/1024)`
-
-# Root Usage Information
 RootFreeB=`df -k / | tail -1 | awk '{print $3}'`
 RootUsedB=`df -k / | tail -1 | awk '{print $2}'`
 RootTotalB=`expr $RootFreeB + $RootUsedB`
 RootFree=`printf "%0.2f\n" $(bc -q <<< scale=2\;$RootFreeB/1024/1024)`
 RootUsed=`printf "%0.2f\n" $(bc -q <<< scale=2\;$RootUsedB/1024/1024)`
 RootTotal=`printf "%0.2f\n" $(bc -q <<< scale=2\;$RootTotalB/1024/1024)`
-
-# PHP Version
 PhpVersion=$(/usr/bin/php -v 2>/dev/null | grep -oE '^PHP\s[0-9]+\.[0-9]+\.[0-9]+' | awk '{ print $2}')
-echo "PHP= $PhpVersion"
-# Markup
+
 MaxLeftOverChars=35
 Hostname=`hostname`
 HostChars=$((${#Hostname} + 8))
@@ -215,4 +195,3 @@ fi
 echo -e "$PrHS$Sch2$HSB$Sch2$PHS$Sch1"
 
 exit 0
-
