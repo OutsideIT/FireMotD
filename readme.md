@@ -13,7 +13,7 @@ memory, disk information.
 
 ![MotD Generator Red Babun 01](/../screenshots/generate-motd-red-babun-latest.png?raw=true "MotD Generator Red Babun 01")
 
-![MotD Generator Blue Conemu 01](/../screenshots/generate-motd-red-conemu.png?raw=true "MotD Generator Blue Conemu 01")
+![MotD Generator Blue Conemu 01](/../screenshots/generate-motd-blue-conemu.png?raw=true "MotD Generator Blue Conemu 01")
 
 ![MotD Generator Red Conemu 01](/../screenshots/generate-motd-red-conemu.png?raw=true "MotD Generator Red Conemu 01")
 
