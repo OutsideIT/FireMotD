@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:          generate_motd.sh
-# Version:              v3.01.151223
+# Version:              v3.02.151223
 # Created on:           10/02/2014
 # Author:               Willem D'Haese
 # Purpose:              Bash script that will dynamically generate a message
@@ -57,19 +57,19 @@ writelog () {
   fi
 }
 
-ScriptName="`readlink -e $0`"
-ScriptVersion=" `cat $ScriptName | grep "# Version:" | awk {'print $3'} | tr -cd '[[:digit:].-]' | sed 's/.\{2\}$//'` "
-OsVersion=`cat /etc/*release | head -n 1`
-IpAddress=$(ip route get 8.8.8.8 | head -1 | cut -d' ' -f8)
-Kernel=$(uname -rs)
-Uptime=$(awk '{print int($1/86400)" day(s) "int($1%86400/3600)":"int(($1%3600)/60)":"int($1%60)}' /proc/uptime)
-Dmi=`dmesg | grep "DMI:"`
-if [[ $Dmi == *"QEMU"* ]] ; then
-  Platform=`dmesg | grep "DMI:" | sed 's/^.*QEMU/QEMU/' | sed 's/, B.*//'`
-elif [[ $Dmi == *"VMware"* ]] ; then
-  Platform=`dmesg | grep "DMI:" | sed 's/^.*VMware/VMware/' | sed 's/, B.*//'`
-elif [[ $Dmi == *"FUJITSU PRIMERGY"* ]] ; then
-  Platform=`dmesg | grep "DMI:" | sed 's/^.*FUJITSU PRIMERGY/Fujitsu Primergy/' | sed 's/, B.*//'`
+ScriptName="$(readlink -e $0)"
+ScriptVersion=" $(cat $ScriptName | grep "# Version:" | awk {'print $3'} | tr -cd '[[:digit:].-]' | sed 's/.\{2\}$//') "
+OsVersion="$(cat /etc/*release | head -n 1)"
+IpAddress="$(ip route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
+Kernel="$(uname -rs)"
+Uptime="$(awk '{print int($1/86400)" day(s) "int($1%86400/3600)":"int(($1%3600)/60)":"int($1%60)}' /proc/uptime)"
+Dmi="$(dmesg | grep "DMI:")"
+if [[ "$Dmi" = *"QEMU"* ]] ; then
+  Platform="$(dmesg | grep "DMI:" | sed 's/^.*QEMU/QEMU/' | sed 's/, B.*//')"
+elif [[ "$Dmi" = *"VMware"* ]] ; then
+  Platform="$(dmesg | grep "DMI:" | sed 's/^.*VMware/VMware/' | sed 's/, B.*//')"
+elif [[ "$Dmi" = *"FUJITSU PRIMERGY"* ]] ; then
+  Platform="$(dmesg | grep "DMI:" | sed 's/^.*FUJITSU PRIMERGY/Fujitsu Primergy/' | sed 's/, B.*//')"
 else
   Platform="Unknown"
 fi
