@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:          generate_motd.sh
-# Version:              v3.02.151223
+# Version:              v3.03.151228
 # Created on:           10/02/2014
 # Author:               Willem D'Haese
 # Purpose:              Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:            https://github.com/willemdh/generate_motd
 # On OutsideIT:         https://outsideit.net/generate-motd
 # Recent History:
-#   16/11/15 => Support for Fujitsu servers
 #   01/12/15 => Separated OsVersion and replaced cut with sed for DMI mesg
 #   21/12/15 => Added PHP version
 #   22/12/15 => Cleanup  for release
 #   23/12/15 => Re-introduction of original theme
+#   28/12/15 => Better integration and parameter options
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -101,7 +101,7 @@ Hostname=`hostname`
 HostChars=$((${#Hostname} + 8))
 LeftoverChars=$((MaxLeftOverChars - HostCHars -10))
 
-if [[ $Theme = "Blue" ]] ; then
+if [[ "$Theme" = "Blue" || "$Theme" = "blue" || "$Theme" = "BLUE" ]] ; then
         # 16 Color Blue Frame Scheme
         # Blue
         Sch1="\e[0;34m####"
@@ -138,7 +138,7 @@ if [[ $Theme = "Blue" ]] ; then
         KS="\e[1;33m"
         # Version Color
         SVC="\e[1;36m"
-elif [[ $Theme = "Red" ]] ; then
+elif [[ $Theme = "Red" || "$Theme" = "red" || "$Theme" = "RED" ]] ; then
         # 16 Color Red Frame Scheme
         # Red
         Sch1="\e[0;31m####"
@@ -175,7 +175,7 @@ elif [[ $Theme = "Red" ]] ; then
         KS="\e[0;37m"
 	# Version Color
 	SVC="\e[1;33m"
-elif [[ $Theme = "Original" ]] ; then
+elif [[ $Theme = "Original" || "$Theme" = "original" || "$Theme" = "ORIGINAL" ]] ; then
 	for i in {18..21} {21..18} ; do ShortBlueScheme+="\e[38;5;${i}m#\e[0m"  ; done ;
 	for i in {17..21} {21..17} ; do BlueScheme+="\e[38;5;${i}m#\e[0m\e[38;5;${i}m#\e[0m"  ; done ;
 	for i in {17..21} {21..17} ; do LongBlueScheme+="\e[38;5;${i}m#\e[0m\e[38;5;${i}m#\e[0m\e[38;5;${i}m#"  ; done ;
@@ -198,7 +198,7 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 \e[0;38;5;17m##    \e[38;5;39mSessions \e[38;5;93m= \e[38;5;33m`who | grep $USER | wc -l`\e[38;5;27m sessions
 \e[0;38;5;17m##   \e[38;5;39mProcesses \e[38;5;93m= \e[38;5;33m`ps -Afl | wc -l`\e[38;5;27m running processes of \e[38;5;33m`ulimit -u`\e[38;5;27m maximum processes"
 if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
-        echo -e "\e[0;38;5;17m##    \e[38;5;39mPHP Info \e[38;5;93m= \e[38;5;27mVersion: $PhpVersion"
+        echo -e "\e[0;38;5;17m##    \e[38;5;39mPHP Info \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PhpVersion"
 fi
 echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 \e[0;37m"
@@ -223,7 +223,7 @@ $FrS     ${KS}Updates $ES ${VCL}`cat /tmp/yum_updates.txt` ${VC}yum updates avai
 $FrS    ${KS}Sessions $ES ${VCL}`who | grep $USER | wc -l` ${VC}sessions
 $FrS   ${KS}Processes $ES ${VCL}`ps -Afl | wc -l` ${VC}running processes of ${VCL}`ulimit -u` ${VC}maximum processes"
 if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
-	echo -e "$FrS    ${KS}PHP Info $ES ${VC}Version: $PhpVersion"
+	echo -e "$FrS    ${KS}PHP Info $ES ${VC}Version: ${VCL}$PhpVersion"
 fi
 echo -e "$PrHS$Sch2$HSB$Sch2$PHS$Sch1
 \e[0;37m"
