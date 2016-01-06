@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:          generate_motd.sh
-# Version:              v3.03.151228
+# Version:              v3.04.151228
 # Created on:           10/02/2014
 # Author:               Willem D'Haese
 # Purpose:              Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:            https://github.com/willemdh/generate_motd
 # On OutsideIT:         https://outsideit.net/generate-motd
 # Recent History:
-#   01/12/15 => Separated OsVersion and replaced cut with sed for DMI mesg
 #   21/12/15 => Added PHP version
 #   22/12/15 => Cleanup  for release
 #   23/12/15 => Re-introduction of original theme
 #   28/12/15 => Better integration and parameter options
+#	06/01/16 => Correct SUSE OS version
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -60,6 +60,11 @@ writelog () {
 ScriptName="$(readlink -e $0)"
 ScriptVersion=" $(cat $ScriptName | grep "# Version:" | awk {'print $3'} | tr -cd '[[:digit:].-]' | sed 's/.\{2\}$//') "
 OsVersion="$(cat /etc/*release | head -n 1)"
+if [[ "$OsVersion" == *"SUSE"* ]] ; then
+  OsVersion="$(echo "SUSE Linux Enterprise Server 11 (x86_64)" | sed 's/ (.*//')"
+  PatchLevel="$(cat /etc/*release | sed -n 3p | sed 's/.*= //')"
+  OsVersion="${OsVersion}.$PatchLevel"
+fi
 IpAddress="$(ip route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
 Kernel="$(uname -rs)"
 Uptime="$(awk '{print int($1/86400)" day(s) "int($1%86400/3600)":"int(($1%3600)/60)":"int($1%60)}' /proc/uptime)"
