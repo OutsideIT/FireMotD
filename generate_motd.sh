@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:          generate_motd.sh
-# Version:              v3.04.151228
+# Version:              v3.05.160106
 # Created on:           10/02/2014
 # Author:               Willem D'Haese
 # Purpose:              Bash script that will dynamically generate a message
@@ -12,7 +12,7 @@
 #   22/12/15 => Cleanup  for release
 #   23/12/15 => Re-introduction of original theme
 #   28/12/15 => Better integration and parameter options
-#	06/01/16 => Correct SUSE OS version
+#   06/01/16 => Correct SUSE OS version and full separation of variables
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -28,7 +28,7 @@
 #   Blue    	=> ./generate_motd.sh Blue
 #   Red     	=> ./generate_motd.sh Red
 #   Original	=> ./generate_motd.sh Original
-#   yum     	=> ./generate_motd.sh yum
+#   Yum     	=> ./generate_motd.sh Yum
 
 Theme=$1
 Verbose=0
@@ -78,31 +78,35 @@ elif [[ "$Dmi" = *"FUJITSU PRIMERGY"* ]] ; then
 else
   Platform="Unknown"
 fi
-CpuUtil=`LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1`
-CpuProc="`cat /proc/cpuinfo | grep processor | wc -l` core(s)."
-CpuLoad=$(uptime | grep -ohe '[s:][: ].*' | awk '{ print "1m: "$2 " 5m: "$3 " 15m: " $4}')
-MemFreeB=`cat /proc/meminfo | grep MemFree | awk {'print $2'}`
-MemTotalB=`cat /proc/meminfo | grep MemTotal | awk {'print $2'}`
-MemUsedB=`expr $MemTotalB - $MemFreeB`
-MemFree=`printf "%0.2f\n" $(bc -q <<< scale=2\;$MemFreeB/1024/1024)`
-MemUsed=`printf "%0.2f\n" $(bc -q <<< scale=2\;$MemUsedB/1024/1024)`
-MemTotal=`printf "%0.2f\n" $(bc -q <<< scale=2\;$MemTotalB/1024/1024)`
-SwapFreeB=`cat /proc/meminfo | grep SwapFree | awk {'print $2'}`
-SwapTotalB=`cat /proc/meminfo | grep SwapTotal | awk {'print $2'}`
-SwapUsedB=`expr $SwapTotalB - $SwapFreeB`
-SwapFree=`printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapFreeB/1024/1024)`
-SwapUsed=`printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapUsedB/1024/1024)`
-SwapTotal=`printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapTotalB/1024/1024)`
-RootFreeB=`df -k / | tail -1 | awk '{print $3}'`
-RootUsedB=`df -k / | tail -1 | awk '{print $2}'`
-RootTotalB=`expr $RootFreeB + $RootUsedB`
-RootFree=`printf "%0.2f\n" $(bc -q <<< scale=2\;$RootFreeB/1024/1024)`
-RootUsed=`printf "%0.2f\n" $(bc -q <<< scale=2\;$RootUsedB/1024/1024)`
-RootTotal=`printf "%0.2f\n" $(bc -q <<< scale=2\;$RootTotalB/1024/1024)`
-PhpVersion=$(/usr/bin/php -v 2>/dev/null | grep -oE '^PHP\s[0-9]+\.[0-9]+\.[0-9]+' | awk '{ print $2}')
+CpuUtil="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
+CpuProc="$(cat /proc/cpuinfo | grep processor | wc -l) core(s)."
+CpuLoad="$(uptime | grep -ohe '[s:][: ].*' | awk '{ print "1m: "$2 " 5m: "$3 " 15m: " $4}')"
+MemFreeB="$(cat /proc/meminfo | grep MemFree | awk {'print $2'})"
+MemTotalB="$(cat /proc/meminfo | grep MemTotal | awk {'print $2'})"
+MemUsedB="$(expr $MemTotalB - $MemFreeB)"
+MemFree="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$MemFreeB/1024/1024))"
+MemUsed="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$MemUsedB/1024/1024))"
+MemTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$MemTotalB/1024/1024))"
+SwapFreeB="$(cat /proc/meminfo | grep SwapFree | awk {'print $2'})"
+SwapTotalB="$(cat /proc/meminfo | grep SwapTotal | awk {'print $2'})"
+SwapUsedB="$(expr $SwapTotalB - $SwapFreeB)"
+SwapFree="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapFreeB/1024/1024))"
+SwapUsed="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapUsedB/1024/1024))"
+SwapTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapTotalB/1024/1024))"
+RootFreeB="$(df -k / | tail -1 | awk '{print $3}')"
+RootUsedB="$(df -k / | tail -1 | awk '{print $2}')"
+RootTotalB="$(expr $RootFreeB + $RootUsedB)"
+RootFree="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootFreeB/1024/1024))"
+RootUsed="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootUsedB/1024/1024))"
+RootTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootTotalB/1024/1024))"
+YumCount="$(cat /tmp/yum_updates.txt)"
+SessionCount="$(who | grep $USER | wc -l)"
+ProcessCount="$(ps -Afl | wc -l)"
+ProcessMax="$(ulimit -u)"
+PhpVersion="$(/usr/bin/php -v 2>/dev/null | grep -oE '^PHP\s[0-9]+\.[0-9]+\.[0-9]+' | awk '{ print $2}')"
 
 MaxLeftOverChars=35
-Hostname=`hostname`
+Hostname="$(hostname)"
 HostChars=$((${#Hostname} + 8))
 LeftoverChars=$((MaxLeftOverChars - HostCHars -10))
 
@@ -143,7 +147,7 @@ if [[ "$Theme" = "Blue" || "$Theme" = "blue" || "$Theme" = "BLUE" ]] ; then
         KS="\e[1;33m"
         # Version Color
         SVC="\e[1;36m"
-elif [[ $Theme = "Red" || "$Theme" = "red" || "$Theme" = "RED" ]] ; then
+elif [[ "$Theme" = "Red" || "$Theme" = "red" || "$Theme" = "RED" ]] ; then
         # 16 Color Red Frame Scheme
         # Red
         Sch1="\e[0;31m####"
@@ -180,7 +184,7 @@ elif [[ $Theme = "Red" || "$Theme" = "red" || "$Theme" = "RED" ]] ; then
         KS="\e[0;37m"
 	# Version Color
 	SVC="\e[1;33m"
-elif [[ $Theme = "Original" || "$Theme" = "original" || "$Theme" = "ORIGINAL" ]] ; then
+elif [[ "$Theme" = "Original" || "$Theme" = "original" || "$Theme" = "ORIGINAL" ]] ; then
 	for i in {18..21} {21..18} ; do ShortBlueScheme+="\e[38;5;${i}m#\e[0m"  ; done ;
 	for i in {17..21} {21..17} ; do BlueScheme+="\e[38;5;${i}m#\e[0m\e[38;5;${i}m#\e[0m"  ; done ;
 	for i in {17..21} {21..17} ; do LongBlueScheme+="\e[38;5;${i}m#\e[0m\e[38;5;${i}m#\e[0m\e[38;5;${i}m#"  ; done ;
@@ -199,9 +203,9 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 \e[0;38;5;17m##      \e[38;5;39mMemory \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${MemFree}\e[38;5;27mGB, Used: \e[38;5;33m${MemUsed}\e[38;5;27mGB, Total: \e[38;5;33m${MemTotal}\e[38;5;27mGB
 \e[0;38;5;17m##        \e[38;5;39mSwap \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${SwapFree}\e[38;5;27mGB, Used: \e[38;5;33m${SwapUsed}\e[38;5;27mGB, Total: \e[38;5;33m${SwapTotal}\e[38;5;27mGB
 \e[0;38;5;17m##        \e[38;5;39mRoot \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${RootFree}\e[38;5;27mGB, Used: \e[38;5;33m${RootUsed}\e[38;5;27mGB, Total: \e[38;5;33m${RootTotal}\e[38;5;27mGB
-\e[0;38;5;17m##     \e[38;5;39mUpdates \e[38;5;93m= \e[38;5;33m`cat /tmp/yum_updates.txt` \e[38;5;27myum updates available
-\e[0;38;5;17m##    \e[38;5;39mSessions \e[38;5;93m= \e[38;5;33m`who | grep $USER | wc -l`\e[38;5;27m sessions
-\e[0;38;5;17m##   \e[38;5;39mProcesses \e[38;5;93m= \e[38;5;33m`ps -Afl | wc -l`\e[38;5;27m running processes of \e[38;5;33m`ulimit -u`\e[38;5;27m maximum processes"
+\e[0;38;5;17m##     \e[38;5;39mUpdates \e[38;5;93m= \e[38;5;33m$YumCount \e[38;5;27myum updates available
+\e[0;38;5;17m##    \e[38;5;39mSessions \e[38;5;93m= \e[38;5;33m$SessionCount\e[38;5;27m sessions
+\e[0;38;5;17m##   \e[38;5;39mProcesses \e[38;5;93m= \e[38;5;33m$ProcessCount\e[38;5;27m running processes of \e[38;5;33m$ProcessMax\e[38;5;27m maximum processes"
 if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
         echo -e "\e[0;38;5;17m##    \e[38;5;39mPHP Info \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PhpVersion"
 fi
@@ -224,9 +228,9 @@ $FrS    ${KS}CPU Load $ES ${VC}$CpuLoad
 $FrS      ${KS}Memory $ES ${VC}Free: ${VCL}${MemFree}${VC} GB, Used: ${VCL}${MemUsed}${VC} GB, Total: ${VCL}${MemTotal}${VC} GB
 $FrS        ${KS}Swap $ES ${VC}Free: ${VCL}${SwapFree}${VC} GB, Used: ${VCL}${SwapUsed}${VC} GB, Total: ${VCL}${SwapTotal}${VC} GB
 $FrS        ${KS}Root $ES ${VC}Free: ${VCL}${RootFree}${VC} GB, Used: ${VCL}${RootUsed}${VC} GB, Total: ${VCL}${RootTotal}${VC} GB
-$FrS     ${KS}Updates $ES ${VCL}`cat /tmp/yum_updates.txt` ${VC}yum updates available.
-$FrS    ${KS}Sessions $ES ${VCL}`who | grep $USER | wc -l` ${VC}sessions
-$FrS   ${KS}Processes $ES ${VCL}`ps -Afl | wc -l` ${VC}running processes of ${VCL}`ulimit -u` ${VC}maximum processes"
+$FrS     ${KS}Updates $ES ${VCL}$YumCount ${VC}yum updates available.
+$FrS    ${KS}Sessions $ES ${VCL}$SessionCount ${VC}sessions
+$FrS   ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$ProcessMax ${VC}maximum processes"
 if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
 	echo -e "$FrS    ${KS}PHP Info $ES ${VC}Version: ${VCL}$PhpVersion"
 fi
