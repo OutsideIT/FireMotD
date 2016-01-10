@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:          generate_motd.sh
-# Version:              v3.10.160109
+# Version:              v3.11.160109
 # Created on:           10/02/2014
 # Author:               Willem D'Haese
 # Purpose:              Bash script that will dynamically generate a message
@@ -39,10 +39,11 @@ CountUpdates () {
             UpdateCount=0
         fi
     elif [[ -x "/usr/bin/zypper" ]] ; then
-        UpdateCount=$(zypper list-updates | wc -l)
-		if (( $UpdateCount <= 0 )) ; then
-		    UpdateCount=0
-		fi
+        UpdateCount=$(zypper list-updates | wc -l) 
+        UpdateCount=$(expr $UpdateCount - 4)
+	if (( $UpdateCount <= 0 )) ; then
+	    UpdateCount=0
+	fi
     elif [[ -x "/usr/bin/apt-get" ]] ; then
         WriteLog Verbose Info "Apt-get detected (TODO)"
     fi
