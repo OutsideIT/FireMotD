@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:          generate_motd.sh
-# Version:              v3.09.160109
+# Version:              v3.10.160109
 # Created on:           10/02/2014
 # Author:               Willem D'Haese
 # Purpose:              Bash script that will dynamically generate a message
@@ -35,13 +35,16 @@ Verbose=0
 CountUpdates () {
     if [[ -x "/usr/bin/yum" ]] ; then
         UpdateCount=$(/usr/bin/yum -d 0 check-update 2>/dev/null | echo $(($(wc -l)-1)))
-        if [ $YumCount == -1 ]; then
-            YumCount=0
+        if [ $UpdateCount == -1 ]; then
+            UpdateCount=0
         fi
     elif [[ -x "/usr/bin/zypper" ]] ; then
         UpdateCount=$(zypper list-updates | wc -l)
+		if (( $UpdateCount <= 0 )) ; then
+		    UpdateCount=0
+		fi
     elif [[ -x "/usr/bin/apt-get" ]] ; then
-        
+        WriteLog Verbose Info "Apt-get detected (TODO)"
     fi
     echo "$UpdateCount"
     exit 0
