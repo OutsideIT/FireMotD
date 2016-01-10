@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:          generate_motd.sh
-# Version:              v3.08.160109
+# Version:              v3.09.160109
 # Created on:           10/02/2014
 # Author:               Willem D'Haese
 # Purpose:              Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:            https://github.com/willemdh/generate_motd
 # On OutsideIT:         https://outsideit.net/generate-motd
 # Recent History:
-#   22/12/15 => Cleanup  for release
 #   23/12/15 => Re-introduction of original theme
 #   28/12/15 => Better integration and parameter options
 #   06/01/16 => Correct SUSE OS version and full separation of variables
 #   09/01/16 => Splitup into function, introduction modern theme
+#   10/01/16 => Implemented zypper update count
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -32,23 +32,31 @@
 
 Verbose=0
 
-CountYumUpdates () {
-        YumCount=`/usr/bin/yum -d 0 check-update 2>/dev/null | echo $(($(wc -l)-1))`
+CountUpdates () {
+    if [[ -x "/usr/bin/yum" ]] ; then
+        UpdateCount=$(/usr/bin/yum -d 0 check-update 2>/dev/null | echo $(($(wc -l)-1)))
         if [ $YumCount == -1 ]; then
-                YumCount=0
+            YumCount=0
         fi
-        echo "$YumCount"
-        exit 0
+    elif [[ -x "/usr/bin/zypper" ]] ; then
+        UpdateCount=$(zypper list-updates | wc -l)
+    elif [[ -x "/usr/bin/apt-get" ]] ; then
+        
+    fi
+    echo "$UpdateCount"
+    exit 0
 }
 
 GatherInfo () {
     ScriptName="$(readlink -e $0)"
     ScriptVersion=" $(cat $ScriptName | grep "# Version:" | awk {'print $3'} | tr -cd '[[:digit:].-]' | sed 's/.\{2\}$//') "
     OsVersion="$(cat /etc/*release | head -n 1)"
-    if [[ "$OsVersion" == *"SUSE"* ]] ; then
-        OsVersion="$(echo "SUSE Linux Enterprise Server 11 (x86_64)" | sed 's/ (.*//')"
+    if [[ "$OsVersion" == "SUSE"* ]] ; then
+        OsVersion="$(echo $OsVersion | sed 's/ (.*//')"
         PatchLevel="$(cat /etc/*release | sed -n 3p | sed 's/.*= //')"
         OsVersion="${OsVersion}.$PatchLevel"
+    elif [[ "$OsVersion" == "openSUSE"* ]] ; then
+	OsVersion="$(cat /etc/os-release | sed -n 4p | sed 's/PRETTY_NAME="//' | sed 's/ (.*//')"
     fi
     IpAddress="$(ip route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
     Kernel="$(uname -rs)"
@@ -247,7 +255,7 @@ while :; do
         -h|--help)
             DisplayHelp="true" ; shift ;;
         yum|YUM|Yum|-U|--Updates|-Y)
-            CountYumUpdates ; shift ;;
+            CountUpdates ; shift ;;
         -t|--Theme)
             shift; Theme=$1 
             case "$Theme" in
