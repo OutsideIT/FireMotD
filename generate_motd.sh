@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:          generate_motd.sh
-# Version:              v3.13.160109
+# Version:              v3.14.160109
 # Created on:           10/02/2014
 # Author:               Willem D'Haese
 # Purpose:              Bash script that will dynamically generate a message
@@ -66,6 +66,8 @@ GatherInfo () {
         Platform="$(dmesg | grep "DMI:" | sed 's/^.*VMware/VMware/' | sed 's/, B.*//')"
     elif [[ "$Dmi" = *"FUJITSU PRIMERGY"* ]] ; then
         Platform="$(dmesg | grep "DMI:" | sed 's/^.*FUJITSU PRIMERGY/Fujitsu Primergy/' | sed 's/, B.*//')"
+    elif [[ "$Dmi" = *"VirtualBox"* ]] ; then
+        Platform="$(dmesg | grep "DMI:" | sed 's/^.*VirtualBox/VirtualBox/' | sed 's/ .*//')"
     else
         Platform="Unknown"
     fi
