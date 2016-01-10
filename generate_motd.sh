@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:          generate_motd.sh
-# Version:              v3.11.160109
+# Version:              v3.13.160109
 # Created on:           10/02/2014
 # Author:               Willem D'Haese
 # Purpose:              Bash script that will dynamically generate a message
@@ -23,12 +23,6 @@
 # Public License for more details. You should have received a copy of the
 # GNU General Public License along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
-# Examples:
-#   Blanco  	=> ./generate_motd.sh
-#   Blue    	=> ./generate_motd.sh Blue
-#   Red     	=> ./generate_motd.sh Red
-#   Original	=> ./generate_motd.sh Original
-#   Yum     	=> ./generate_motd.sh Yum
 
 Verbose=0
 
@@ -96,7 +90,7 @@ GatherInfo () {
     RootFree="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootFreeB/1024/1024))"
     RootUsed="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootUsedB/1024/1024))"
     RootTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootTotalB/1024/1024))"
-    YumCount="$(cat /tmp/yum_updates.txt)"
+    UpdateCount="$(cat /tmp/updatecount.txt)"
     SessionCount="$(who | grep $USER | wc -l)"
     ProcessCount="$(ps -Afl | wc -l)"
     ProcessMax="$(ulimit -u)"
@@ -105,6 +99,13 @@ GatherInfo () {
     Hostname="$(hostname)"
     HostChars=$((${#Hostname} + 8))
     LeftoverChars=$((MaxLeftOverChars - HostCHars -10))
+    if [[ -x "/usr/bin/yum" ]] ; then
+        UpdateType="yum "
+    elif [[ -x "/usr/bin/zypper" ]] ; then
+        UpdateType="zypper "
+    elif [[ -x "/usr/bin/apt-get" ]] ; then
+        UpdateType="apt-get "
+    fi    
 }
 
 WriteLog () {
@@ -221,7 +222,7 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 \e[0;38;5;17m##      \e[38;5;39mMemory \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${MemFree}\e[38;5;27mGB, Used: \e[38;5;33m${MemUsed}\e[38;5;27mGB, Total: \e[38;5;33m${MemTotal}\e[38;5;27mGB
 \e[0;38;5;17m##        \e[38;5;39mSwap \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${SwapFree}\e[38;5;27mGB, Used: \e[38;5;33m${SwapUsed}\e[38;5;27mGB, Total: \e[38;5;33m${SwapTotal}\e[38;5;27mGB
 \e[0;38;5;17m##        \e[38;5;39mRoot \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${RootFree}\e[38;5;27mGB, Used: \e[38;5;33m${RootUsed}\e[38;5;27mGB, Total: \e[38;5;33m${RootTotal}\e[38;5;27mGB
-\e[0;38;5;17m##     \e[38;5;39mUpdates \e[38;5;93m= \e[38;5;33m$YumCount \e[38;5;27myum updates available
+\e[0;38;5;17m##     \e[38;5;39mUpdates \e[38;5;93m= \e[38;5;33m$UpdateCount\e[38;5;27m ${UpdateType}updates available
 \e[0;38;5;17m##    \e[38;5;39mSessions \e[38;5;93m= \e[38;5;33m$SessionCount\e[38;5;27m sessions
 \e[0;38;5;17m##   \e[38;5;39mProcesses \e[38;5;93m= \e[38;5;33m$ProcessCount\e[38;5;27m running processes of \e[38;5;33m$ProcessMax\e[38;5;27m maximum processes"
     if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
@@ -245,7 +246,7 @@ $FrS    ${KS}CPU Load $ES ${VC}$CpuLoad
 $FrS      ${KS}Memory $ES ${VC}Free: ${VCL}${MemFree}${VC} GB, Used: ${VCL}${MemUsed}${VC} GB, Total: ${VCL}${MemTotal}${VC} GB
 $FrS        ${KS}Swap $ES ${VC}Free: ${VCL}${SwapFree}${VC} GB, Used: ${VCL}${SwapUsed}${VC} GB, Total: ${VCL}${SwapTotal}${VC} GB
 $FrS        ${KS}Root $ES ${VC}Free: ${VCL}${RootFree}${VC} GB, Used: ${VCL}${RootUsed}${VC} GB, Total: ${VCL}${RootTotal}${VC} GB
-$FrS     ${KS}Updates $ES ${VCL}$YumCount ${VC}yum updates available.
+$FrS     ${KS}Updates $ES ${VCL}$UpdateCount${VC} ${UpdateType}updates available.
 $FrS    ${KS}Sessions $ES ${VCL}$SessionCount ${VC}sessions
 $FrS   ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$ProcessMax ${VC}maximum processes"
     if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
