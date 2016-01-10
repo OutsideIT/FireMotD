@@ -258,7 +258,7 @@ while :; do
     case "$1" in
         -h|--help)
             DisplayHelp="true" ; shift ;;
-        yum|YUM|Yum|-U|--Updates|-Y)
+        yum|YUM|Yum|Zypper|zypper|-U|--Updates|-Y)
             CountUpdates ; shift ;;
         -t|--Theme)
             shift; Theme=$1 
