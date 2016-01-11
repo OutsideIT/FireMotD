@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:          generate_motd.sh
-# Version:              v3.14.160109
+# Version:              v3.15.160111
 # Created on:           10/02/2014
 # Author:               Willem D'Haese
 # Purpose:              Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:            https://github.com/willemdh/generate_motd
 # On OutsideIT:         https://outsideit.net/generate-motd
 # Recent History:
-#   23/12/15 => Re-introduction of original theme
 #   28/12/15 => Better integration and parameter options
 #   06/01/16 => Correct SUSE OS version and full separation of variables
 #   09/01/16 => Splitup into function, introduction modern theme
 #   10/01/16 => Implemented zypper update count
+#   11/09/16 => Removed emtpy line from MotD
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -210,8 +210,7 @@ StartOriginalBlue () {
 }
 
 GenerateOriginal256Color () {
-        echo -e "
-$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
+        echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 $BlueScheme \e[38;5;93m $Hostname $BlueScheme \e[38;5;98m$ScriptVersion
 $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 \e[0;38;5;17m##          \e[38;5;39mIp \e[38;5;93m= \e[38;5;33m$IpAddress
@@ -234,8 +233,7 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 }
 
 GenerateBasic16Color () {
-    echo -e "
-$PrHS$Sch2$HST$Sch2$PHS$Sch1
+    echo -e "$PrHS$Sch2$HST$Sch2$PHS$Sch1
 $PrHS$Sch3$HSF $HC$Hostname $HSF$Sch3$HSF$HVF$SVC$ScriptVersion$Sch1
 $PrHS$Sch2$HST$Sch2$PHS$Sch1
 $FrS          ${KS}Ip $ES ${VCL}$IpAddress
