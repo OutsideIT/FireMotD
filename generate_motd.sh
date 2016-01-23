@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:          generate_motd.sh
-# Version:              v3.14.160109
+# Version:              v3.15.160123
 # Created on:           10/02/2014
 # Author:               Willem D'Haese
 # Purpose:              Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:            https://github.com/willemdh/generate_motd
 # On OutsideIT:         https://outsideit.net/generate-motd
 # Recent History:
-#   23/12/15 => Re-introduction of original theme
 #   28/12/15 => Better integration and parameter options
 #   06/01/16 => Correct SUSE OS version and full separation of variables
 #   09/01/16 => Splitup into function, introduction modern theme
 #   10/01/16 => Implemented zypper update count
+#   23/01/16 => Added colortest function
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -25,6 +25,22 @@
 # <http://www.gnu.org/licenses/>.
 
 Verbose=0
+
+WriteLog () {
+  if [ -z "$1" ] ; then echo "WriteLog: Log parameter #1 is zero length. Please debug..." ; exit 1
+  else
+    if [ -z "$2" ] ; then echo "WriteLog: Severity parameter #2 is zero length. Please debug..." ; exit 1
+    else
+      if [ -z "$3" ] ; then echo "WriteLog: Message parameter #3 is zero length. Please debug..." ; exit 1 ; fi
+    fi
+  fi
+  Now=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+  if [ $1 = "Verbose" -a $Verbose = 1 ] ; then echo -e "$Now: $2: $3"
+  elif [ $1 = "Verbose" -a $Verbose = 0 ] ; then :
+  elif [ $1 = "Output" ] ; then echo "${Now}: $2: $3"
+  elif [ -f $1 ] ; then echo "${Now}: $4 $2: $3" >> $1
+  fi
+}
 
 CountUpdates () {
     if [[ -x "/usr/bin/yum" ]] ; then
@@ -43,6 +59,12 @@ CountUpdates () {
     fi
     echo "$UpdateCount"
     exit 0
+}
+
+ColorTest () {
+   for code in {0..255}; do echo -n -e "\e[38;05;${code}m" ; echo -n -e "   ## \\\e[38;05;${code}m ##   " ; done
+
+
 }
 
 GatherInfo () {
@@ -108,22 +130,6 @@ GatherInfo () {
     elif [[ -x "/usr/bin/apt-get" ]] ; then
         UpdateType="apt-get "
     fi    
-}
-
-WriteLog () {
-  if [ -z "$1" ] ; then echo "WriteLog: Log parameter #1 is zero length. Please debug..." ; exit 1
-  else
-    if [ -z "$2" ] ; then echo "WriteLog: Severity parameter #2 is zero length. Please debug..." ; exit 1
-    else
-      if [ -z "$3" ] ; then echo "WriteLog: Message parameter #3 is zero length. Please debug..." ; exit 1 ; fi
-    fi
-  fi
-  Now=$(date '+%Y-%m-%d %H:%M:%S,%3N')
-  if [ $1 = "Verbose" -a $Verbose = 1 ] ; then echo "$Now: $2: $3"
-  elif [ $1 = "Verbose" -a $Verbose = 0 ] ; then :
-  elif [ $1 = "Output" ] ; then echo "${Now}: $2: $3"
-  elif [ -f $1 ] ; then echo "${Now}: $2: $3" >> $1
-  fi
 }
 
 StartBlueTheme () {
@@ -203,7 +209,6 @@ StartRedTheme () {
 }
 
 StartOriginalBlue () {
-    WriteLog Verbose Info "StartOriginalBlue function started."
     for i in {18..21} {21..18} ; do ShortBlueScheme+="\e[38;5;${i}m#\e[0m"  ; done ;
     for i in {17..21} {21..17} ; do BlueScheme+="\e[38;5;${i}m#\e[0m\e[38;5;${i}m#\e[0m"  ; done ;
     for i in {17..21} {21..17} ; do LongBlueScheme+="\e[38;5;${i}m#\e[0m\e[38;5;${i}m#\e[0m\e[38;5;${i}m#"  ; done ;
@@ -274,10 +279,9 @@ while :; do
 		*) echo "you specified a non-existant theme." ; exit 2 ;;
 	    esac
             shift ;;
-        -*)
-            echo "you specified a non-existant option. " ; exit 2 ;;
-        *)
-            break ;;
+        -C|--Colortest) ColorTest ; shift ;;
+        -*) echo "you specified a non-existant option. " ; exit 2 ;;
+        *) break ;;
     esac
 done
 
