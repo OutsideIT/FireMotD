@@ -8,15 +8,19 @@ memory, disk information.
 ### Screenshots
 
 Modern:
+
 ![MotD Generator Modern 01](/../screenshots/generate-motd-modern-babun-latest.png?raw=true "MotD Generator Modern 01")
 
-Original
+Original:
+
 ![MotD Generator Original 01](/../screenshots/generate-motd-original-latest.png?raw=true "MotD Generator Original 01")
 
-Blue
+Blue:
+
 ![MotD Generator Blue Babun 01](/../screenshots/generate-motd-blue-babun-latest.png?raw=true "MotD Generator Blue Babun 01")
 
-Red
+Red:
+
 ![MotD Generator Red Babun 01](/../screenshots/generate-motd-red-babun-latest.png?raw=true "MotD Generator Red Babun 01")
 
 ### Status
