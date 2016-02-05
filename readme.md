@@ -7,15 +7,17 @@ memory, disk information.
 
 ### Screenshots
 
+Modern:
+![MotD Generator Modern 01](/../screenshots/generate-motd-modern-babun-latest.png?raw=true "MotD Generator Modern 01")
+
+Original
 ![MotD Generator Original 01](/../screenshots/generate-motd-original-latest.png?raw=true "MotD Generator Original 01")
 
+Blue
 ![MotD Generator Blue Babun 01](/../screenshots/generate-motd-blue-babun-latest.png?raw=true "MotD Generator Blue Babun 01")
 
+Red
 ![MotD Generator Red Babun 01](/../screenshots/generate-motd-red-babun-latest.png?raw=true "MotD Generator Red Babun 01")
-
-![MotD Generator Blue Conemu 01](/../screenshots/generate-motd-blue-conemu.png?raw=true "MotD Generator Blue Conemu 01")
-
-![MotD Generator Red Conemu 01](/../screenshots/generate-motd-red-conemu.png?raw=true "MotD Generator Red Conemu 01")
 
 ### Status
 
