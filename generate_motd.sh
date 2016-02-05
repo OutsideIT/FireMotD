@@ -12,7 +12,7 @@
 #   09/01/16 => Splitup into function, introduction modern theme
 #   10/01/16 => Implemented zypper update count
 #   23/01/16 => Added colortest function
-#   05/02/16 => Added Apache version check
+#   05/02/16 => Added Apache version check, spacing for Modern theme
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -217,9 +217,13 @@ StartOriginalBlue () {
 }
 
 GenerateOriginal256Color () {
-        echo -e "
-$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
-$BlueScheme \e[38;5;93m $Hostname $BlueScheme \e[38;5;98m$ScriptVersion
+    Space=""
+    if [[ "$Theme" == "Modern" ]] ; then
+        Space="                              "
+        echo "Check, Theme: $Theme"
+    fi
+    echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
+$BlueScheme \e[38;5;93m $Hostname $BlueScheme $Space\e[38;5;98m$ScriptVersion
 $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 \e[0;38;5;17m##          \e[38;5;39mIp \e[38;5;93m= \e[38;5;33m$IpAddress
 \e[0;38;5;17m##     \e[38;5;39mRelease \e[38;5;93m= \e[38;5;27m$OsVersion
@@ -244,8 +248,7 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 }
 
 GenerateBasic16Color () {
-    echo -e "
-$PrHS$Sch2$HST$Sch2$PHS$Sch1
+    echo -e "$PrHS$Sch2$HST$Sch2$PHS$Sch1
 $PrHS$Sch3$HSF $HC$Hostname $HSF$Sch3$HSF$HVF$SVC$ScriptVersion$Sch1
 $PrHS$Sch2$HST$Sch2$PHS$Sch1
 $FrS          ${KS}Ip $ES ${VCL}$IpAddress
