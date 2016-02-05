@@ -1,18 +1,18 @@
 #!/bin/bash
-# Script name:          generate_motd.sh
-# Version:              v3.15.160123
-# Created on:           10/02/2014
-# Author:               Willem D'Haese
-# Purpose:              Bash script that will dynamically generate a message
-#                       of they day for users logging in.
-# On GitHub:            https://github.com/willemdh/generate_motd
-# On OutsideIT:         https://outsideit.net/generate-motd
+# Script name:	generate_motd.sh
+# Version:      v3.16.160205
+# Created on:   10/02/2014
+# Author:       Willem D'Haese
+# Purpose:      Bash script that will dynamically generate a message
+#               of they day for users logging in.
+# On GitHub:    https://github.com/willemdh/generate_motd
+# On OutsideIT: https://outsideit.net/generate-motd
 # Recent History:
-#   28/12/15 => Better integration and parameter options
 #   06/01/16 => Correct SUSE OS version and full separation of variables
 #   09/01/16 => Splitup into function, introduction modern theme
 #   10/01/16 => Implemented zypper update count
 #   23/01/16 => Added colortest function
+#   05/02/16 => Added Apache version check
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -130,6 +130,8 @@ GatherInfo () {
     elif [[ -x "/usr/bin/apt-get" ]] ; then
         UpdateType="apt-get "
     fi    
+    HttpdPath="$(which httpd)"
+    HttpdVersion="$(${HttpdPath} -v | grep "Server version" | sed -e 's/.*[^0-9]\([0-9].[0-9]\+.[0-9]\+\)[^0-9]*$/\1/')"
 }
 
 StartBlueTheme () {
@@ -235,6 +237,9 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
     if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
         echo -e "\e[0;38;5;17m##    \e[38;5;39mPHP Info \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PhpVersion"
     fi
+    if [[ $HttpdVersion =~ ^[0-9.]+$ ]] ; then
+        echo -e "\e[0;38;5;17m## \e[38;5;39mApache Info \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$HttpdVersion"
+    fi
     echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme\e[0;37m"
 }
 
@@ -258,6 +263,9 @@ $FrS    ${KS}Sessions $ES ${VCL}$SessionCount ${VC}sessions
 $FrS   ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$ProcessMax ${VC}maximum processes"
     if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
         echo -e "$FrS    ${KS}PHP Info $ES ${VC}Version: ${VCL}$PhpVersion"
+    fi
+    if [[ $HttpdVersion =~ ^[0-9.]+$ ]] ; then
+        echo -e "$FrS${KS} Apache Info $ES ${VC}Version: ${VCL}$HttpdVersion"
     fi
     echo -e "$PrHS$Sch2$HSB$Sch2$PHS$Sch1\e[0;37m"
 }
