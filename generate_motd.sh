@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:	generate_motd.sh
-# Version:      v3.16.160205
+# Version:      v3.17.160209
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:    https://github.com/willemdh/generate_motd
 # On OutsideIT: https://outsideit.net/generate-motd
 # Recent History:
-#   06/01/16 => Correct SUSE OS version and full separation of variables
 #   09/01/16 => Splitup into function, introduction modern theme
 #   10/01/16 => Implemented zypper update count
 #   23/01/16 => Added colortest function
 #   05/02/16 => Added Apache version check, spacing for Modern theme
+#   09/02/16 => Fixed leftover in modern theme, splitup uptime
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -80,7 +80,11 @@ GatherInfo () {
     fi
     IpAddress="$(ip route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
     Kernel="$(uname -rs)"
-    Uptime="$(awk '{print int($1/86400)" day(s) "int($1%86400/3600)":"int(($1%3600)/60)":"int($1%60)}' /proc/uptime)"
+#    Uptime="$(awk '{print int($1/86400)" day(s) "int($1%86400/3600)":"int(($1%3600)/60)":"int($1%60)}' /proc/uptime)"
+    UptimeDays=$(awk '{print int($1/86400)}' /proc/uptime)
+    UptimeHours=$(awk '{print int($1%86400/3600)}' /proc/uptime)
+    UptimeMinutes=$(awk '{print int(($1%3600)/60)}' /proc/uptime)
+    UptimeSeconds=$(awk '{print int($1%60)}' /proc/uptime)
     Dmi="$(dmesg | grep "DMI:")"
     if [[ "$Dmi" = *"QEMU"* ]] ; then
         Platform="$(dmesg | grep "DMI:" | sed 's/^.*QEMU/QEMU/' | sed 's/, B.*//')"
@@ -220,7 +224,6 @@ GenerateOriginal256Color () {
     Space=""
     if [[ "$Theme" == "Modern" ]] ; then
         Space="                              "
-        echo "Check, Theme: $Theme"
     fi
     echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 $BlueScheme \e[38;5;93m $Hostname $BlueScheme $Space\e[38;5;98m$ScriptVersion
@@ -229,7 +232,7 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 \e[0;38;5;17m##     \e[38;5;39mRelease \e[38;5;93m= \e[38;5;27m$OsVersion
 \e[0;38;5;17m##      \e[38;5;39mKernel \e[38;5;93m= \e[38;5;27m$Kernel
 \e[0;38;5;17m##    \e[38;5;39mPlatform \e[38;5;93m= \e[38;5;27m$Platform
-\e[0;38;5;17m##      \e[38;5;39mUptime \e[38;5;93m= \e[38;5;27m$Uptime
+\e[0;38;5;17m##      \e[38;5;39mUptime \e[38;5;93m= \e[38;5;33m${UptimeDays} \e[38;5;27mday(s). \e[38;5;33m${UptimeHours}\e[38;5;27m:\e[38;5;33m${UptimeMinutes}\e[38;5;27m:\e[38;5;33m${UptimeSeconds}
 \e[0;38;5;17m##    \e[38;5;39mCPU Util \e[38;5;93m= \e[38;5;33m${CpuUtil}\e[38;5;27m% average CPU usage over $CpuProc
 \e[0;38;5;17m##    \e[38;5;39mCPU Load \e[38;5;93m= \e[38;5;27m$CpuLoad
 \e[0;38;5;17m##      \e[38;5;39mMemory \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${MemFree}\e[38;5;27mGB, Used: \e[38;5;33m${MemUsed}\e[38;5;27mGB, Total: \e[38;5;33m${MemTotal}\e[38;5;27mGB
@@ -255,7 +258,7 @@ $FrS          ${KS}Ip $ES ${VCL}$IpAddress
 $FrS     ${KS}Release $ES ${VC}$OsVersion
 $FrS      ${KS}Kernel $ES ${VC}$Kernel
 $FrS    ${KS}Platform $ES ${VC}$Platform
-$FrS      ${KS}Uptime $ES ${VC}$Uptime
+$FrS      ${KS}Uptime $ES ${VCL}${UptimeDays} ${VC}day(s). ${VCL}${UptimeHours}${VC}:${VCL}${UptimeMinutes}${VC}:${VCL}${UptimeSeconds}
 $FrS    ${KS}CPU Util $ES ${VCL}$CpuUtil ${VC}% average CPU usage over $CpuProc
 $FrS    ${KS}CPU Load $ES ${VC}$CpuLoad
 $FrS      ${KS}Memory $ES ${VC}Free: ${VCL}${MemFree}${VC} GB, Used: ${VCL}${MemUsed}${VC} GB, Total: ${VCL}${MemTotal}${VC} GB
@@ -277,7 +280,7 @@ while :; do
     case "$1" in
         -h|--help)
             DisplayHelp="true" ; shift ;;
-        yum|YUM|Yum|Zypper|zypper|-U|--Updates|-Y)
+            yum|YUM|Yum|Zypper|zypper|-U|--Updates|-Y)
             CountUpdates ; shift ;;
         -t|--Theme)
             shift; Theme=$1 
