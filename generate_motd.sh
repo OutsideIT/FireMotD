@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:	generate_motd.sh
-# Version:      v3.17.160209
+# Version:      v3.18.160210
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:    https://github.com/willemdh/generate_motd
 # On OutsideIT: https://outsideit.net/generate-motd
 # Recent History:
-#   09/01/16 => Splitup into function, introduction modern theme
 #   10/01/16 => Implemented zypper update count
 #   23/01/16 => Added colortest function
 #   05/02/16 => Added Apache version check, spacing for Modern theme
 #   09/02/16 => Fixed leftover in modern theme, splitup uptime
+#   10/02/16 => Fixed issue on servers without httpd
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -134,8 +134,12 @@ GatherInfo () {
     elif [[ -x "/usr/bin/apt-get" ]] ; then
         UpdateType="apt-get "
     fi    
-    HttpdPath="$(which httpd)"
-    HttpdVersion="$(${HttpdPath} -v | grep "Server version" | sed -e 's/.*[^0-9]\([0-9].[0-9]\+.[0-9]\+\)[^0-9]*$/\1/')"
+    HttpdPath="$(which httpd 2>/dev/null)"
+    WriteLog Verbose Info "HttpdPath: $HttpdPath"
+    if [[ ! -z $HttpdPath ]] ; then
+        HttpdVersion="$(${HttpdPath} -v | grep "Server version" | sed -e 's/.*[^0-9]\([0-9].[0-9]\+.[0-9]\+\)[^0-9]*$/\1/')"
+        WriteLog Verbose Info "HttpdVersion: $HttpdVersion"
+    fi
 }
 
 StartBlueTheme () {
