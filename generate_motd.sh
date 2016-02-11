@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:	generate_motd.sh
-# Version:      v3.18.160210
+# Version:      v3.20.160211
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:    https://github.com/willemdh/generate_motd
 # On OutsideIT: https://outsideit.net/generate-motd
 # Recent History:
-#   10/01/16 => Implemented zypper update count
 #   23/01/16 => Added colortest function
 #   05/02/16 => Added Apache version check, spacing for Modern theme
 #   09/02/16 => Fixed leftover in modern theme, splitup uptime
 #   10/02/16 => Fixed issue on servers without httpd
+#   11/02/16 => Fixed bug with root drive information and added used perc
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -112,12 +112,14 @@ GatherInfo () {
     SwapFree="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapFreeB/1024/1024))"
     SwapUsed="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapUsedB/1024/1024))"
     SwapTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapTotalB/1024/1024))"
-    RootFreeB="$(df -k / | tail -1 | awk '{print $3}')"
-    RootUsedB="$(df -k / | tail -1 | awk '{print $2}')"
-    RootTotalB="$(expr $RootFreeB + $RootUsedB)"
+    RootFreeB="$(df -k / | tail -1 | awk '{print $4}')"
+    RootUsedB="$(df -k / | tail -1 | awk '{print $3}')"
+#    RootTotalB="$(expr $RootFreeB + $RootUsedB)"
+    RootTotalB="$(df -k / | tail -1 | awk '{print $2}')"
     RootFree="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootFreeB/1024/1024))"
     RootUsed="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootUsedB/1024/1024))"
     RootTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootTotalB/1024/1024))"
+    RootUsedPerc="$(df -k / | tail -1 | awk '{print $5}')"
     UpdateCount="$(cat /tmp/updatecount.txt)"
     SessionCount="$(who | grep $USER | wc -l)"
     ProcessCount="$(ps -Afl | wc -l)"
@@ -241,7 +243,7 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 \e[0;38;5;17m##    \e[38;5;39mCPU Load \e[38;5;93m= \e[38;5;27m$CpuLoad
 \e[0;38;5;17m##      \e[38;5;39mMemory \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${MemFree}\e[38;5;27mGB, Used: \e[38;5;33m${MemUsed}\e[38;5;27mGB, Total: \e[38;5;33m${MemTotal}\e[38;5;27mGB
 \e[0;38;5;17m##        \e[38;5;39mSwap \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${SwapFree}\e[38;5;27mGB, Used: \e[38;5;33m${SwapUsed}\e[38;5;27mGB, Total: \e[38;5;33m${SwapTotal}\e[38;5;27mGB
-\e[0;38;5;17m##        \e[38;5;39mRoot \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${RootFree}\e[38;5;27mGB, Used: \e[38;5;33m${RootUsed}\e[38;5;27mGB, Total: \e[38;5;33m${RootTotal}\e[38;5;27mGB
+\e[0;38;5;17m##        \e[38;5;39mRoot \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${RootFree}\e[38;5;27mGB, Used: \e[38;5;33m${RootUsed}\e[38;5;27mGB ($RootUsedPerc), Total: \e[38;5;33m${RootTotal}\e[38;5;27mGB
 \e[0;38;5;17m##     \e[38;5;39mUpdates \e[38;5;93m= \e[38;5;33m$UpdateCount\e[38;5;27m ${UpdateType}updates available
 \e[0;38;5;17m##    \e[38;5;39mSessions \e[38;5;93m= \e[38;5;33m$SessionCount\e[38;5;27m sessions
 \e[0;38;5;17m##   \e[38;5;39mProcesses \e[38;5;93m= \e[38;5;33m$ProcessCount\e[38;5;27m running processes of \e[38;5;33m$ProcessMax\e[38;5;27m maximum processes"
@@ -267,7 +269,7 @@ $FrS    ${KS}CPU Util $ES ${VCL}$CpuUtil ${VC}% average CPU usage over $CpuProc
 $FrS    ${KS}CPU Load $ES ${VC}$CpuLoad
 $FrS      ${KS}Memory $ES ${VC}Free: ${VCL}${MemFree}${VC} GB, Used: ${VCL}${MemUsed}${VC} GB, Total: ${VCL}${MemTotal}${VC} GB
 $FrS        ${KS}Swap $ES ${VC}Free: ${VCL}${SwapFree}${VC} GB, Used: ${VCL}${SwapUsed}${VC} GB, Total: ${VCL}${SwapTotal}${VC} GB
-$FrS        ${KS}Root $ES ${VC}Free: ${VCL}${RootFree}${VC} GB, Used: ${VCL}${RootUsed}${VC} GB, Total: ${VCL}${RootTotal}${VC} GB
+$FrS        ${KS}Root $ES ${VC}Free: ${VCL}${RootFree}${VC} GB, Used: ${VCL}${RootUsed}${VC} GB ($RootUsedPerc), Total: ${VCL}${RootTotal}${VC} GB
 $FrS     ${KS}Updates $ES ${VCL}$UpdateCount${VC} ${UpdateType}updates available.
 $FrS    ${KS}Sessions $ES ${VCL}$SessionCount ${VC}sessions
 $FrS   ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$ProcessMax ${VC}maximum processes"
