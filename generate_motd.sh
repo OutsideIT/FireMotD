@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:	generate_motd.sh
-# Version:      v3.20.160211
+# Version:      v3.21.160211
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:    https://github.com/willemdh/generate_motd
 # On OutsideIT: https://outsideit.net/generate-motd
 # Recent History:
-#   23/01/16 => Added colortest function
 #   05/02/16 => Added Apache version check, spacing for Modern theme
 #   09/02/16 => Fixed leftover in modern theme, splitup uptime
 #   10/02/16 => Fixed issue on servers without httpd
 #   11/02/16 => Fixed bug with root drive information and added used perc
+#   12/02/16 => Fixed issue on long named volumes with POSIX output format 
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -112,14 +112,14 @@ GatherInfo () {
     SwapFree="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapFreeB/1024/1024))"
     SwapUsed="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapUsedB/1024/1024))"
     SwapTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapTotalB/1024/1024))"
-    RootFreeB="$(df -k / | tail -1 | awk '{print $4}')"
-    RootUsedB="$(df -k / | tail -1 | awk '{print $3}')"
+    RootFreeB="$(df -kP / | tail -1 | awk '{print $4}')"
+    RootUsedB="$(df -kP / | tail -1 | awk '{print $3}')"
 #    RootTotalB="$(expr $RootFreeB + $RootUsedB)"
-    RootTotalB="$(df -k / | tail -1 | awk '{print $2}')"
+    RootTotalB="$(df -kP / | tail -1 | awk '{print $2}')"
     RootFree="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootFreeB/1024/1024))"
     RootUsed="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootUsedB/1024/1024))"
     RootTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootTotalB/1024/1024))"
-    RootUsedPerc="$(df -k / | tail -1 | awk '{print $5}')"
+    RootUsedPerc="$(df -kP / | tail -1 | awk '{print $5}')"
     UpdateCount="$(cat /tmp/updatecount.txt)"
     SessionCount="$(who | grep $USER | wc -l)"
     ProcessCount="$(ps -Afl | wc -l)"
