@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:	generate_motd.sh
-# Version:      v3.22.160218
+# Version:      v4.00.160218
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -12,7 +12,7 @@
 #   10/02/16 => Fixed issue on servers without httpd
 #   11/02/16 => Fixed bug with root drive information and added used perc
 #   12/02/16 => Fixed issue on long named volumes with POSIX output format
-#   18/02/16 => Added MariaDB version if available 
+#   18/02/16 => Added MariaDB version if available, Html 
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -287,6 +287,11 @@ $FrS   ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$P
     echo -e "$PrHS$Sch2$HSB$Sch2$PHS$Sch1\e[0;37m"
 }
 
+GenerateHtmlTheme () {
+#     echo -e "<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Generate MotD</title><meta name="description" content="Generates a HTML MotD message"><meta name="author" content="OutsideIT"><link rel="stylesheet" href="css/styles.css?v=1.0"></head><body><script src="js/scripts.js"></script><p>test</p><table><thead><tr><th>Hostname</th><th>Head2</th></tr></thead><tbody><tr><td>Bla</td><td>Bla</td></tr></tbody><tfoot><tr><td></td></tr></tfoot></table></body></html>"
+# TODO => Put all html into variable and ouput at end. Integrate CSS.
+}
+
 while :; do
     case "$1" in
         -h|--help)
@@ -300,6 +305,7 @@ while :; do
 		modern|Modern) GatherInfo ; GenerateOriginal256Color ;;
 		red|Red) GatherInfo ; StartRedTheme ; GenerateBasic16Color ;;
                 blue|Blue) GatherInfo ; StartBlueTheme ; GenerateBasic16Color ;;
+		html|Html) GatherInfo ; GenerateHtmlTheme ;;
 		blank|Blank|blanco|Blanco|Text|Clean|clean) GatherInfo ; GenerateBasic16Color ;;
 		*) echo "you specified a non-existant theme." ; exit 2 ;;
 	    esac
