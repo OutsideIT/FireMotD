@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:	generate_motd.sh
-# Version:      v3.21.160211
+# Version:      v3.22.160218
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:    https://github.com/willemdh/generate_motd
 # On OutsideIT: https://outsideit.net/generate-motd
 # Recent History:
-#   05/02/16 => Added Apache version check, spacing for Modern theme
 #   09/02/16 => Fixed leftover in modern theme, splitup uptime
 #   10/02/16 => Fixed issue on servers without httpd
 #   11/02/16 => Fixed bug with root drive information and added used perc
-#   12/02/16 => Fixed issue on long named volumes with POSIX output format 
+#   12/02/16 => Fixed issue on long named volumes with POSIX output format
+#   18/02/16 => Added MariaDB version if available 
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -98,7 +98,7 @@ GatherInfo () {
         Platform="Unknown"
     fi
     CpuUtil="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
-    CpuProc="$(cat /proc/cpuinfo | grep processor | wc -l) core(s)."
+    CpuProc="$(cat /proc/cpuinfo | grep processor | wc -l)"
     CpuLoad="$(uptime | grep -ohe '[s:][: ].*' | awk '{ print "1m: "$2 " 5m: "$3 " 15m: " $4}')"
     MemFreeB="$(cat /proc/meminfo | grep MemFree | awk {'print $2'})"
     MemTotalB="$(cat /proc/meminfo | grep MemTotal | awk {'print $2'})"
@@ -114,12 +114,12 @@ GatherInfo () {
     SwapTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapTotalB/1024/1024))"
     RootFreeB="$(df -kP / | tail -1 | awk '{print $4}')"
     RootUsedB="$(df -kP / | tail -1 | awk '{print $3}')"
-#    RootTotalB="$(expr $RootFreeB + $RootUsedB)"
     RootTotalB="$(df -kP / | tail -1 | awk '{print $2}')"
     RootFree="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootFreeB/1024/1024))"
     RootUsed="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootUsedB/1024/1024))"
     RootTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootTotalB/1024/1024))"
-    RootUsedPerc="$(df -kP / | tail -1 | awk '{print $5}')"
+    RootUsedPerc="$(df -kP / | tail -1 | awk '{print $5}'| sed s'/%$//')"
+    RootFreePerc="$(expr 100 - $RootUsedPerc)" 
     UpdateCount="$(cat /tmp/updatecount.txt)"
     SessionCount="$(who | grep $USER | wc -l)"
     ProcessCount="$(ps -Afl | wc -l)"
@@ -142,6 +142,8 @@ GatherInfo () {
         HttpdVersion="$(${HttpdPath} -v | grep "Server version" | sed -e 's/.*[^0-9]\([0-9].[0-9]\+.[0-9]\+\)[^0-9]*$/\1/')"
         WriteLog Verbose Info "HttpdVersion: $HttpdVersion"
     fi
+    MariadbVersion="$(rpm -qa | grep mariadb-server | sed 's/.*-\(\([0-9]\+\.[0-9]\+\.[0-9]\+-[0-9]\+\)\).*/\1/')"
+    WriteLog Verbose Info "MariadbVersion: $MariadbVersion"
 }
 
 StartBlueTheme () {
@@ -239,19 +241,22 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 \e[0;38;5;17m##      \e[38;5;39mKernel \e[38;5;93m= \e[38;5;27m$Kernel
 \e[0;38;5;17m##    \e[38;5;39mPlatform \e[38;5;93m= \e[38;5;27m$Platform
 \e[0;38;5;17m##      \e[38;5;39mUptime \e[38;5;93m= \e[38;5;33m${UptimeDays} \e[38;5;27mday(s). \e[38;5;33m${UptimeHours}\e[38;5;27m:\e[38;5;33m${UptimeMinutes}\e[38;5;27m:\e[38;5;33m${UptimeSeconds}
-\e[0;38;5;17m##    \e[38;5;39mCPU Util \e[38;5;93m= \e[38;5;33m${CpuUtil}\e[38;5;27m% average CPU usage over $CpuProc
+\e[0;38;5;17m##   \e[38;5;39mCPU Usage \e[38;5;93m= \e[38;5;33m${CpuUtil}\e[38;5;27m% average CPU usage over \e[38;5;33m$CpuProc \e[38;5;27mcore(s)
 \e[0;38;5;17m##    \e[38;5;39mCPU Load \e[38;5;93m= \e[38;5;27m$CpuLoad
 \e[0;38;5;17m##      \e[38;5;39mMemory \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${MemFree}\e[38;5;27mGB, Used: \e[38;5;33m${MemUsed}\e[38;5;27mGB, Total: \e[38;5;33m${MemTotal}\e[38;5;27mGB
 \e[0;38;5;17m##        \e[38;5;39mSwap \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${SwapFree}\e[38;5;27mGB, Used: \e[38;5;33m${SwapUsed}\e[38;5;27mGB, Total: \e[38;5;33m${SwapTotal}\e[38;5;27mGB
-\e[0;38;5;17m##        \e[38;5;39mRoot \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${RootFree}\e[38;5;27mGB, Used: \e[38;5;33m${RootUsed}\e[38;5;27mGB ($RootUsedPerc), Total: \e[38;5;33m${RootTotal}\e[38;5;27mGB
+\e[0;38;5;17m##        \e[38;5;39mRoot \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${RootFree}\e[38;5;27mGB (\e[38;5;33m$RootFreePerc\e[38;5;27m%), Used: \e[38;5;33m${RootUsed}\e[38;5;27mGB (\e[38;5;33m$RootUsedPerc\e[38;5;27m%), Total: \e[38;5;33m${RootTotal}\e[38;5;27mGB
 \e[0;38;5;17m##     \e[38;5;39mUpdates \e[38;5;93m= \e[38;5;33m$UpdateCount\e[38;5;27m ${UpdateType}updates available
 \e[0;38;5;17m##    \e[38;5;39mSessions \e[38;5;93m= \e[38;5;33m$SessionCount\e[38;5;27m sessions
 \e[0;38;5;17m##   \e[38;5;39mProcesses \e[38;5;93m= \e[38;5;33m$ProcessCount\e[38;5;27m running processes of \e[38;5;33m$ProcessMax\e[38;5;27m maximum processes"
     if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
-        echo -e "\e[0;38;5;17m##    \e[38;5;39mPHP Info \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PhpVersion"
+        echo -e "\e[0;38;5;17m##         \e[38;5;39mPHP \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PhpVersion"
     fi
     if [[ $HttpdVersion =~ ^[0-9.]+$ ]] ; then
-        echo -e "\e[0;38;5;17m## \e[38;5;39mApache Info \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$HttpdVersion"
+        echo -e "\e[0;38;5;17m##      \e[38;5;39mApache \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$HttpdVersion"
+    fi
+    if [[ $MariadbVersion =~ ^[0-9.-]+$ ]] ; then
+        echo -e "\e[0;38;5;17m##     \e[38;5;39mMariaDB \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$MariadbVersion"
     fi
     echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme\e[0;37m"
 }
@@ -265,11 +270,11 @@ $FrS     ${KS}Release $ES ${VC}$OsVersion
 $FrS      ${KS}Kernel $ES ${VC}$Kernel
 $FrS    ${KS}Platform $ES ${VC}$Platform
 $FrS      ${KS}Uptime $ES ${VCL}${UptimeDays} ${VC}day(s). ${VCL}${UptimeHours}${VC}:${VCL}${UptimeMinutes}${VC}:${VCL}${UptimeSeconds}
-$FrS    ${KS}CPU Util $ES ${VCL}$CpuUtil ${VC}% average CPU usage over $CpuProc
+$FrS   ${KS}CPU Usage $ES ${VCL}$CpuUtil ${VC}% average CPU usage over ${VCL}${CpuProc}${VC} core(s)
 $FrS    ${KS}CPU Load $ES ${VC}$CpuLoad
 $FrS      ${KS}Memory $ES ${VC}Free: ${VCL}${MemFree}${VC} GB, Used: ${VCL}${MemUsed}${VC} GB, Total: ${VCL}${MemTotal}${VC} GB
 $FrS        ${KS}Swap $ES ${VC}Free: ${VCL}${SwapFree}${VC} GB, Used: ${VCL}${SwapUsed}${VC} GB, Total: ${VCL}${SwapTotal}${VC} GB
-$FrS        ${KS}Root $ES ${VC}Free: ${VCL}${RootFree}${VC} GB, Used: ${VCL}${RootUsed}${VC} GB ($RootUsedPerc), Total: ${VCL}${RootTotal}${VC} GB
+$FrS        ${KS}Root $ES ${VC}Free: ${VCL}${RootFree}${VC} GB (${VCL}$RootFreePerc${VC}%), Used: ${VCL}${RootUsed}${VC} GB (${VCL}$RootUsedPerc${VC}%), Total: ${VCL}${RootTotal}${VC} GB
 $FrS     ${KS}Updates $ES ${VCL}$UpdateCount${VC} ${UpdateType}updates available.
 $FrS    ${KS}Sessions $ES ${VCL}$SessionCount ${VC}sessions
 $FrS   ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$ProcessMax ${VC}maximum processes"
