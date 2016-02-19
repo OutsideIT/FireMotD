@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:	generate_motd.sh
-# Version:      v4.00.160218
+# Version:      v4.01.160219
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:    https://github.com/willemdh/generate_motd
 # On OutsideIT: https://outsideit.net/generate-motd
 # Recent History:
-#   09/02/16 => Fixed leftover in modern theme, splitup uptime
 #   10/02/16 => Fixed issue on servers without httpd
 #   11/02/16 => Fixed bug with root drive information and added used perc
 #   12/02/16 => Fixed issue on long named volumes with POSIX output format
 #   18/02/16 => Added MariaDB version if available, Html 
+#   19/02/16 => Better HTML and CSS
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -290,6 +290,138 @@ $FrS   ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$P
 GenerateHtmlTheme () {
 #     echo -e "<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Generate MotD</title><meta name="description" content="Generates a HTML MotD message"><meta name="author" content="OutsideIT"><link rel="stylesheet" href="css/styles.css?v=1.0"></head><body><script src="js/scripts.js"></script><p>test</p><table><thead><tr><th>Hostname</th><th>Head2</th></tr></thead><tbody><tr><td>Bla</td><td>Bla</td></tr></tbody><tfoot><tr><td></td></tr></tfoot></table></body></html>"
 # TODO => Put all html into variable and ouput at end. Integrate CSS.
+HtmlCode='<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Generate MotD</title><meta name="description" content="Generates a HTML MotD message"><meta name="author" content="OutsideIT"><style type="text/css">'
+HtmlCode+="h1 {
+	font-family: Verdana;
+	font-weight: normal;
+	color: #024457;
+	font-weight: bold;
+        padding-left:30px;
+}
+table a:link {
+	color: #666;
+	font-weight: bold;
+	text-decoration:none;
+}
+table a:visited {
+	color: #999999;
+	font-weight:bold;
+	text-decoration:none;
+}
+table a:active,
+table a:hover {
+	color: #bd5a35;
+	text-decoration:underline;
+}
+table {
+	font-family:Arial, Helvetica, sans-serif;
+	color:#666;
+	font-size:12px;
+	text-shadow: 1px 1px 0px #fff;
+	background:#eaebec;
+	margin:35px;
+	width:80%;
+	height:100%
+	border:#ccc 3px solid;
+ 	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+	-moz-box-shadow: 0 1px 2px #d1d1d1;
+	-webkit-box-shadow: 0 1px 2px #d1d1d1;
+	box-shadow: 0 1px 2px #d1d1d1;
+}
+table th {
+	padding:12px 25px 12px 25px;
+	border-top:2px solid #fafafa;
+	border-bottom:2px solid #e0e0e0;
+	font-size:22px;
+        font-weight:bold;
+	background: #ededed;
+	background: -webkit-gradient(linear, left top, left bottom, from(#ededed), to(#ebebeb));
+	background: -moz-linear-gradient(top,  #ededed,  #ebebeb);
+}
+table th:first-child {
+	text-align: left;
+	padding-left:20px;
+}
+table tr:first-child th:first-child {
+	-moz-border-radius-topleft:3px;
+	-webkit-border-top-left-radius:3px;
+	border-top-left-radius:3px;
+}
+table tr:first-child th:last-child {
+	-moz-border-radius-topright:3px;
+	-webkit-border-top-right-radius:3px;
+	border-top-right-radius:3px;
+}
+table tr {
+	text-align: left;
+	padding-left: 20px;
+}
+table td:first-child {
+	text-align: left;
+	padding-left:20px;
+	border-left: 0;
+}
+table td {
+	padding: 8px;
+	border-top: 1px solid #ffffff;
+	border-bottom: 1px solid #e0e0e0;
+	border-left: 2px solid #e0e0e0;
+
+	background: #fafafa;
+	background: -webkit-gradient(linear, left top, left bottom, from(#fbfbfb), to(#fafafa));
+	background: -moz-linear-gradient(top,  #fbfbfb,  #fafafa);
+}
+table tr.even td {
+	background: #f6f6f6;
+	background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#f6f6f6));
+	background: -moz-linear-gradient(top,  #f8f8f8,  #f6f6f6);
+}
+table tr:last-child td {
+	border-bottom:0;
+}
+table tr:last-child td:first-child {
+	-moz-border-radius-bottomleft:3px;
+	-webkit-border-bottom-left-radius:3px;
+	border-bottom-left-radius:3px;
+}
+table tr:last-child td:last-child {
+	-moz-border-radius-bottomright:3px;
+	-webkit-border-bottom-right-radius:3px;
+	border-bottom-right-radius:3px;
+}
+table tr:hover td {
+	background: #f2f2f2;
+	background: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#f0f0f0));
+	background: -moz-linear-gradient(top,  #f2f2f2,  #f0f0f0);	
+}
+.strong {
+   	font-weight: bold; 
+}
+.em {
+	font-style: italic; 
+}
+.right {
+	text-align: right;
+}
+
+
+"
+HtmlCode+="</style></head>"
+HtmlCode+="<body><script src=\"js/scripts.js\"></script><h1>System Overview - $Hostname</h1>"
+HtmlCode+="<table><thead><th>$Hostname</th><th class=\"right\">$ScriptVersion</th></thead>"
+HtmlCode+="<tr><td>Ip</td><td>$IpAddress</td></tr>"
+HtmlCode+="<tbody><tr><td>Operating System</td><td>$OsVersion</td></tr>"
+HtmlCode+="<tr><td>Kernel</td><td>$Kernel</td></tr>"
+HtmlCode+="<tr><td>Platform</td><td>$Platform</td></tr>"
+HtmlCode+="<tr><td>Uptime</td><td>${UptimeDays} day(s). ${UptimeHours}:${UptimeMinutes}:${UptimeSeconds}</td></tr>"
+
+HtmlCode+="</tbody></table></body></html>"
+
+echo $HtmlCode
+
+
 }
 
 while :; do
