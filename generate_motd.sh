@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:	generate_motd.sh
-# Version:      v4.01.160219
+# Version:      v4.02.160222
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:    https://github.com/willemdh/generate_motd
 # On OutsideIT: https://outsideit.net/generate-motd
 # Recent History:
-#   10/02/16 => Fixed issue on servers without httpd
 #   11/02/16 => Fixed bug with root drive information and added used perc
 #   12/02/16 => Fixed issue on long named volumes with POSIX output format
 #   18/02/16 => Added MariaDB version if available, Html 
 #   19/02/16 => Better HTML and CSS
+#   22/02/16 => Added which ip
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -78,7 +78,8 @@ GatherInfo () {
     elif [[ "$OsVersion" == "openSUSE"* ]] ; then
 	OsVersion="$(cat /etc/os-release | sed -n 4p | sed 's/PRETTY_NAME="//' | sed 's/ (.*//')"
     fi
-    IpAddress="$(ip route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
+    IpPath="$(which ip 2>/dev/null)"
+    IpAddress="$(${IpPath} route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
     Kernel="$(uname -rs)"
 #    Uptime="$(awk '{print int($1/86400)" day(s) "int($1%86400/3600)":"int(($1%3600)/60)":"int($1%60)}' /proc/uptime)"
     UptimeDays=$(awk '{print int($1/86400)}' /proc/uptime)
