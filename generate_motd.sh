@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:	generate_motd.sh
-# Version:      v4.02.160222
+# Version:      v4.03.160303
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:    https://github.com/willemdh/generate_motd
 # On OutsideIT: https://outsideit.net/generate-motd
 # Recent History:
-#   11/02/16 => Fixed bug with root drive information and added used perc
 #   12/02/16 => Fixed issue on long named volumes with POSIX output format
 #   18/02/16 => Added MariaDB version if available, Html 
 #   19/02/16 => Better HTML and CSS
 #   22/02/16 => Added which ip
+#   03/03/16 => Fun with colortest
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -62,8 +62,19 @@ CountUpdates () {
 }
 
 ColorTest () {
-   for code in {0..255}; do echo -n -e "\e[38;05;${code}m" ; echo -n -e "   ## \\\e[38;05;${code}m ##   " ; done
-
+#   for code in {0..255}; do echo -n -e "\e[38;05;${code}m" ; echo -n -e "   ## \\\e[38;05;${code}m ##   " ; done
+    string="Lientje"
+    run=1
+    for code1 in {1..16}; do
+    #   code=`expr $run \* $code1`
+    #   WriteLog Verbose Info "Code1: $code1, Code: $code, Run: $run"
+    #   echo -n -e "\e[38;05;${code}m ##\\\e[38;05;${code}m## "
+        for code2 in {1..16}; do
+            code=`expr $code1 \+ $code2`
+            echo -e "\e[38;05;${code}m ##\\\e[38;05;${code}m## "
+        done 
+        run=$((run + 1))
+    done
 
 }
 
