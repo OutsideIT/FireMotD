@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:	generate_motd.sh
-# Version:      v4.03.160303
+# Version:      v4.04.160403
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:    https://github.com/willemdh/generate_motd
 # On OutsideIT: https://outsideit.net/generate-motd
 # Recent History:
-#   12/02/16 => Fixed issue on long named volumes with POSIX output format
 #   18/02/16 => Added MariaDB version if available, Html 
 #   19/02/16 => Better HTML and CSS
 #   22/02/16 => Added which ip
 #   03/03/16 => Fun with colortest
+#   03/04/16 => Apt-get count fix
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -55,7 +55,7 @@ CountUpdates () {
 	    UpdateCount=0
 	fi
     elif [[ -x "/usr/bin/apt-get" ]] ; then
-        WriteLog Verbose Info "Apt-get detected (TODO)"
+        UpdateCount=$(apt-get update > /dev/null; apt-get upgrade -u -s | grep -P "^Inst" | wc -l)
     fi
     echo "$UpdateCount"
     exit 0
