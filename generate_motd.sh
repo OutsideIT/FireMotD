@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:	generate_motd.sh
-# Version:      v4.04.160403
+# Version:      v4.05.160409
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:    https://github.com/willemdh/generate_motd
 # On OutsideIT: https://outsideit.net/generate-motd
 # Recent History:
-#   18/02/16 => Added MariaDB version if available, Html 
 #   19/02/16 => Better HTML and CSS
 #   22/02/16 => Added which ip
 #   03/03/16 => Fun with colortest
 #   03/04/16 => Apt-get count fix
+#   09/04/16 => Check if yum before rpm check
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -142,20 +142,25 @@ GatherInfo () {
     HostChars=$((${#Hostname} + 8))
     LeftoverChars=$((MaxLeftOverChars - HostCHars -10))
     if [[ -x "/usr/bin/yum" ]] ; then
-        UpdateType="yum "
+        UpdateType="yum"
     elif [[ -x "/usr/bin/zypper" ]] ; then
-        UpdateType="zypper "
+        UpdateType="zypper"
     elif [[ -x "/usr/bin/apt-get" ]] ; then
-        UpdateType="apt-get "
-    fi    
+        UpdateType="apt-get"
+    fi   
+    WriteLog Verbose Info "UpdateType: $UpdateType"
     HttpdPath="$(which httpd 2>/dev/null)"
     WriteLog Verbose Info "HttpdPath: $HttpdPath"
     if [[ ! -z $HttpdPath ]] ; then
         HttpdVersion="$(${HttpdPath} -v | grep "Server version" | sed -e 's/.*[^0-9]\([0-9].[0-9]\+.[0-9]\+\)[^0-9]*$/\1/')"
         WriteLog Verbose Info "HttpdVersion: $HttpdVersion"
     fi
-    MariadbVersion="$(rpm -qa | grep mariadb-server | sed 's/.*-\(\([0-9]\+\.[0-9]\+\.[0-9]\+-[0-9]\+\)\).*/\1/')"
-    WriteLog Verbose Info "MariadbVersion: $MariadbVersion"
+    case $UpdateType in
+        "yum" )
+            MariadbVersion="$(rpm -qa | grep mariadb-server | sed 's/.*-\(\([0-9]\+\.[0-9]\+\.[0-9]\+-[0-9]\+\)\).*/\1/')"
+            WriteLog Verbose Info "MariadbVersion: $MariadbVersion" ;;
+        *) WriteLog Verbose Info "$UpdateType not yet supported." ;;
+    esac
 }
 
 StartBlueTheme () {
@@ -258,7 +263,7 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 \e[0;38;5;17m##      \e[38;5;39mMemory \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${MemFree}\e[38;5;27mGB, Used: \e[38;5;33m${MemUsed}\e[38;5;27mGB, Total: \e[38;5;33m${MemTotal}\e[38;5;27mGB
 \e[0;38;5;17m##        \e[38;5;39mSwap \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${SwapFree}\e[38;5;27mGB, Used: \e[38;5;33m${SwapUsed}\e[38;5;27mGB, Total: \e[38;5;33m${SwapTotal}\e[38;5;27mGB
 \e[0;38;5;17m##        \e[38;5;39mRoot \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${RootFree}\e[38;5;27mGB (\e[38;5;33m$RootFreePerc\e[38;5;27m%), Used: \e[38;5;33m${RootUsed}\e[38;5;27mGB (\e[38;5;33m$RootUsedPerc\e[38;5;27m%), Total: \e[38;5;33m${RootTotal}\e[38;5;27mGB
-\e[0;38;5;17m##     \e[38;5;39mUpdates \e[38;5;93m= \e[38;5;33m$UpdateCount\e[38;5;27m ${UpdateType}updates available
+\e[0;38;5;17m##     \e[38;5;39mUpdates \e[38;5;93m= \e[38;5;33m$UpdateCount\e[38;5;27m ${UpdateType} updates available
 \e[0;38;5;17m##    \e[38;5;39mSessions \e[38;5;93m= \e[38;5;33m$SessionCount\e[38;5;27m sessions
 \e[0;38;5;17m##   \e[38;5;39mProcesses \e[38;5;93m= \e[38;5;33m$ProcessCount\e[38;5;27m running processes of \e[38;5;33m$ProcessMax\e[38;5;27m maximum processes"
     if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
@@ -287,7 +292,7 @@ $FrS    ${KS}CPU Load $ES ${VC}$CpuLoad
 $FrS      ${KS}Memory $ES ${VC}Free: ${VCL}${MemFree}${VC} GB, Used: ${VCL}${MemUsed}${VC} GB, Total: ${VCL}${MemTotal}${VC} GB
 $FrS        ${KS}Swap $ES ${VC}Free: ${VCL}${SwapFree}${VC} GB, Used: ${VCL}${SwapUsed}${VC} GB, Total: ${VCL}${SwapTotal}${VC} GB
 $FrS        ${KS}Root $ES ${VC}Free: ${VCL}${RootFree}${VC} GB (${VCL}$RootFreePerc${VC}%), Used: ${VCL}${RootUsed}${VC} GB (${VCL}$RootUsedPerc${VC}%), Total: ${VCL}${RootTotal}${VC} GB
-$FrS     ${KS}Updates $ES ${VCL}$UpdateCount${VC} ${UpdateType}updates available.
+$FrS     ${KS}Updates $ES ${VCL}$UpdateCount${VC} ${UpdateType} updates available.
 $FrS    ${KS}Sessions $ES ${VCL}$SessionCount ${VC}sessions
 $FrS   ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$ProcessMax ${VC}maximum processes"
     if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
