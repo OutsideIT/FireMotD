@@ -19,6 +19,11 @@ Red:
 
 ![MotD Generator Red Raspbian](/../screenshots/generate-motd-red-raspbian.png?raw=true "MotD Generator Red Raspbian")
 
+Original:
+
+![MotD Generator Original Raspbian](/../screenshots/generate-motd-original-raspbian.png?raw=true "MotD Generator Original Raspbian")
+
+
 ### Status
 
 Production ready.
