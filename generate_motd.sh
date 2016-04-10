@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:	generate_motd.sh
-# Version:      v4.05.160409
+# Version:      v4.06.160410
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:    https://github.com/willemdh/generate_motd
 # On OutsideIT: https://outsideit.net/generate-motd
 # Recent History:
-#   19/02/16 => Better HTML and CSS
 #   22/02/16 => Added which ip
 #   03/03/16 => Fun with colortest
 #   03/04/16 => Apt-get count fix
 #   09/04/16 => Check if yum before rpm check
+#   10/04/16 => Sed for Raspbian OS version and Pi platform
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -27,19 +27,32 @@
 Verbose=0
 
 WriteLog () {
-  if [ -z "$1" ] ; then echo "WriteLog: Log parameter #1 is zero length. Please debug..." ; exit 1
-  else
-    if [ -z "$2" ] ; then echo "WriteLog: Severity parameter #2 is zero length. Please debug..." ; exit 1
+    if [ -z "$1" ] ; then
+        echo "WriteLog: Log parameter #1 is zero length. Please debug..."
+        exit 1
     else
-      if [ -z "$3" ] ; then echo "WriteLog: Message parameter #3 is zero length. Please debug..." ; exit 1 ; fi
+        if [ -z "$2" ] ; then
+            echo "WriteLog: Severity parameter #2 is zero length. Please debug..."
+            exit 1
+        else
+            if [ -z "$3" ] ; then
+                echo "WriteLog: Message parameter #3 is zero length. Please debug..."
+                exit 1
+            fi
+        fi
     fi
-  fi
-  Now=$(date '+%Y-%m-%d %H:%M:%S,%3N')
-  if [ $1 = "Verbose" -a $Verbose = 1 ] ; then echo -e "$Now: $2: $3"
-  elif [ $1 = "Verbose" -a $Verbose = 0 ] ; then :
-  elif [ $1 = "Output" ] ; then echo "${Now}: $2: $3"
-  elif [ -f $1 ] ; then echo "${Now}: $4 $2: $3" >> $1
-  fi
+    Now=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    FullScriptName="${BASH_SOURCE[0]}"
+    ScriptName=$(basename "$FullScriptName")
+    if [ "${1,,}" = "verbose" -a $Verbose = 1 ] ; then
+        echo "$Now: $ScriptName: $2: $3"
+    elif [ "${1,,}" = "verbose" -a $Verbose = 0 ] ; then
+        :
+    elif [ "${1,,}" = "output" ] ; then
+        echo "${Now}: $ScriptName: $2: $3"
+    elif [ -f $1 ] ; then
+        echo "${Now}: $ScriptName: $2: $3" >> $1
+    fi
 }
 
 CountUpdates () {
@@ -88,6 +101,8 @@ GatherInfo () {
         OsVersion="${OsVersion}.$PatchLevel"
     elif [[ "$OsVersion" == "openSUSE"* ]] ; then
 	OsVersion="$(cat /etc/os-release | sed -n 4p | sed 's/PRETTY_NAME="//' | sed 's/ (.*//')"
+    elif [[ "$OsVersion" == *"Raspbian"* ]] ; then
+        OsVersion="$(cat /etc/*release | head -n 1 | sed 's/.*"\(.*\)"[^"]*$/\1/')"
     fi
     IpPath="$(which ip 2>/dev/null)"
     IpAddress="$(${IpPath} route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
@@ -107,7 +122,12 @@ GatherInfo () {
     elif [[ "$Dmi" = *"VirtualBox"* ]] ; then
         Platform="$(dmesg | grep "DMI:" | sed 's/^.*VirtualBox/VirtualBox/' | sed 's/ .*//')"
     else
-        Platform="Unknown"
+        Dmi="$(dmesg | grep "Rasp")"
+        if [[ "$Dmi" = *"Rasp"* ]] ; then
+            Platform="$(dmesg | grep "Rasp" | sed 's/.*: //')"
+        else
+            Platform="Unknown"
+        fi
     fi
     CpuUtil="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
     CpuProc="$(cat /proc/cpuinfo | grep processor | wc -l)"
