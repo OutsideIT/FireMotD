@@ -9,19 +9,15 @@ memory, disk information.
 
 Modern:
 
-![MotD Generator Modern 01](/../screenshots/generate-motd-modern-babun-latest.png?raw=true "MotD Generator Modern 01")
-
-Original:
-
-![MotD Generator Original 01](/../screenshots/generate-motd-original-latest.png?raw=true "MotD Generator Original 01")
+![MotD Generator Modern Raspbian](/../screenshots/generate-motd-modern-raspbian.png?raw=true "MotD Generator Modern Raspbian")
 
 Blue:
 
-![MotD Generator Blue Babun 01](/../screenshots/generate-motd-blue-babun-latest.png?raw=true "MotD Generator Blue Babun 01")
+![MotD Generator Blue Raspbian](/../screenshots/generate-motd-blue-raspbian.png?raw=true "MotD Generator Blue Raspbian")
 
 Red:
 
-![MotD Generator Red Babun 01](/../screenshots/generate-motd-red-babun-latest.png?raw=true "MotD Generator Red Babun 01")
+![MotD Generator Red Raspbian](/../screenshots/generate-motd-red-raspbian.png?raw=true "MotD Generator Red Raspbian")
 
 ### Status
 
@@ -29,7 +25,7 @@ Production ready.
 
 ### How To
 
-Please check http://outsideit.net/generate-motd for more information on how to use this plugin.
+Please check https://outsideit.net/generate-motd for more information on how to use this plugin.
 
 ### Help
 
