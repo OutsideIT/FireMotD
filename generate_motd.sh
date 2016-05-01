@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:	generate_motd.sh
-# Version:      v4.07.160410
+# Version:      v4.09.160501
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:    https://github.com/willemdh/generate_motd
 # On OutsideIT: https://outsideit.net/generate-motd
 # Recent History:
-#   22/02/16 => Added which ip
 #   03/03/16 => Fun with colortest
 #   03/04/16 => Apt-get count fix
 #   09/04/16 => Check if yum before rpm check
 #   10/04/16 => Sed for Raspbian OS version and Pi platform
+#   01/05/16 => Moved /tmp/updatecount.txt from /tmp to /var/tmp
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -152,7 +152,7 @@ GatherInfo () {
     RootTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootTotalB/1024/1024))"
     RootUsedPerc="$(df -kP / | tail -1 | awk '{print $5}'| sed s'/%$//')"
     RootFreePerc="$(expr 100 - $RootUsedPerc)" 
-    UpdateCount="$(cat /tmp/updatecount.txt)"
+    UpdateCount="$(cat /var/tmp/updatecount.txt)"
     SessionCount="$(who | grep $USER | wc -l)"
     ProcessCount="$(ps -Afl | wc -l)"
     ProcessMax="$(ulimit -u)"
