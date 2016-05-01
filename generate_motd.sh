@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:	generate_motd.sh
-# Version:      v4.09.160501
+# Version:      v4.10.160501
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -12,7 +12,7 @@
 #   03/04/16 => Apt-get count fix
 #   09/04/16 => Check if yum before rpm check
 #   10/04/16 => Sed for Raspbian OS version and Pi platform
-#   01/05/16 => Moved /tmp/updatecount.txt from /tmp to /var/tmp
+#   01/05/16 => Swap and Memory percentages /var/tmp/updatecount.txt
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -136,13 +136,26 @@ GatherInfo () {
     MemTotalB="$(cat /proc/meminfo | grep MemTotal | awk {'print $2'})"
     MemUsedB="$(expr $MemTotalB - $MemFreeB)"
     MemFree="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$MemFreeB/1024/1024))"
+    WriteLog Verbose Info "MemFree: $MemFree"
     MemUsed="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$MemUsedB/1024/1024))"
+    WriteLog Verbose Info "MemUsed: $MemUsed"
     MemTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$MemTotalB/1024/1024))"
+    WriteLog Verbose Info "MemTotal: $MemTotal"
+    MemFreePerc=$(echo "scale=2; $MemFree*100/$MemTotal" | bc)
+    MemFreePerc=$(echo $(LC_NUMERIC=C printf "%.0f" $MemFreePerc))
+    WriteLog Verbose Info "MemFreePerc: $MemFreePerc"
+    #MemUsedPerc=$(echo "scale=2; $MemUsed*100/$MemTotal" | bc)
+    #MemUsedPerc=$(echo $(LC_NUMERIC=C printf "%.0f" $MemUsedPerc))
+    MemUsedPerc=$(echo "100-$MemFreePerc" | bc)
+    WriteLog Verbose Info "MemUsedPerc: $MemUsedPerc"
     SwapFreeB="$(cat /proc/meminfo | grep SwapFree | awk {'print $2'})"
     SwapTotalB="$(cat /proc/meminfo | grep SwapTotal | awk {'print $2'})"
     SwapUsedB="$(expr $SwapTotalB - $SwapFreeB)"
     SwapFree="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapFreeB/1024/1024))"
+    SwapFreePerc=$(echo "scale=2; $SwapFreeB*100/$SwapTotalB" | bc)
+    SwapFreePerc=$(echo $(LC_NUMERIC=C printf "%.0f" $SwapFreePerc))
     SwapUsed="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapUsedB/1024/1024))"
+    SwapUsedPerc=$(echo "100-$SwapFreePerc" | bc)
     SwapTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapTotalB/1024/1024))"
     RootFreeB="$(df -kP / | tail -1 | awk '{print $4}')"
     RootUsedB="$(df -kP / | tail -1 | awk '{print $3}')"
@@ -283,8 +296,8 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 \e[0;38;5;17m$Fto      \e[38;5;39mUptime \e[38;5;93m= \e[38;5;33m${UptimeDays} \e[38;5;27mday(s). \e[38;5;33m${UptimeHours}\e[38;5;27m:\e[38;5;33m${UptimeMinutes}\e[38;5;27m:\e[38;5;33m${UptimeSeconds}
 \e[0;38;5;17m$Fto   \e[38;5;39mCPU Usage \e[38;5;93m= \e[38;5;33m${CpuUtil}\e[38;5;27m% average CPU usage over \e[38;5;33m$CpuProc \e[38;5;27mcore(s)
 \e[0;38;5;17m$Fto    \e[38;5;39mCPU Load \e[38;5;93m= \e[38;5;27m$CpuLoad
-\e[0;38;5;17m$Fto      \e[38;5;39mMemory \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${MemFree}\e[38;5;27mGB, Used: \e[38;5;33m${MemUsed}\e[38;5;27mGB, Total: \e[38;5;33m${MemTotal}\e[38;5;27mGB
-\e[0;38;5;17m$Fto        \e[38;5;39mSwap \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${SwapFree}\e[38;5;27mGB, Used: \e[38;5;33m${SwapUsed}\e[38;5;27mGB, Total: \e[38;5;33m${SwapTotal}\e[38;5;27mGB
+\e[0;38;5;17m$Fto      \e[38;5;39mMemory \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${MemFree}\e[38;5;27mGB (\e[38;5;33m$MemFreePerc\e[38;5;27m%), Used: \e[38;5;33m${MemUsed}\e[38;5;27mGB (\e[38;5;33m$MemUsedPerc\e[38;5;27m%), Total: \e[38;5;33m${MemTotal}\e[38;5;27mGB
+\e[0;38;5;17m$Fto        \e[38;5;39mSwap \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${SwapFree}\e[38;5;27mGB (\e[38;5;33m$SwapFreePerc\e[38;5;27m%), Used: \e[38;5;33m${SwapUsed}\e[38;5;27mGB (\e[38;5;33m$SwapUsedPerc\e[38;5;27m%), Total: \e[38;5;33m${SwapTotal}\e[38;5;27mGB
 \e[0;38;5;17m$Fto        \e[38;5;39mRoot \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${RootFree}\e[38;5;27mGB (\e[38;5;33m$RootFreePerc\e[38;5;27m%), Used: \e[38;5;33m${RootUsed}\e[38;5;27mGB (\e[38;5;33m$RootUsedPerc\e[38;5;27m%), Total: \e[38;5;33m${RootTotal}\e[38;5;27mGB
 \e[0;38;5;17m$Fto     \e[38;5;39mUpdates \e[38;5;93m= \e[38;5;33m$UpdateCount\e[38;5;27m ${UpdateType} updates available
 \e[0;38;5;17m$Fto    \e[38;5;39mSessions \e[38;5;93m= \e[38;5;33m$SessionCount\e[38;5;27m sessions
@@ -312,8 +325,8 @@ $FrS    ${KS}Platform $ES ${VC}$Platform
 $FrS      ${KS}Uptime $ES ${VCL}${UptimeDays} ${VC}day(s). ${VCL}${UptimeHours}${VC}:${VCL}${UptimeMinutes}${VC}:${VCL}${UptimeSeconds}
 $FrS   ${KS}CPU Usage $ES ${VCL}$CpuUtil ${VC}% average CPU usage over ${VCL}${CpuProc}${VC} core(s)
 $FrS    ${KS}CPU Load $ES ${VC}$CpuLoad
-$FrS      ${KS}Memory $ES ${VC}Free: ${VCL}${MemFree}${VC} GB, Used: ${VCL}${MemUsed}${VC} GB, Total: ${VCL}${MemTotal}${VC} GB
-$FrS        ${KS}Swap $ES ${VC}Free: ${VCL}${SwapFree}${VC} GB, Used: ${VCL}${SwapUsed}${VC} GB, Total: ${VCL}${SwapTotal}${VC} GB
+$FrS      ${KS}Memory $ES ${VC}Free: ${VCL}${MemFree}${VC} GB (${VCL}$MemFreePerc${VC}%), Used: ${VCL}${MemUsed}${VC} GB (${VCL}$MemUsedPerc${VC}%), Total: ${VCL}${MemTotal}${VC} GB
+$FrS        ${KS}Swap $ES ${VC}Free: ${VCL}${SwapFree}${VC} GB (${VCL}$SwapFreePerc${VC}%), Used: ${VCL}${SwapUsed}${VC} GB (${VCL}$SwapUsedPerc${VC}%), Total: ${VCL}${SwapTotal}${VC} GB
 $FrS        ${KS}Root $ES ${VC}Free: ${VCL}${RootFree}${VC} GB (${VCL}$RootFreePerc${VC}%), Used: ${VCL}${RootUsed}${VC} GB (${VCL}$RootUsedPerc${VC}%), Total: ${VCL}${RootTotal}${VC} GB
 $FrS     ${KS}Updates $ES ${VCL}$UpdateCount${VC} ${UpdateType} updates available.
 $FrS    ${KS}Sessions $ES ${VCL}$SessionCount ${VC}sessions
