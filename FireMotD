@@ -1,18 +1,18 @@
 #!/bin/bash
-# Script name:	generate_motd.sh
-# Version:      v4.10.160501
+# Script name:  FireMotD
+# Version:      v5.01.160519
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
 #               of they day for users logging in.
-# On GitHub:    https://github.com/willemdh/generate_motd
-# On OutsideIT: https://outsideit.net/generate-motd
+# On GitHub:    https://github.com/willemdh/FireMotD
+# On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   03/03/16 => Fun with colortest
 #   03/04/16 => Apt-get count fix
 #   09/04/16 => Check if yum before rpm check
 #   10/04/16 => Sed for Raspbian OS version and Pi platform
 #   01/05/16 => Swap and Memory percentages /var/tmp/updatecount.txt
+#   19/05/16 => Migration to FireMotD
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -341,9 +341,9 @@ $FrS   ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$P
 }
 
 GenerateHtmlTheme () {
-#     echo -e "<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Generate MotD</title><meta name="description" content="Generates a HTML MotD message"><meta name="author" content="OutsideIT"><link rel="stylesheet" href="css/styles.css?v=1.0"></head><body><script src="js/scripts.js"></script><p>test</p><table><thead><tr><th>Hostname</th><th>Head2</th></tr></thead><tbody><tr><td>Bla</td><td>Bla</td></tr></tbody><tfoot><tr><td></td></tr></tfoot></table></body></html>"
+#     echo -e "<!doctype html><html lang="en"><head><meta charset="utf-8"><title>FireMotD</title><meta name="description" content="Generates a HTML MotD message"><meta name="author" content="OutsideIT"><link rel="stylesheet" href="css/styles.css?v=1.0"></head><body><script src="js/scripts.js"></script><p>test</p><table><thead><tr><th>Hostname</th><th>Head2</th></tr></thead><tbody><tr><td>Bla</td><td>Bla</td></tr></tbody><tfoot><tr><td></td></tr></tfoot></table></body></html>"
 # TODO => Put all html into variable and ouput at end. Integrate CSS.
-HtmlCode='<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Generate MotD</title><meta name="description" content="Generates a HTML MotD message"><meta name="author" content="OutsideIT"><style type="text/css">'
+HtmlCode='<!doctype html><html lang="en"><head><meta charset="utf-8"><title>FireMotD</title><meta name="description" content="Generates a HTML MotD message"><meta name="author" content="OutsideIT"><style type="text/css">'
 HtmlCode+="h1 {
 	font-family: Verdana;
 	font-weight: normal;
@@ -473,8 +473,6 @@ HtmlCode+="<tr><td>Uptime</td><td>${UptimeDays} day(s). ${UptimeHours}:${UptimeM
 HtmlCode+="</tbody></table></body></html>"
 
 echo $HtmlCode
-
-
 }
 
 while :; do
@@ -486,14 +484,14 @@ while :; do
         -t|--Theme)
             shift; Theme=$1 
             case "$Theme" in
-		original|Original) GatherInfo ; StartOriginalBlue ; GenerateOriginal256Color ;;
-		modern|Modern) GatherInfo ; GenerateOriginal256Color ;;
-		red|Red) GatherInfo ; StartRedTheme ; GenerateBasic16Color ;;
+                original|Original) GatherInfo ; StartOriginalBlue ; GenerateOriginal256Color ;;
+                modern|Modern) GatherInfo ; GenerateOriginal256Color ;;
+                red|Red) GatherInfo ; StartRedTheme ; GenerateBasic16Color ;;
                 blue|Blue) GatherInfo ; StartBlueTheme ; GenerateBasic16Color ;;
-		html|Html) GatherInfo ; GenerateHtmlTheme ;;
-		blank|Blank|blanco|Blanco|Text|Clean|clean) GatherInfo ; GenerateBasic16Color ;;
-		*) echo "you specified a non-existant theme." ; exit 2 ;;
-	    esac
+                html|Html) GatherInfo ; GenerateHtmlTheme ;;
+                blank|Blank|blanco|Blanco|Text|Clean|clean) GatherInfo ; GenerateBasic16Color ;;
+                *) echo "you specified a non-existant theme." ; exit 2 ;;
+            esac
             shift ;;
         -C|--Colortest) ColorTest ; shift ;;
         -*) echo "you specified a non-existant option. " ; exit 2 ;;
