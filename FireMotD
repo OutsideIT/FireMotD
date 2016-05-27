@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.01.160519
+# Version:      v5.02.160527
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -8,11 +8,11 @@
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   03/04/16 => Apt-get count fix
 #   09/04/16 => Check if yum before rpm check
 #   10/04/16 => Sed for Raspbian OS version and Pi platform
 #   01/05/16 => Swap and Memory percentages /var/tmp/updatecount.txt
 #   19/05/16 => Migration to FireMotD
+#   27/05/16 => Fix for WriteLog on OpenSUSE
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -44,14 +44,17 @@ WriteLog () {
     Now=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     FullScriptName="${BASH_SOURCE[0]}"
     ScriptName=$(basename "$FullScriptName")
-    if [ "${1,,}" = "verbose" -a $Verbose = 1 ] ; then
+    if [ "$1" = "Verbose" -a $Verbose = 1 ] ; then
         echo "$Now: $ScriptName: $2: $3"
-    elif [ "${1,,}" = "verbose" -a $Verbose = 0 ] ; then
+    elif [ "$1" = "Verbose" -a $Verbose = 0 ] ; then
         :
-    elif [ "${1,,}" = "output" ] ; then
+    elif [ "$1" = "Output" ] ; then
         echo "${Now}: $ScriptName: $2: $3"
     elif [ -f $1 ] ; then
         echo "${Now}: $ScriptName: $2: $3" >> $1
+    fi
+    if [ ! -z $LogLocal ] ; then
+        echo "${Now}: $ScriptName: $2: $3" >> $LogLocal
     fi
 }
 
@@ -88,7 +91,6 @@ ColorTest () {
         done 
         run=$((run + 1))
     done
-
 }
 
 GatherInfo () {
@@ -479,7 +481,7 @@ while :; do
     case "$1" in
         -h|--help)
             DisplayHelp="true" ; shift ;;
-            yum|YUM|Yum|Zypper|zypper|-U|--Updates|-Y)
+        yum|YUM|Yum|Zypper|zypper|-U|--Updates|-Y)
             CountUpdates ; shift ;;
         -t|--Theme)
             shift; Theme=$1 
