@@ -30,7 +30,7 @@ Production ready.
 
 ### How To
 
-Please check https://outsideit.net/generate-motd for more information on how to use this plugin.
+Please check https://outsideit.net/FireMotD/ for more information on how to use this plugin.
 
 ### Help
 
@@ -38,7 +38,7 @@ In case you find a bug or have a feature request, please make an issue on GitHub
 
 ### On Nagios Exchange
 
-https://exchange.nagios.org/directory/Utilities/MotD-Generator/details
+https://exchange.nagios.org/directory/Utilities/FireMotD/details
 
 ### Copyright
 
