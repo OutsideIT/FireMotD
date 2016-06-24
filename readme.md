@@ -90,7 +90,10 @@ sudo make bash_completion
 ### Crontab example 
 
 This is an example on how to update the System Update Info daily.
+
 This will update the /var/tmp/updatecount.txt file for later access.
+
+Root privilege is required for this operation.
 
 To edit root's crontab:
 ```bash
