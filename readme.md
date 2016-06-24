@@ -40,7 +40,7 @@ In case you find a bug or have a feature request, please make an issue on GitHub
 
 ```
 $ FireMotD --help
-/usr/local/bin/FireMotD v5.02.160528
+/usr/local/bin/FireMotD v5.03.160624
 
 Usage: /usr/local/bin/FireMotD <-t theme> [UhCVv]
 
