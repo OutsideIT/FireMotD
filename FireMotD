@@ -511,7 +511,7 @@ Examples:
   $0 --saveupdates
 
 Note:
-  Some functionality may require superuser priviledges. Eg. check for updates.
+  Some functionalities may require superuser priviledges. Eg. check for updates.
   Please try doing sudo $0 if you have problems.
 "
 	exit 0
@@ -546,7 +546,7 @@ while :; do
             printVersion ; exit 0 ;;
         -h|--help|--Help)
             printHelp ; exit 0 ;;
-        yum|YUM|Yum|Zypper|zypper|-U|--Updates|-Y)
+        yum|YUM|Yum|Zypper|zypper|-U|--Updates|--updates|-Y)
             checkSudo $@; CountUpdates ; shift ;;
         -s|--saveupdates|--SaveUpdates|--saveUpdates)
             checkSudo $@; CountUpdates > /var/tmp/updatecount.txt ; shift ;;
