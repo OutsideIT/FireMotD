@@ -28,6 +28,8 @@
 
 Verbose=0
 Version=5.02.160528
+UpdateFile=/var/tmp/updatecount.txt
+
 
 WriteLog () {
     if [ -z "$1" ] ; then
@@ -171,7 +173,7 @@ GatherInfo () {
     RootTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootTotalB/1024/1024))"
     RootUsedPerc="$(df -kP / | tail -1 | awk '{print $5}'| sed s'/%$//')"
     RootFreePerc="$(expr 100 - $RootUsedPerc)" 
-    UpdateCount="$(cat /var/tmp/updatecount.txt)"
+    UpdateCount="$(cat $UpdateFile)"
     SessionCount="$(who | grep $USER | wc -l)"
     ProcessCount="$(ps -Afl | wc -l)"
     ProcessMax="$(ulimit -u)"
@@ -494,7 +496,7 @@ Options:
   -C | --colortest   Prints color test to screen
   -U | --updates     Checks updates and prints to stdout
   -s | --saveupdates Check updates and saves to disk
-                     (same as $0 -U > /var/tmp/updatecount.txt)
+                     (same as $0 -U > $UpdateFile)
 
 Available Themes:
   -t original
@@ -549,7 +551,7 @@ while :; do
         yum|YUM|Yum|Zypper|zypper|-U|--Updates|--updates|-Y)
             checkSudo $@; CountUpdates ; shift ;;
         -s|--saveupdates|--SaveUpdates|--saveUpdates)
-            checkSudo $@; CountUpdates > /var/tmp/updatecount.txt ; shift ;;
+            checkSudo $@; CountUpdates > "$UpdateFile" ; chmod 644 "$UpdateFile" ; shift ;;
         -t|--Theme|--theme)
             shift; Theme=$1 
             case "$Theme" in
