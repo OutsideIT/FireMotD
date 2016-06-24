@@ -3,7 +3,7 @@
 #
 # Jun 24 2016 - Gustavo Neves
 
-IDIR=/usr/local/sbin
+IDIR=/usr/local/bin
 IFILE=$(IDIR)/FireMotD
 
 BCIDIR=bash_completion.d

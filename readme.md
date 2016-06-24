@@ -36,6 +36,57 @@ Please check https://outsideit.net/FireMotD/ for more information on how to use 
 
 In case you find a bug or have a feature request, please make an issue on GitHub.
 
+### Usage Help
+
+```
+$ FireMotD --help
+/usr/local/bin/FireMotD v5.02.160528
+
+Usage: /usr/local/bin/FireMotD <-t theme> [UhCVv]
+
+Options:
+  -h | --help        Shows this help and exits
+  -v | --verbose     Verbose mode (shows messages)
+  -V | --version     Shows version information and exits
+  -t | --theme       Shows Motd info on screen, based on the chosen theme
+  -C | --colortest   Prints color test to screen
+  -U | --updates     Checks updates and prints to stdout
+  -s | --saveupdates Check updates and saves to disk
+                     (same as /usr/local/bin/FireMotD -U > /var/tmp/updatecount.txt)
+
+Available Themes:
+  -t original
+  -t modern
+  -t red
+  -t blue
+  -t html
+  -t blank
+
+Examples:
+  /usr/local/bin/FireMotD -t original
+  /usr/local/bin/FireMotD --theme Modern
+  /usr/local/bin/FireMotD --colortest
+  /usr/local/bin/FireMotD --saveupdates
+
+Note:
+  Some functionalities may require superuser priviledges. Eg. check for updates.
+  Please try doing sudo /usr/local/bin/FireMotD if you have problems.
+```
+
+### System Install
+
+You need to have `make` installed on the system.
+
+Then to install to /usr/local/bin:
+```bash
+sudo make install
+```
+
+To install bash_completion (with TAB):
+```bash
+sudo make bash_completion
+```
+
 ### On Nagios Exchange
 
 https://exchange.nagios.org/directory/Utilities/FireMotD/details
