@@ -525,7 +525,8 @@ usage() {
 }
 
 printVersion() {
-	echo "$0 v$ScriptVersion"
+	cVersion="$(echo -e "${ScriptVersion}" | tr -d '[[:space:]]')"
+	echo "$(basename $0) v$cVersion"
 	return 0
 }
 
