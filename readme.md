@@ -87,6 +87,39 @@ To install bash_completion (with TAB):
 sudo make bash_completion
 ```
 
+### Crontab example 
+
+This is an example on how to update the System Update Info daily.
+This will update the /var/tmp/updatecount.txt file for later access.
+
+To edit root's crontab:
+```bash
+sudo crontab -e
+```
+
+Then add this line (updates everyday at 3:03am)
+```bash
+3 3 * * * /usr/local/bin/FireMotD -s
+```
+
+Or using the old way:
+```bash
+3 3 * * * /usr/local/bin/FireMotD -U > /var/tmp/updatecount.txt
+```
+
+### Adding to an SSH session
+
+To add this to a single user, just call the program from the user's ~/.profile file.
+
+```bash
+nano ~/.profile
+```
+
+Then add to the end (choose your theme):
+```bash
+/usr/local/bin/FireMotD -t modern
+```
+
 ### On Nagios Exchange
 
 https://exchange.nagios.org/directory/Utilities/FireMotD/details
