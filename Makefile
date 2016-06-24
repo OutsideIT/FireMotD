@@ -6,8 +6,8 @@
 IDIR=/usr/local/sbin
 IFILE=$(IDIR)/FireMotD
 
-BCIDIR=$(IDIR)/bash_completion.d
-BCIFILE=$(BCDIR)/FireMotD
+BCIDIR=bash_completion.d
+BCIFILE=$(BCIDIR)/FireMotD
 
 BCODIR=/etc/bash_completion.d
 BCOFILE=$(BCODIR)/FireMotD
