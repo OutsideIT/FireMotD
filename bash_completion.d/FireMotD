@@ -1,0 +1,29 @@
+# file: FireMotD
+# /usr/local/sbin/FireMotD parameter-completion
+
+_FireMotD ()   #  By convention, the function name
+{                 #+ starts with an underscore.
+
+  local cur prev prevv
+  # Pointer to current and previous completion words.
+
+  COMPREPLY=()   # Array variable storing the possible completions.
+  cur=${COMP_WORDS[COMP_CWORD]}
+  prev=${COMP_WORDS[COMP_CWORD-1]}
+  prevv=${COMP_WORDS[COMP_CWORD-2]}
+
+  if [[ $prev = "-t" ]] || [[ $prev = "--theme" ]] || [[ $prev = "--Theme" ]]; then
+    COMPREPLY=( $( compgen -W "original Original modern Modern red Red \
+                               blue Blue html Html blank Blank text Text\
+                               clean Clean" -- $cur ) )
+  elif [[ ! $prev = "-t" ]] && [[ ! $prev = "--theme" ]] && [[ ! $prev = "--Theme" ]]; then
+    COMPREPLY=( $( compgen -W '-v -V -h -U -s -t -C \
+                               --verbose --Verbose --help --Help \
+                               --updates --Updates --saveupdates --saveUpdates \
+                               --SaveUpdates --theme --Theme \
+                               --colortest --Colortest' -- $cur ) )
+  fi
+
+  return 0
+} &&
+complete -F _FireMotD FireMotD

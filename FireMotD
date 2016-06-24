@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.02.160527
+# Version:      v5.02.160528
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -23,8 +23,11 @@
 # Public License for more details. You should have received a copy of the
 # GNU General Public License along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
+#
+# Modified: Jun 24 2016 by Gustavo Neves
 
 Verbose=0
+Version=5.02.160528
 
 WriteLog () {
     if [ -z "$1" ] ; then
@@ -91,6 +94,7 @@ ColorTest () {
         done 
         run=$((run + 1))
     done
+    echo -e "\e[0;37m"
 }
 
 GatherInfo () {
@@ -477,13 +481,76 @@ HtmlCode+="</tbody></table></body></html>"
 echo $HtmlCode
 }
 
+printHelp() {
+	printVersion
+	echo "
+Usage: $0 <-t theme> [UhCVv]
+
+Options:
+  -h | --help        Shows this help and exits
+  -v | --verbose     Verbose mode (shows messages)
+  -V | --version     Shows version information and exits
+  -t | --theme       Shows Motd info on screen, based on the chosen theme
+  -C | --colortest   Prints color test to screen
+  -U | --updates     Checks updates and prints to stdout
+  -s | --saveupdates Check updates and saves to disk
+                     (same as $0 -U > /var/tmp/updatecount.txt)
+
+Available Themes:
+  -t original
+  -t modern
+  -t red
+  -t blue
+  -t html
+  -t blank
+
+Examples:
+  $0 -t original
+  $0 --theme Modern
+  $0 --colortest
+  $0 --saveupdates
+
+Note:
+  Some functionality may require superuser priviledges. Eg. check for updates.
+  Please try doing sudo $0 if you have problems.
+"
+	exit 0
+}
+
+usage() {
+	printVersion
+	echo "Usage: $0 <-t theme> [UhCVv]"
+	echo "  Try: $0 --help"
+}
+
+printVersion() {
+	echo "$0 v$Version"
+	return 0
+}
+
+checkSudo() {
+	if [ "$EUID" -ne 0 ]; then 
+		echo "Update check requires root privileges"
+		echo "Example:"
+		echo "    sudo $0 $1"
+		exit 1
+	fi
+	return 0
+}
+
 while :; do
     case "$1" in
-        -h|--help)
-            DisplayHelp="true" ; shift ;;
+        -v|--verbose|--Verbose)
+            Verbose=1 ; shift ;;
+        -V|--version|--Version)
+            printVersion ; exit 0 ;;
+        -h|--help|--Help)
+            printHelp ; exit 0 ;;
         yum|YUM|Yum|Zypper|zypper|-U|--Updates|-Y)
-            CountUpdates ; shift ;;
-        -t|--Theme)
+            checkSudo $@; CountUpdates ; shift ;;
+        -s|--saveupdates|--SaveUpdates|--saveUpdates)
+            checkSudo $@; CountUpdates > /var/tmp/updatecount.txt ; shift ;;
+        -t|--Theme|--theme)
             shift; Theme=$1 
             case "$Theme" in
                 original|Original) GatherInfo ; StartOriginalBlue ; GenerateOriginal256Color ;;
@@ -492,11 +559,11 @@ while :; do
                 blue|Blue) GatherInfo ; StartBlueTheme ; GenerateBasic16Color ;;
                 html|Html) GatherInfo ; GenerateHtmlTheme ;;
                 blank|Blank|blanco|Blanco|Text|Clean|clean) GatherInfo ; GenerateBasic16Color ;;
-                *) echo "you specified a non-existant theme." ; exit 2 ;;
+                *) echo "You specified a non-existant theme: $1" ; exit 2 ;;
             esac
             shift ;;
-        -C|--Colortest) ColorTest ; shift ;;
-        -*) echo "you specified a non-existant option. " ; exit 2 ;;
+        -C|--Colortest|--colortest) ColorTest ; shift ;;
+        -*) echo "You specified a non-existant option: $1" ; exit 2 ;;
         *) break ;;
     esac
 done
