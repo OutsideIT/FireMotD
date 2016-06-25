@@ -42,7 +42,7 @@ In case you find a bug or have a feature request, please make an issue on GitHub
 $ FireMotD --help
 /usr/local/bin/FireMotD v5.03.160624
 
-Usage: /usr/local/bin/FireMotD <-t theme> [UhCVv]
+Usage: /usr/local/bin/FireMotD <-t theme> [UhCVvs]
 
 Options:
   -h | --help        Shows this help and exits

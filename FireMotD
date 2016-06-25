@@ -107,11 +107,11 @@ GatherInfo () {
         PatchLevel="$(cat /etc/*release | sed -n 3p | sed 's/.*= //')"
         OsVersion="${OsVersion}.$PatchLevel"
     elif [[ "$OsVersion" == "openSUSE"* ]] ; then
-	OsVersion="$(cat /etc/os-release | sed -n 4p | sed 's/PRETTY_NAME="//' | sed 's/ (.*//')"
+        OsVersion="$(cat /etc/os-release | sed -n 4p | sed 's/PRETTY_NAME="//' | sed 's/ (.*//')"
     elif [[ "$OsVersion" == *"Raspbian"* ]] ; then
         OsVersion="$(cat /etc/*release | head -n 1 | sed 's/.*"\(.*\)"[^"]*$/\1/')"
     elif [[ "$OsVersion" == *"PRETTY_NAME"* ]] ; then
-	    OsVersion="$(cat /etc/*release | head -n 1 | cut -f2 -d'"')"
+        OsVersion="$(cat /etc/*release | head -n 1 | cut -f2 -d'"')"
     fi
     IpPath="$(which ip 2>/dev/null)"
     IpAddress="$(${IpPath} route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
@@ -487,7 +487,7 @@ echo $HtmlCode
 printHelp() {
 	printVersion
 	echo "
-Usage: $0 <-t theme> [UhCVv]
+Usage: $0 <-t theme> [UhCVvs]
 
 Options:
   -h | --help        Shows this help and exits
