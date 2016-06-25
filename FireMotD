@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.03.160624
+# Version:      v5.04.160625
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -8,12 +8,11 @@
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   09/04/16 => Check if yum before rpm check
-#   10/04/16 => Sed for Raspbian OS version and Pi platform
 #   01/05/16 => Swap and Memory percentages /var/tmp/updatecount.txt
 #   19/05/16 => Migration to FireMotD
 #   27/05/16 => Fix for WriteLog on OpenSUSE
-#   24/06/16 => Added new options, help and version messages and a few other things.
+#   24/06/16 => Added new options, help and version messages (tavinus)
+#   25/06/16 => Cleanup for release and better colortest 
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -84,19 +83,8 @@ CountUpdates () {
 }
 
 ColorTest () {
-#   for code in {0..255}; do echo -n -e "\e[38;05;${code}m" ; echo -n -e "   ## \\\e[38;05;${code}m ##   " ; done
-    string="Lientje"
-    run=1
-    for code1 in {1..16}; do
-    #   code=`expr $run \* $code1`
-    #   WriteLog Verbose Info "Code1: $code1, Code: $code, Run: $run"
-    #   echo -n -e "\e[38;05;${code}m ##\\\e[38;05;${code}m## "
-        for code2 in {1..16}; do
-            code=`expr $code1 \+ $code2`
-            echo -e "\e[38;05;${code}m ##\\\e[38;05;${code}m## "
-        done 
-        run=$((run + 1))
-    done
+    WriteLog Verbose Info "Executing colortest with pattern $Pattern"
+    for code in {0..255}; do echo -n -e "\e[38;05;${code}m $Pattern" ; done
     echo -e "\e[0;37m"
 }
 
@@ -116,7 +104,6 @@ GatherInfo () {
     IpPath="$(which ip 2>/dev/null)"
     IpAddress="$(${IpPath} route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
     Kernel="$(uname -rs)"
-#    Uptime="$(awk '{print int($1/86400)" day(s) "int($1%86400/3600)":"int(($1%3600)/60)":"int($1%60)}' /proc/uptime)"
     UptimeDays=$(awk '{print int($1/86400)}' /proc/uptime)
     UptimeHours=$(awk '{print int($1%86400/3600)}' /proc/uptime)
     UptimeMinutes=$(awk '{print int(($1%3600)/60)}' /proc/uptime)
@@ -153,8 +140,6 @@ GatherInfo () {
     MemFreePerc=$(echo "scale=2; $MemFree*100/$MemTotal" | bc)
     MemFreePerc=$(echo $(LC_NUMERIC=C printf "%.0f" $MemFreePerc))
     WriteLog Verbose Info "MemFreePerc: $MemFreePerc"
-    #MemUsedPerc=$(echo "scale=2; $MemUsed*100/$MemTotal" | bc)
-    #MemUsedPerc=$(echo $(LC_NUMERIC=C printf "%.0f" $MemUsedPerc))
     MemUsedPerc=$(echo "100-$MemFreePerc" | bc)
     WriteLog Verbose Info "MemUsedPerc: $MemUsedPerc"
     SwapFreeB="$(cat /proc/meminfo | grep SwapFree | awk {'print $2'})"
@@ -467,26 +452,22 @@ table tr:hover td {
 .right {
 	text-align: right;
 }
-
-
 "
-HtmlCode+="</style></head>"
-HtmlCode+="<body><script src=\"js/scripts.js\"></script><h1>System Overview - $Hostname</h1>"
-HtmlCode+="<table><thead><th>$Hostname</th><th class=\"right\">$ScriptVersion</th></thead>"
-HtmlCode+="<tr><td>Ip</td><td>$IpAddress</td></tr>"
-HtmlCode+="<tbody><tr><td>Operating System</td><td>$OsVersion</td></tr>"
-HtmlCode+="<tr><td>Kernel</td><td>$Kernel</td></tr>"
-HtmlCode+="<tr><td>Platform</td><td>$Platform</td></tr>"
-HtmlCode+="<tr><td>Uptime</td><td>${UptimeDays} day(s). ${UptimeHours}:${UptimeMinutes}:${UptimeSeconds}</td></tr>"
-
-HtmlCode+="</tbody></table></body></html>"
-
-echo $HtmlCode
+    HtmlCode+="</style></head>"
+    HtmlCode+="<body><script src=\"js/scripts.js\"></script><h1>System Overview - $Hostname</h1>"
+    HtmlCode+="<table><thead><th>$Hostname</th><th class=\"right\">$ScriptVersion</th></thead>"
+    HtmlCode+="<tr><td>Ip</td><td>$IpAddress</td></tr>"
+    HtmlCode+="<tbody><tr><td>Operating System</td><td>$OsVersion</td></tr>"
+    HtmlCode+="<tr><td>Kernel</td><td>$Kernel</td></tr>"
+    HtmlCode+="<tr><td>Platform</td><td>$Platform</td></tr>"
+    HtmlCode+="<tr><td>Uptime</td><td>${UptimeDays} day(s). ${UptimeHours}:${UptimeMinutes}:${UptimeSeconds}</td></tr>"
+    HtmlCode+="</tbody></table></body></html>"
+    echo $HtmlCode
 }
 
-printHelp() {
-	printVersion
-	echo "
+PrintHelp () {
+    PrintVersion
+    echo "
 Usage: $0 <-t theme> [UhCVvs]
 
 Options:
@@ -517,45 +498,41 @@ Note:
   Some functionalities may require superuser priviledges. Eg. check for updates.
   Please try doing sudo $0 if you have problems.
 "
-	exit 0
+    exit 0
 }
 
-usage() {
-	printVersion
-	echo "Usage: $0 <-t theme> [UhCVv]"
-	echo "  Try: $0 --help"
+PrintVersion () {
+    cVersion="$(echo -e "${ScriptVersion}" | tr -d '[[:space:]]')"
+    echo "$(basename $0) v$cVersion"
+    return 0
 }
 
-printVersion() {
-	cVersion="$(echo -e "${ScriptVersion}" | tr -d '[[:space:]]')"
-	echo "$(basename $0) v$cVersion"
-	return 0
+CheckSudo () {
+    if [ "$EUID" -ne 0 ]; then 
+        echo "Update check requires root privileges"
+        echo "Example:"
+        echo "    sudo $0 $1"
+        exit 1
+    fi
+    return 0
 }
 
-checkSudo() {
-	if [ "$EUID" -ne 0 ]; then 
-		echo "Update check requires root privileges"
-		echo "Example:"
-		echo "    sudo $0 $1"
-		exit 1
-	fi
-	return 0
-}
+verbose=1
 
 while :; do
     case "$1" in
         -v|--verbose|--Verbose)
-            Verbose=1 ; shift ;;
+            Verbose=1 ; WriteLog Verbose Info "Verbose execution." ; shift ;;
         -V|--version|--Version)
-            printVersion ; exit 0 ;;
+            PrintVersion ; exit 0 ;;
         -h|--help|--Help)
-            printHelp ; exit 0 ;;
+            PrintHelp ; exit 0 ;;
         yum|YUM|Yum|Zypper|zypper|-U|--Updates|--updates|-Y)
-            checkSudo $@; CountUpdates ; shift ;;
+            CheckSudo $@ ; CountUpdates ; shift ;;
         -s|--saveupdates|--SaveUpdates|--saveUpdates)
-            checkSudo $@; CountUpdates > "$UpdateFile" ; chmod 644 "$UpdateFile" ; shift ;;
+            CheckSudo $@ ; CountUpdates > "$UpdateFile" ; chmod 644 "$UpdateFile" ; shift ;;
         -t|--Theme|--theme)
-            shift; Theme=$1 
+            shift ; Theme=$1 
             case "$Theme" in
                 original|Original) GatherInfo ; StartOriginalBlue ; GenerateOriginal256Color ;;
                 modern|Modern) GatherInfo ; GenerateOriginal256Color ;;
@@ -566,7 +543,7 @@ while :; do
                 *) echo "You specified a non-existant theme: $1" ; exit 2 ;;
             esac
             shift ;;
-        -C|--Colortest|--colortest) ColorTest ; shift ;;
+        -C|--Colortest|--colortest) shift ; Pattern=$1 ; WriteLog Verbose Info "ColorTest with pattern $Pattern" ; ColorTest ; shift ;;
         -*) echo "You specified a non-existant option: $1" ; exit 2 ;;
         *) break ;;
     esac
