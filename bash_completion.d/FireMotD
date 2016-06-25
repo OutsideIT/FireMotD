@@ -1,5 +1,5 @@
 # file: FireMotD
-# /usr/local/sbin/FireMotD parameter-completion
+# /usr/local/bin/FireMotD parameter-completion
 
 _FireMotD ()   #  By convention, the function name
 {                 #+ starts with an underscore.
