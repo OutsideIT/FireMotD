@@ -98,6 +98,8 @@ GatherInfo () {
         OsVersion="$(cat /etc/os-release | sed -n 4p | sed 's/PRETTY_NAME="//' | sed 's/ (.*//')"
     elif [[ "$OsVersion" == *"Raspbian"* ]] ; then
         OsVersion="$(cat /etc/*release | head -n 1 | sed 's/.*"\(.*\)"[^"]*$/\1/')"
+    elif [[ "$OsVersion" == *"Ubuntu"* ]] ; then
+        OsVersion="$(cat /etc/*release | sed -n 9p | sed 's/PRETTY_NAME="//' | sed 's/"//')"
     elif [[ "$OsVersion" == *"PRETTY_NAME"* ]] ; then
         OsVersion="$(cat /etc/*release | head -n 1 | cut -f2 -d'"')"
     fi
