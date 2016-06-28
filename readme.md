@@ -43,15 +43,15 @@ $ FireMotD --help
 FireMotD v5.05.160628
 
 Usage: 
- FireMotD [-v] -t <theme name> 
- FireMotD [-v] -C ['string']
+ FireMotD [-v] -t <Theme Name> 
+ FireMotD [-v] -C ['String']
  FireMotD [-vUhVs]
 
 Options:
  -h | --help               Shows this help and exits
  -v | --verbose            Verbose mode (shows messages)
  -V | --version            Shows version information and exits
- -t | --theme themeName    Shows Motd info on screen, based on the chosen theme
+ -t | --theme <Theme Name> Shows Motd info on screen, based on the chosen theme
  -C | --colortest [string] Prints color test to screen using the provided string,
                            or the default string 'FireMotD' if none provided.
  -U | --updates            Checks for system updates and prints count to stdout
@@ -59,18 +59,18 @@ Options:
                            same as [ FireMotD -U > /var/tmp/updatecount.txt ]
 
 Available Themes:
- -t original
- -t modern
- -t red
- -t blue
- -t html
- -t blank
+ original
+ modern
+ red
+ blue
+ clean
+ html
 
 Examples:
- ./FireMotD -t original
- ./FireMotD --theme Modern
- ./FireMotD --colortest '###'
- ./FireMotD --saveupdates
+ FireMotD -t original
+ FireMotD --theme Modern
+ FireMotD --colortest '###'
+ sudo FireMotD --saveupdates
 
 Note:
  Some functionalities may require superuser priviledges. Eg. check for updates.
