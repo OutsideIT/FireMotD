@@ -110,7 +110,7 @@ sudo crontab -e
 3 3 * * * /usr/local/bin/FireMotD -s
 ```
 
-##### Or using the old way:
+##### Or using the old way
 ```bash
 3 3 * * * /usr/local/bin/FireMotD -U > /var/tmp/updatecount.txt
 ```
