@@ -40,7 +40,7 @@ In case you find a bug or have a feature request, please make an issue on GitHub
 
 ##### Using yum
 ```
-yum install openssh-clients bc sysstat
+sudo yum install openssh-clients bc sysstat
 ```
 
 ##### Using apt-get
