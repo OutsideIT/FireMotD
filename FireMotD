@@ -173,7 +173,7 @@ GatherInfo () {
     RootUsedPerc="$(df -kP / | tail -1 | awk '{print $5}'| sed s'/%$//')"
     RootFreePerc="$(expr 100 - $RootUsedPerc)" 
     UpdateCount="Not Available"
-    [[ ! -f $UpdateFile ]] && UpdateCount="$(cat $UpdateFile)"
+    [[ -f $UpdateFile ]] && UpdateCount="$(cat $UpdateFile)"
     SessionCount="$(who | grep $USER | wc -l)"
     ProcessCount="$(ps -Afl | wc -l)"
     ProcessMax="$(ulimit -u)"
