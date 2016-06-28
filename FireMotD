@@ -90,7 +90,8 @@ ColorTest () {
 }
 
 GatherInfo () {
-    OsVersion="$(cat /etc/*release | head -n 1)"
+    #OsVersion="$(cat /etc/*release | head -n 1)"
+    OsVersion="$(cat /etc/*release)"
     if [[ "$OsVersion" == "SUSE"* ]] ; then
         OsVersion="$(echo $OsVersion | sed 's/ (.*//')"
         PatchLevel="$(cat /etc/*release | sed -n 3p | sed 's/.*= //')"
