@@ -117,19 +117,28 @@ sudo crontab -e
 
 ### Adding FireMotD to run on login
 
-##### To add FireMotD to a single user, just call FireMotD from the user's ~/.profile file
+##### To add FireMotD to a single user
+Just call FireMotD from the user's `~/.profile` file, or the `~/.bashrc` file
 ```bash
 nano ~/.profile
 ```
 
-##### Then add to the end (choose your theme)
+##### Then call FireMotD to the end of the file (choose your theme)
 ```bash
 /usr/local/bin/FireMotD -t red
 ```
 
-There are others options on where to run FireMotD (even globally).  
+##### To add FireMotD to all users
+You may call FireMotD from a few different locations for running globally.  
 Eg.` /etc/bash.bashrc`, `/etc/profile`.  
-You should decide where it fits best for you.  
+
+You may also create a initialization script `init.sh` which will call the `FireMotD` script in `/etc/profile.d` when logging in. You can put whatever you like in this init.sh script. Everything in it will be executed at the moment someone logs in your system.  
+Example:  
+```bash
+#!/bin/bash
+ 
+/usr/local/bin/FireMotD --Theme Red
+```
 
 ### On Nagios Exchange
 
