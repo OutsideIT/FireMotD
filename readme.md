@@ -81,13 +81,13 @@ Note:
 
 You need to have `make` installed on the system.
 
-##### To install to /usr/local/bin/FireMotD:
+##### To install to /usr/local/bin/FireMotD
 ```bash
 sudo make install
 ```
 With this you can probably run FireMotD from anywhere in your system. If not, you need to add `/usr/local/bin` to your `$PATH` variable. To adjust the installation path, change the var `IDIR=/usr/local/bin` in the Makefile to the path you want.
 
-##### To install bash autocompletion support:
+##### To install bash autocompletion support
 ```bash
 sudo make bash_completion
 ```
@@ -100,7 +100,7 @@ This is an example on how to record the system update package count daily.
 This will update the file /var/tmp/updatecount.txt for later access.  
 Root privilege is required for this operation.
 
-##### To edit root's crontab:
+##### To edit root's crontab
 ```bash
 sudo crontab -e
 ```
@@ -117,12 +117,12 @@ sudo crontab -e
 
 ### Adding FireMotD to run on login
 
-##### To add FireMotD to a single user, just call FireMotD from the user's ~/.profile file.
+##### To add FireMotD to a single user, just call FireMotD from the user's ~/.profile file
 ```bash
 nano ~/.profile
 ```
 
-##### Then add to the end (choose your theme):
+##### Then add to the end (choose your theme)
 ```bash
 /usr/local/bin/FireMotD -t red
 ```
