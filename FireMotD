@@ -172,7 +172,7 @@ GatherInfo () {
     RootTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootTotalB/1024/1024))"
     RootUsedPerc="$(df -kP / | tail -1 | awk '{print $5}'| sed s'/%$//')"
     RootFreePerc="$(expr 100 - $RootUsedPerc)" 
-    UpdateCount="Not Available"
+    UpdateCount="Unknown"
     [[ -f $UpdateFile ]] && UpdateCount="$(cat $UpdateFile)"
     SessionCount="$(who | grep $USER | wc -l)"
     ProcessCount="$(ps -Afl | wc -l)"
