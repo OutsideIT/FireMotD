@@ -39,38 +39,40 @@ In case you find a bug or have a feature request, please make an issue on GitHub
 ### Usage Help
 
 ```
-$ FireMotD --help
-/usr/local/bin/FireMotD v5.03.160624
+$ FireMotD -h
+FireMotD v5.05.160628
 
-Usage: /usr/local/bin/FireMotD <-t theme> [UhCVvs]
+Usage: 
+ FireMotD <-t theme> [UhVvs] [-C ['string']]
 
 Options:
-  -h | --help        Shows this help and exits
-  -v | --verbose     Verbose mode (shows messages)
-  -V | --version     Shows version information and exits
-  -t | --theme       Shows Motd info on screen, based on the chosen theme
-  -C | --colortest   Prints color test to screen
-  -U | --updates     Checks updates and prints to stdout
-  -s | --saveupdates Check updates and saves to disk
-                     (same as /usr/local/bin/FireMotD -U > /var/tmp/updatecount.txt)
+ -h | --help               Shows this help and exits
+ -v | --verbose            Verbose mode (shows messages)
+ -V | --version            Shows version information and exits
+ -t | --theme <themeName>  Shows Motd info on screen, based on the chosen theme
+ -C | --colortest [string] Prints color test to screen using the provided string,
+                           or the default string 'FireMotD' if none provided.
+ -U | --updates            Checks for system updates and prints count to stdout
+ -s | --saveupdates        Checks for system updates and saves count to disk
+                           same as [ FireMotD -U > /var/tmp/updatecount.txt ]
 
 Available Themes:
-  -t original
-  -t modern
-  -t red
-  -t blue
-  -t html
-  -t blank
+ -t original
+ -t modern
+ -t red
+ -t blue
+ -t html
+ -t blank
 
 Examples:
-  /usr/local/bin/FireMotD -t original
-  /usr/local/bin/FireMotD --theme Modern
-  /usr/local/bin/FireMotD --colortest
-  /usr/local/bin/FireMotD --saveupdates
+ ./FireMotD -t original
+ ./FireMotD --theme Modern
+ ./FireMotD --colortest '###'
+ ./FireMotD --saveupdates
 
 Note:
-  Some functionalities may require superuser priviledges. Eg. check for updates.
-  Please try doing sudo /usr/local/bin/FireMotD if you have problems.
+ Some functionalities may require superuser priviledges. Eg. check for updates.
+ Please try doing sudo ./FireMotD if you have problems.
 ```
 
 ### System Install
