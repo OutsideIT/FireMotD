@@ -32,6 +32,13 @@ UpdateFile=/var/tmp/updatecount.txt
 ScriptName="$(readlink -e $0)"
 ScriptVersion=" $(cat $ScriptName | grep "# Version:" | awk {'print $3'} | tr -cd '[[:digit:].-]' | sed 's/.\{2\}$//') "
 
+# Make sure we have the correct locales or we will have problems
+# Had many issues on a pt_BR.iso88591 system before adding this
+LC_MEASUREMENT="C"
+LC_ALL="C"
+LC_CTYPE="C"
+LC_NUMERIC="C"
+
 WriteLog () {
     if [ -z "$1" ] ; then
         echo "WriteLog: Log parameter #1 is zero length. Please debug..."
@@ -90,8 +97,8 @@ ColorTest () {
 }
 
 GatherInfo () {
-    #OsVersion="$(cat /etc/*release | head -n 1)"
-    OsVersion="$(cat /etc/*release)"
+    OsVersion="$(cat /etc/*release | head -n 1)"
+    OsVersionFull="$(cat /etc/*release)"
     if [[ "$OsVersion" == "SUSE"* ]] ; then
         OsVersion="$(echo $OsVersion | sed 's/ (.*//')"
         PatchLevel="$(cat /etc/*release | sed -n 3p | sed 's/.*= //')"
@@ -100,9 +107,9 @@ GatherInfo () {
         OsVersion="$(cat /etc/os-release | sed -n 4p | sed 's/PRETTY_NAME="//' | sed 's/ (.*//')"
     elif [[ "$OsVersion" == *"Raspbian"* ]] ; then
         OsVersion="$(cat /etc/*release | head -n 1 | sed 's/.*"\(.*\)"[^"]*$/\1/')"
-    elif [[ "$OsVersion" == *"PRETTY_NAME"* ]] ; then
+    elif [[ "$OsVersionFull" == *"PRETTY_NAME"* ]] ; then
         OsVersion="$(cat /etc/*release | grep 'PRETTY_NAME' | cut -f2 -d'"')"
-    elif [[ "$OsVersion" == *"DISTRIB_DESCRIPTION"* ]] ; then
+    elif [[ "$OsVersionFull" == *"DISTRIB_DESCRIPTION"* ]] ; then
         OsVersion="$(cat /etc/*release | grep 'DISTRIB_DESCRIPTION' | cut -f2 -d'"')"
     fi
     IpPath="$(which ip 2>/dev/null)"
@@ -163,7 +170,8 @@ GatherInfo () {
     RootTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootTotalB/1024/1024))"
     RootUsedPerc="$(df -kP / | tail -1 | awk '{print $5}'| sed s'/%$//')"
     RootFreePerc="$(expr 100 - $RootUsedPerc)" 
-    UpdateCount="$(cat $UpdateFile)"
+    UpdateCount="Not Available"
+    [[ ! -z $UpdateFile ]] && UpdateCount="$(cat $UpdateFile)"
     SessionCount="$(who | grep $USER | wc -l)"
     ProcessCount="$(ps -Afl | wc -l)"
     ProcessMax="$(ulimit -u)"
