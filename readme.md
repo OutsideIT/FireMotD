@@ -73,7 +73,7 @@ Examples:
  sudo FireMotD --saveupdates
 
 Note:
- Some functionalities may require superuser priviledges. Eg. check for updates.
+ Some functionalities may require superuser privileges. Eg. check for updates.
  Please try doing sudo ./FireMotD if you have problems.
 ```
 

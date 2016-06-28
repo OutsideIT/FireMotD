@@ -501,7 +501,7 @@ Examples:
  sudo $bn --saveupdates
 
 Note:
- Some functionalities may require superuser priviledges. Eg. check for updates.
+ Some functionalities may require superuser privileges. Eg. check for updates.
  Please try doing sudo $0 if you have problems.
 "
     exit 0
