@@ -81,13 +81,13 @@ Note:
 
 You need to have `make` installed on the system.
 
-Then to install to /usr/local/bin:
+#### Then to install to /usr/local/bin:
 ```bash
 sudo make install
 ```
 With this you can probably run FireMotD from anywhere in your system. If not, you need to add /usr/local/bin to your $PATH variable.
 
-To install bash_completion:
+#### To install bash_completion:
 ```bash
 sudo make bash_completion
 ```
@@ -100,30 +100,29 @@ This is an example on how to record the system update package count daily.
 This will update the file /var/tmp/updatecount.txt for later access.  
 Root privilege is required for this operation.
 
-To edit root's crontab:
+#### To edit root's crontab:
 ```bash
 sudo crontab -e
 ```
 
-Then add this line (updates everyday at 3:03am)
+#### Then add this line (updates everyday at 3:03am)
 ```bash
 3 3 * * * /usr/local/bin/FireMotD -s
 ```
 
-Or using the old way:
+#### Or using the old way:
 ```bash
 3 3 * * * /usr/local/bin/FireMotD -U > /var/tmp/updatecount.txt
 ```
 
 ### Adding to an SSH session
 
-To add this to a single user, just call the program from the user's ~/.profile file.
-
+#### To add this to a single user, just call the program from the user's ~/.profile file.
 ```bash
 nano ~/.profile
 ```
 
-Then add to the end (choose your theme):
+#### Then add to the end (choose your theme):
 ```bash
 /usr/local/bin/FireMotD -t red
 ```
