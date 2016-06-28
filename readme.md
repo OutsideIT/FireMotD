@@ -39,11 +39,11 @@ In case you find a bug or have a feature request, please make an issue on GitHub
 ### Usage Help
 
 ```
-$ FireMotD -h
+$ FireMotD --help
 FireMotD v5.05.160628
 
 Usage: 
- FireMotD <-t theme> [UhVvs] [-C ['string']]
+ FireMotD [-vUhVs] [-C ['string']] [-t theme] 
 
 Options:
  -h | --help               Shows this help and exits
