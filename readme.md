@@ -36,6 +36,17 @@ Please check https://outsideit.net/FireMotD for more information on how to use t
 
 In case you find a bug or have a feature request, please make an issue on GitHub.
 
+### Dependencies
+
+##### Using yum
+```
+yum install openssh-clients bc sysstat
+```
+
+##### Using apt-get
+```
+sudo apt-get install bc sysstat
+```
 ### Usage Help
 
 ```
@@ -79,7 +90,7 @@ Note:
 
 ### System Install
 
-You need to have `make` installed on the system.
+You need to have `make` installed on the system, if you want to use the Makefile.
 
 ##### To install to /usr/local/bin/FireMotD
 ```bash
@@ -123,7 +134,7 @@ Just call FireMotD from the user's `~/.profile` file, or the `~/.bashrc` file
 nano ~/.profile
 ```
 
-##### Then call FireMotD to the end of the file (choose your theme)
+##### Just call FireMotD at the end of the file (choose your theme)
 ```bash
 /usr/local/bin/FireMotD -t red
 ```
@@ -132,8 +143,7 @@ nano ~/.profile
 You may call FireMotD from a few different locations for running globally.  
 Eg.` /etc/bash.bashrc`, `/etc/profile`.  
 
-You may also create a initialization script `init.sh` which will call the `FireMotD` script in `/etc/profile.d` when logging in. You can put whatever you like in this init.sh script. Everything in it will be executed at the moment someone logs in your system.  
-Example:  
+You may also create a initialization script `init.sh` which will call the `FireMotD` script in `/etc/profile.d` when logging in. You can put whatever you like in this init.sh script. Everything in it will be executed at the moment someone logs in your system. Example:
 ```bash
 #!/bin/bash
  
