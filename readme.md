@@ -127,7 +127,9 @@ nano ~/.profile
 /usr/local/bin/FireMotD -t red
 ```
 
-There are others options on where to run FireMotD (even globally). Eg.` /etc/bash.bashrc`, `/etc/profile`. You should decide where it fits best for you.
+There are others options on where to run FireMotD (even globally).  
+Eg.` /etc/bash.bashrc`, `/etc/profile`.  
+You should decide where it fits best for you.  
 
 ### On Nagios Exchange
 
