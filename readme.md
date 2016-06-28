@@ -85,17 +85,20 @@ Then to install to /usr/local/bin:
 ```bash
 sudo make install
 ```
+With this you can probably run FireMotD from anywhere in your system. If not, you need to add /usr/local/bin to your $PATH variable.
 
-To install bash_completion (with TAB):
+To install bash_completion:
 ```bash
 sudo make bash_completion
 ```
+With this you can use TAB to autocomplete parameters and options.
+Does not require the sudo make install above (system install), but requires the `bash-completion` package to be installed and working.
 
 ### Crontab example 
 
-This is an example on how to update the System Update Info daily.  
-This will update the /var/tmp/updatecount.txt file for later access.  
-Root privilege is required for this operation.  
+This is an example on how to record the system update package count daily.  
+This will update the file /var/tmp/updatecount.txt for later access.  
+Root privilege is required for this operation.
 
 To edit root's crontab:
 ```bash
@@ -122,7 +125,7 @@ nano ~/.profile
 
 Then add to the end (choose your theme):
 ```bash
-/usr/local/bin/FireMotD -t modern
+/usr/local/bin/FireMotD -t red
 ```
 
 ### On Nagios Exchange
