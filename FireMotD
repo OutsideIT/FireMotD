@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.04.160625
+# Version:      v5.05.160628
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -13,6 +13,7 @@
 #   27/05/16 => Fix for WriteLog on OpenSUSE
 #   24/06/16 => Added new options, help and version messages (tavinus)
 #   25/06/16 => Cleanup for release and better colortest 
+#   28/06/16 => Colortest has default string, script aborts if no parameters 
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -30,6 +31,13 @@ Verbose=0
 UpdateFile=/var/tmp/updatecount.txt
 ScriptName="$(readlink -e $0)"
 ScriptVersion=" $(cat $ScriptName | grep "# Version:" | awk {'print $3'} | tr -cd '[[:digit:].-]' | sed 's/.\{2\}$//') "
+
+# Make sure we have the correct locales or we will have problems
+# Had many issues on a pt_BR.iso88591 system before adding this
+LC_MEASUREMENT="C"
+LC_ALL="C"
+LC_CTYPE="C"
+LC_NUMERIC="C"
 
 WriteLog () {
     if [ -z "$1" ] ; then
@@ -79,7 +87,7 @@ CountUpdates () {
         UpdateCount=$(apt-get update > /dev/null; apt-get upgrade -u -s | grep -P "^Inst" | wc -l)
     fi
     echo "$UpdateCount"
-    exit 0
+    return 0
 }
 
 ColorTest () {
@@ -90,6 +98,7 @@ ColorTest () {
 
 GatherInfo () {
     OsVersion="$(cat /etc/*release | head -n 1)"
+    OsVersionFull="$(cat /etc/*release)"
     if [[ "$OsVersion" == "SUSE"* ]] ; then
         OsVersion="$(echo $OsVersion | sed 's/ (.*//')"
         PatchLevel="$(cat /etc/*release | sed -n 3p | sed 's/.*= //')"
@@ -98,8 +107,10 @@ GatherInfo () {
         OsVersion="$(cat /etc/os-release | sed -n 4p | sed 's/PRETTY_NAME="//' | sed 's/ (.*//')"
     elif [[ "$OsVersion" == *"Raspbian"* ]] ; then
         OsVersion="$(cat /etc/*release | head -n 1 | sed 's/.*"\(.*\)"[^"]*$/\1/')"
-    elif [[ "$OsVersion" == *"PRETTY_NAME"* ]] ; then
-        OsVersion="$(cat /etc/*release | head -n 1 | cut -f2 -d'"')"
+    elif [[ "$OsVersionFull" == *"PRETTY_NAME"* ]] ; then
+        OsVersion="$(cat /etc/*release | grep 'PRETTY_NAME' | cut -f2 -d'"')"
+    elif [[ "$OsVersionFull" == *"DISTRIB_DESCRIPTION"* ]] ; then
+        OsVersion="$(cat /etc/*release | grep 'DISTRIB_DESCRIPTION' | cut -f2 -d'"')"
     fi
     IpPath="$(which ip 2>/dev/null)"
     IpAddress="$(${IpPath} route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
@@ -117,12 +128,14 @@ GatherInfo () {
         Platform="$(dmesg | grep "DMI:" | sed 's/^.*FUJITSU PRIMERGY/Fujitsu Primergy/' | sed 's/, B.*//')"
     elif [[ "$Dmi" = *"VirtualBox"* ]] ; then
         Platform="$(dmesg | grep "DMI:" | sed 's/^.*VirtualBox/VirtualBox/' | sed 's/ .*//')"
+    elif [[ "$Dmi" = *"DMI:"* ]] ; then
+            Platform="$(dmesg | grep "DMI" | sed -n -e 's/^.*DMI: //p')"
     else
         Dmi="$(dmesg | grep "Rasp")"
         if [[ "$Dmi" = *"Rasp"* ]] ; then
             Platform="$(dmesg | grep "Rasp" | sed 's/.*: //')"
         else
-            Platform="$(dmesg | grep "DMI" | sed -n -e 's/^.*DMI: //p')"
+            Platform="Unknown"
         fi
     fi
     CpuUtil="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
@@ -159,7 +172,8 @@ GatherInfo () {
     RootTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootTotalB/1024/1024))"
     RootUsedPerc="$(df -kP / | tail -1 | awk '{print $5}'| sed s'/%$//')"
     RootFreePerc="$(expr 100 - $RootUsedPerc)" 
-    UpdateCount="$(cat $UpdateFile)"
+    UpdateCount="Unknown"
+    [[ -f $UpdateFile ]] && UpdateCount="$(cat $UpdateFile)"
     SessionCount="$(who | grep $USER | wc -l)"
     ProcessCount="$(ps -Afl | wc -l)"
     ProcessMax="$(ulimit -u)"
@@ -467,36 +481,41 @@ table tr:hover td {
 
 PrintHelp () {
     PrintVersion
+    bn=$(basename $0)
     echo "
-Usage: $0 <-t theme> [UhCVvs]
+Usage: 
+ $bn [-v] -t <Theme Name> 
+ $bn [-v] -C ['String']
+ $bn [-vUhVs]
 
 Options:
-  -h | --help        Shows this help and exits
-  -v | --verbose     Verbose mode (shows messages)
-  -V | --version     Shows version information and exits
-  -t | --theme       Shows Motd info on screen, based on the chosen theme
-  -C | --colortest   Prints color test to screen
-  -U | --updates     Checks updates and prints to stdout
-  -s | --saveupdates Check updates and saves to disk
-                     (same as $0 -U > $UpdateFile)
+ -h | --help               Shows this help and exits
+ -v | --verbose            Verbose mode (shows messages)
+ -V | --version            Shows version information and exits
+ -t | --theme <Theme Name> Shows Motd info on screen, based on the chosen theme
+ -C | --colortest [string] Prints color test to screen using the provided string,
+                           or the default string 'FireMotD' if none provided.
+ -U | --updates            Checks for system updates and prints count to stdout
+ -S | --saveupdates        Checks for system updates and saves count to disk
+                           same as [ $bn -U > $UpdateFile ]
 
 Available Themes:
-  -t original
-  -t modern
-  -t red
-  -t blue
-  -t html
-  -t blank
+ original
+ modern
+ red
+ blue
+ clean
+ html
 
 Examples:
-  $0 -t original
-  $0 --theme Modern
-  $0 --colortest
-  $0 --saveupdates
+ $bn -t original
+ $bn --theme Modern
+ $bn --colortest '###'
+ sudo $bn --saveupdates
 
 Note:
-  Some functionalities may require superuser priviledges. Eg. check for updates.
-  Please try doing sudo $0 if you have problems.
+ Some functionalities may require superuser privileges. Eg. check for updates.
+ Please try doing sudo $0 if you have problems.
 "
     exit 0
 }
@@ -517,7 +536,12 @@ CheckSudo () {
     return 0
 }
 
-verbose=1
+if [[ -z $1 ]]; then
+        echo "Error! You should provide an option / parameter."
+        echo "Try:"
+        echo "    $0 --help"
+        exit 2
+fi
 
 while :; do
     case "$1" in
@@ -528,9 +552,9 @@ while :; do
         -h|--help|--Help)
             PrintHelp ; exit 0 ;;
         yum|YUM|Yum|Zypper|zypper|-U|--Updates|--updates|-Y)
-            CheckSudo $@ ; CountUpdates ; shift ;;
-        -s|--saveupdates|--SaveUpdates|--saveUpdates)
-            CheckSudo $@ ; CountUpdates > "$UpdateFile" ; chmod 644 "$UpdateFile" ; shift ;;
+            CheckSudo $@ ; CountUpdates ; exit $? ;;
+        -s|-S|--saveupdates|--SaveUpdates|--saveUpdates)
+            CheckSudo $@ ; CountUpdates > "$UpdateFile" && chmod 644 "$UpdateFile" ; exit $? ;;
         -t|--Theme|--theme)
             shift ; Theme=$1 
             case "$Theme" in
@@ -543,7 +567,7 @@ while :; do
                 *) echo "You specified a non-existant theme: $1" ; exit 2 ;;
             esac
             shift ;;
-        -C|--Colortest|--colortest) shift ; Pattern=$1 ; WriteLog Verbose Info "ColorTest with pattern $Pattern" ; ColorTest ; shift ;;
+        -C|--Colortest|--colortest) shift ; [[ -z $1 ]] && Pattern='FireMotD' || Pattern=$1 ; WriteLog Verbose Info "ColorTest with pattern $Pattern" ; ColorTest ; shift ;;
         -*) echo "You specified a non-existant option: $1" ; exit 2 ;;
         *) break ;;
     esac

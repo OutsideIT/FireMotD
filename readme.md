@@ -30,95 +30,124 @@ Production ready.
 
 ### How To
 
-Please check https://outsideit.net/FireMotD/ for more information on how to use this plugin.
+Please check https://outsideit.net/FireMotD for more information on how to use this plugin.
 
 ### Help
 
 In case you find a bug or have a feature request, please make an issue on GitHub.
 
+### Install Dependencies
+
+##### Using yum
+```
+sudo yum install openssh-clients bc sysstat
+```
+
+##### Using apt-get
+```
+sudo apt-get install bc sysstat
+```
 ### Usage Help
 
 ```
 $ FireMotD --help
-/usr/local/bin/FireMotD v5.03.160624
+FireMotD v5.05.160628
 
-Usage: /usr/local/bin/FireMotD <-t theme> [UhCVvs]
+Usage: 
+ FireMotD [-v] -t <Theme Name> 
+ FireMotD [-v] -C ['String']
+ FireMotD [-vUhVs]
 
 Options:
-  -h | --help        Shows this help and exits
-  -v | --verbose     Verbose mode (shows messages)
-  -V | --version     Shows version information and exits
-  -t | --theme       Shows Motd info on screen, based on the chosen theme
-  -C | --colortest   Prints color test to screen
-  -U | --updates     Checks updates and prints to stdout
-  -s | --saveupdates Check updates and saves to disk
-                     (same as /usr/local/bin/FireMotD -U > /var/tmp/updatecount.txt)
+ -h | --help               Shows this help and exits
+ -v | --verbose            Verbose mode (shows messages)
+ -V | --version            Shows version information and exits
+ -t | --theme <Theme Name> Shows Motd info on screen, based on the chosen theme
+ -C | --colortest [string] Prints color test to screen using the provided string,
+                           or the default string 'FireMotD' if none provided.
+ -U | --updates            Checks for system updates and prints count to stdout
+ -s | --saveupdates        Checks for system updates and saves count to disk
+                           same as [ FireMotD -U > /var/tmp/updatecount.txt ]
 
 Available Themes:
-  -t original
-  -t modern
-  -t red
-  -t blue
-  -t html
-  -t blank
+ original
+ modern
+ red
+ blue
+ clean
+ html
 
 Examples:
-  /usr/local/bin/FireMotD -t original
-  /usr/local/bin/FireMotD --theme Modern
-  /usr/local/bin/FireMotD --colortest
-  /usr/local/bin/FireMotD --saveupdates
+ FireMotD -t original
+ FireMotD --theme Modern
+ FireMotD --colortest '###'
+ sudo FireMotD --saveupdates
 
 Note:
-  Some functionalities may require superuser priviledges. Eg. check for updates.
-  Please try doing sudo /usr/local/bin/FireMotD if you have problems.
+ Some functionalities may require superuser privileges. Eg. check for updates.
+ Please try doing sudo ./FireMotD if you have problems.
 ```
 
 ### System Install
 
-You need to have `make` installed on the system.
+You need to have `make` installed on the system, if you want to use the Makefile.
 
-Then to install to /usr/local/bin:
+##### To install to /usr/local/bin/FireMotD
 ```bash
 sudo make install
 ```
+With this you can probably run FireMotD from anywhere in your system. If not, you need to add `/usr/local/bin` to your `$PATH` variable. To adjust the installation path, change the var `IDIR=/usr/local/bin` in the Makefile to the path you want.
 
-To install bash_completion (with TAB):
+##### To install bash autocompletion support
 ```bash
 sudo make bash_completion
 ```
+With this you can use TAB to autocomplete parameters and options with FireMotD.
+Does not require the sudo make install above (system install), but requires the `bash-completion` package to be installed and working.
 
-### Crontab example 
+### Crontab to get system updates count
 
-This is an example on how to update the System Update Info daily.  
-This will update the /var/tmp/updatecount.txt file for later access.  
-Root privilege is required for this operation.  
+This is an example on how to record the system update package count daily.  
+This will update the file `/var/tmp/updatecount.txt` for later access.  
+Root privilege is required for this operation.
 
-To edit root's crontab:
+##### To edit root's crontab
 ```bash
 sudo crontab -e
 ```
 
-Then add this line (updates everyday at 3:03am)
+##### Then add this line (updates everyday at 3:03am)
 ```bash
 3 3 * * * /usr/local/bin/FireMotD -s
 ```
 
-Or using the old way:
+##### Or using the old way
 ```bash
 3 3 * * * /usr/local/bin/FireMotD -U > /var/tmp/updatecount.txt
 ```
 
-### Adding to an SSH session
+### Adding FireMotD to run on login
 
-To add this to a single user, just call the program from the user's ~/.profile file.
-
+##### To add FireMotD to a single user
+Edit the user's `~/.profile` file, or the `~/.bashrc` file
 ```bash
 nano ~/.profile
 ```
 
-Then add to the end (choose your theme):
+Add the FireMotD call at the end of the file (choose your theme)
 ```bash
-/usr/local/bin/FireMotD -t modern
+/usr/local/bin/FireMotD -t red
+```
+
+##### To add FireMotD to all users
+You may call FireMotD from a few different locations for running globally.  
+Eg.` /etc/bash.bashrc`, `/etc/profile`.  
+
+You may also create a initialization script `init.sh` which will call the `FireMotD` script in `/etc/profile.d` when logging in. You can put whatever you like in this init.sh script. Everything in it will be executed at the moment someone logs in your system. Example:
+```bash
+#!/bin/bash
+ 
+/usr/local/bin/FireMotD --Theme Red
 ```
 
 ### On Nagios Exchange
