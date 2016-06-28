@@ -478,7 +478,7 @@ Options:
   -V | --version     Shows version information and exits
   -t | --theme       Shows Motd info on screen, based on the chosen theme
   -C | --colortest   Prints color test to screen, using the provided string.
-                     $bn -C 'string' will run the test with the provided 'string'.
+                     $bn -C 'MyString' prints 'MyString' in different colors.
   -U | --updates     Checks updates and prints to stdout
   -s | --saveupdates Check updates and saves to disk
                      same as $bn -U > $UpdateFile
@@ -520,7 +520,6 @@ CheckSudo () {
     return 0
 }
 
-verbose=1
 if [[ -z $1 ]]; then
         echo "Error! You should provide an option / parameter."
         echo "Try:"
