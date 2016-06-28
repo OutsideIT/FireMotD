@@ -85,7 +85,7 @@ You need to have `make` installed on the system.
 ```bash
 sudo make install
 ```
-With this you can probably run FireMotD from anywhere in your system. If not, you need to add /usr/local/bin to your $PATH variable. To adjust the installation path, change the var `IDIR=/usr/local/bin` in the Makefile to the path you want.
+With this you can probably run FireMotD from anywhere in your system. If not, you need to add `/usr/local/bin` to your `$PATH` variable. To adjust the installation path, change the var `IDIR=/usr/local/bin` in the Makefile to the path you want.
 
 ##### To install bash autocompletion support:
 ```bash
@@ -117,7 +117,7 @@ sudo crontab -e
 
 ### Adding FireMotD to run on login
 
-##### To add this to a single user, just call FireMotD from the user's ~/.profile file.
+##### To add FireMotD to a single user, just call FireMotD from the user's ~/.profile file.
 ```bash
 nano ~/.profile
 ```
@@ -126,6 +126,8 @@ nano ~/.profile
 ```bash
 /usr/local/bin/FireMotD -t red
 ```
+
+There are others options on where to run FireMotD (even globally). Eg.` /etc/bash.bashrc`, `/etc/profile`. You should decide where it fits best for you.
 
 ### On Nagios Exchange
 
