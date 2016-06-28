@@ -30,7 +30,7 @@ Production ready.
 
 ### How To
 
-Please check https://outsideit.net/FireMotD/ for more information on how to use this plugin.
+Please check https://outsideit.net/FireMotD for more information on how to use this plugin.
 
 ### Help
 
@@ -97,7 +97,7 @@ Does not require the sudo make install above (system install), but requires the 
 ### Crontab to get system updates count
 
 This is an example on how to record the system update package count daily.  
-This will update the file /var/tmp/updatecount.txt for later access.  
+This will update the file `/var/tmp/updatecount.txt` for later access.  
 Root privilege is required for this operation.
 
 ##### To edit root's crontab
