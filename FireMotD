@@ -471,7 +471,7 @@ PrintHelp () {
     bn=$(basename $0)
     echo "
 Usage: 
- $bn <-t theme> [UhVvs] [-C ['string']]
+ $bn [-vUhVs] [-C ['string']] [-t theme] 
 
 Options:
  -h | --help               Shows this help and exits
