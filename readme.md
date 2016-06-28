@@ -36,7 +36,7 @@ Please check https://outsideit.net/FireMotD for more information on how to use t
 
 In case you find a bug or have a feature request, please make an issue on GitHub.
 
-### Dependencies
+### Install Dependencies
 
 ##### Using yum
 ```
