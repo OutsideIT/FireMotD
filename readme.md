@@ -87,14 +87,14 @@ sudo make install
 ```
 With this you can probably run FireMotD from anywhere in your system. If not, you need to add /usr/local/bin to your $PATH variable. To adjust the installation path, change the var `IDIR=/usr/local/bin` in the Makefile to the path you want.
 
-##### To install bash_completion:
+##### To install bash autocompletion support:
 ```bash
 sudo make bash_completion
 ```
-With this you can use TAB to autocomplete parameters and options.
+With this you can use TAB to autocomplete parameters and options with FireMotD.
 Does not require the sudo make install above (system install), but requires the `bash-completion` package to be installed and working.
 
-### Crontab example 
+### Crontab to get system updates count
 
 This is an example on how to record the system update package count daily.  
 This will update the file /var/tmp/updatecount.txt for later access.  
@@ -115,9 +115,9 @@ sudo crontab -e
 3 3 * * * /usr/local/bin/FireMotD -U > /var/tmp/updatecount.txt
 ```
 
-### Adding to an SSH session
+### Adding FireMotD to run on login
 
-##### To add this to a single user, just call the program from the user's ~/.profile file.
+##### To add this to a single user, just call FireMotD from the user's ~/.profile file.
 ```bash
 nano ~/.profile
 ```
