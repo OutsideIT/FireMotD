@@ -134,7 +134,7 @@ Edit the user's `~/.profile` file, or the `~/.bashrc` file
 nano ~/.profile
 ```
 
-##### Add the FireMotD call at the end of the file (choose your theme)
+Add the FireMotD call at the end of the file (choose your theme)
 ```bash
 /usr/local/bin/FireMotD -t red
 ```
