@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.04.160625
+# Version:      v5.05.160628
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -13,6 +13,7 @@
 #   27/05/16 => Fix for WriteLog on OpenSUSE
 #   24/06/16 => Added new options, help and version messages (tavinus)
 #   25/06/16 => Cleanup for release and better colortest 
+#   28/06/16 => Colortest has default string, script aborts if no parameters 
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -467,18 +468,20 @@ table tr:hover td {
 
 PrintHelp () {
     PrintVersion
+    bn=$(basename $0)
     echo "
-Usage: $0 <-t theme> [UhCVvs]
+Usage: $bn <-t theme> [UhCVvs]
 
 Options:
   -h | --help        Shows this help and exits
   -v | --verbose     Verbose mode (shows messages)
   -V | --version     Shows version information and exits
   -t | --theme       Shows Motd info on screen, based on the chosen theme
-  -C | --colortest   Prints color test to screen
+  -C | --colortest   Prints color test to screen, using the provided string.
+                     $bn -C 'string' will run the test with the provided 'string'.
   -U | --updates     Checks updates and prints to stdout
   -s | --saveupdates Check updates and saves to disk
-                     (same as $0 -U > $UpdateFile)
+                     same as $bn -U > $UpdateFile
 
 Available Themes:
   -t original
@@ -491,7 +494,7 @@ Available Themes:
 Examples:
   $0 -t original
   $0 --theme Modern
-  $0 --colortest
+  $0 --colortest '###'
   $0 --saveupdates
 
 Note:
@@ -518,6 +521,12 @@ CheckSudo () {
 }
 
 verbose=1
+if [[ -z $1 ]]; then
+        echo "Error! You should provide an option / parameter."
+        echo "Try:"
+        echo "    $0 --help"
+        exit 2
+fi
 
 while :; do
     case "$1" in
@@ -543,7 +552,7 @@ while :; do
                 *) echo "You specified a non-existant theme: $1" ; exit 2 ;;
             esac
             shift ;;
-        -C|--Colortest|--colortest) shift ; Pattern=$1 ; WriteLog Verbose Info "ColorTest with pattern $Pattern" ; ColorTest ; shift ;;
+        -C|--Colortest|--colortest) shift ; [[ -z $1 ]] && Pattern='FireMotD' || Pattern=$1 ; WriteLog Verbose Info "ColorTest with pattern $Pattern" ; ColorTest ; shift ;;
         -*) echo "You specified a non-existant option: $1" ; exit 2 ;;
         *) break ;;
     esac
