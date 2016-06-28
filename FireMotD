@@ -87,7 +87,7 @@ CountUpdates () {
         UpdateCount=$(apt-get update > /dev/null; apt-get upgrade -u -s | grep -P "^Inst" | wc -l)
     fi
     echo "$UpdateCount"
-    exit 0
+    return 0
 }
 
 ColorTest () {
@@ -496,7 +496,7 @@ Options:
  -C | --colortest [string] Prints color test to screen using the provided string,
                            or the default string 'FireMotD' if none provided.
  -U | --updates            Checks for system updates and prints count to stdout
- -s | --saveupdates        Checks for system updates and saves count to disk
+ -S | --saveupdates        Checks for system updates and saves count to disk
                            same as [ $bn -U > $UpdateFile ]
 
 Available Themes:
@@ -552,9 +552,9 @@ while :; do
         -h|--help|--Help)
             PrintHelp ; exit 0 ;;
         yum|YUM|Yum|Zypper|zypper|-U|--Updates|--updates|-Y)
-            CheckSudo $@ ; CountUpdates ; shift ;;
-        -s|--saveupdates|--SaveUpdates|--saveUpdates)
-            CheckSudo $@ ; CountUpdates > "$UpdateFile" ; chmod 644 "$UpdateFile" ; shift ;;
+            CheckSudo $@ ; CountUpdates ; exit $? ;;
+        -s|-S|--saveupdates|--SaveUpdates|--saveUpdates)
+            CheckSudo $@ ; CountUpdates > "$UpdateFile" && chmod 644 "$UpdateFile" ; exit $? ;;
         -t|--Theme|--theme)
             shift ; Theme=$1 
             case "$Theme" in
