@@ -128,12 +128,14 @@ GatherInfo () {
         Platform="$(dmesg | grep "DMI:" | sed 's/^.*FUJITSU PRIMERGY/Fujitsu Primergy/' | sed 's/, B.*//')"
     elif [[ "$Dmi" = *"VirtualBox"* ]] ; then
         Platform="$(dmesg | grep "DMI:" | sed 's/^.*VirtualBox/VirtualBox/' | sed 's/ .*//')"
+    elif [[ "$Dmi" = *"DMI:"* ]] ; then
+            Platform="$(dmesg | grep "DMI" | sed -n -e 's/^.*DMI: //p')"
     else
         Dmi="$(dmesg | grep "Rasp")"
         if [[ "$Dmi" = *"Rasp"* ]] ; then
             Platform="$(dmesg | grep "Rasp" | sed 's/.*: //')"
         else
-            Platform="$(dmesg | grep "DMI" | sed -n -e 's/^.*DMI: //p')"
+            Platform="Unknown"
         fi
     fi
     CpuUtil="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
@@ -171,7 +173,7 @@ GatherInfo () {
     RootUsedPerc="$(df -kP / | tail -1 | awk '{print $5}'| sed s'/%$//')"
     RootFreePerc="$(expr 100 - $RootUsedPerc)" 
     UpdateCount="Not Available"
-    [[ ! -z $UpdateFile ]] && UpdateCount="$(cat $UpdateFile)"
+    [[ ! -f $UpdateFile ]] && UpdateCount="$(cat $UpdateFile)"
     SessionCount="$(who | grep $USER | wc -l)"
     ProcessCount="$(ps -Afl | wc -l)"
     ProcessMax="$(ulimit -u)"
