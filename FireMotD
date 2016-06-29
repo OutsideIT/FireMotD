@@ -95,8 +95,9 @@ CountUpdates () {
 
 ColorTest () {
     WriteLog Verbose Info "Executing colortest with pattern $Pattern"
-    #for code in {0..255}; do echo -n -e "\e[38;05;${code}m $Pattern" ; done
-    for code in {0..255}; do echo -n -e "\e[38;05;${code}m###$code###  " ; done
+    for code in {0..255}; do echo -n -e "\e[38;05;${code}m $Pattern" ; done
+	#for code in {0..255}; do echo -n -e "\e[0;${code}m###$code###  "  ; done ; echo ''
+    #for code in {0..255}; do echo -n -e "\e[38;05;${code}m###$code###  " ; done
     echo -e "\e[0;37m"
 }
 
@@ -230,7 +231,6 @@ GatherInfo () {
 }
 
 StartGrayTheme () {
-	for code in {0..255}; do echo -n -e "\e[0;${code}m###$code###  "  ; done ; echo ''
     # Red
     Sch1="\e[0;2m####"
     # Light Red
