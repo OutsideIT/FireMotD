@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.06.160628
+# Version:      v5.07.160629
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -97,8 +97,9 @@ ColorTest () {
 }
 
 GatherInfo () {
-    OsVersion="$(cat /etc/*release | head -n 1)"
     OsVersionFull="$(cat /etc/*release)"
+    #OsVersion="$(cat /etc/*release | head -n 1)"
+    OsVersion="$(echo -ne "$OsVersionFull" | head -n 1)"
     if [[ "$OsVersion" == "SUSE"* ]] ; then
         OsVersion="$(echo $OsVersion | sed 's/ (.*//')"
         PatchLevel="$(cat /etc/*release | sed -n 3p | sed 's/.*= //')"
@@ -106,11 +107,11 @@ GatherInfo () {
     elif [[ "$OsVersion" == "openSUSE"* ]] ; then
         OsVersion="$(cat /etc/os-release | sed -n 4p | sed 's/PRETTY_NAME="//' | sed 's/ (.*//')"
     elif [[ "$OsVersion" == *"Raspbian"* ]] ; then
-        OsVersion="$(cat /etc/*release | head -n 1 | sed 's/.*"\(.*\)"[^"]*$/\1/')"
+        OsVersion="$(echo -ne "$OsVersionFull" | head -n 1 | sed 's/.*"\(.*\)"[^"]*$/\1/')"
     elif [[ "$OsVersionFull" == *"PRETTY_NAME"* ]] ; then
-        OsVersion="$(cat /etc/*release | grep 'PRETTY_NAME' | cut -f2 -d'"')"
+        OsVersion="$(echo -ne "$OsVersionFull" | grep 'PRETTY_NAME' | cut -f2 -d'"')"
     elif [[ "$OsVersionFull" == *"DISTRIB_DESCRIPTION"* ]] ; then
-        OsVersion="$(cat /etc/*release | grep 'DISTRIB_DESCRIPTION' | cut -f2 -d'"')"
+        OsVersion="$(echo -ne "$OsVersionFull" | grep 'DISTRIB_DESCRIPTION' | cut -f2 -d'"')"
     fi
     IpPath="$(which ip 2>/dev/null)"
     IpAddress="$(${IpPath} route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
@@ -130,27 +131,27 @@ GatherInfo () {
     UptimeHours=$(awk '{print int($1%86400/3600)}' /proc/uptime)
     UptimeMinutes=$(awk '{print int(($1%3600)/60)}' /proc/uptime)
     UptimeSeconds=$(awk '{print int($1%60)}' /proc/uptime)
-    Dmi="$(dmesg | grep "DMI:")"
-    Xen="$(dmesg | grep -i 'xen version')"
+    # modified to reuse dmesg information, called only once # Tavinus
+    Dmesg="$(dmesg)"
+    Dmi="$(echo -ne "$Dmesg" | grep "DMI:")"
+    Rasp="$(echo -ne "$Dmesg" | grep "Rasp")"
+    Xen="$(echo -ne "$Dmesg" | grep -i 'xen version')"
     if [[ "$Dmi" = *"QEMU"* ]] ; then
-        Platform="$(dmesg | grep "DMI:" | sed 's/^.*QEMU/QEMU/' | sed 's/, B.*//')"
+        Platform="$(echo -ne "$Dmi" | sed 's/^.*QEMU/QEMU/' | sed 's/, B.*//')"
     elif [[ "$Dmi" = *"VMware"* ]] ; then
-        Platform="$(dmesg | grep "DMI:" | sed 's/^.*VMware/VMware/' | sed 's/, B.*//')"
+        Platform="$(echo -ne "$Dmi" | sed 's/^.*VMware/VMware/' | sed 's/, B.*//')"
     elif [[ "$Dmi" = *"FUJITSU PRIMERGY"* ]] ; then
-        Platform="$(dmesg | grep "DMI:" | sed 's/^.*FUJITSU PRIMERGY/Fujitsu Primergy/' | sed 's/, B.*//')"
+        Platform="$(echo -ne "$Dmi" | sed 's/^.*FUJITSU PRIMERGY/Fujitsu Primergy/' | sed 's/, B.*//')"
     elif [[ "$Dmi" = *"VirtualBox"* ]] ; then
-        Platform="$(dmesg | grep "DMI:" | sed 's/^.*VirtualBox/VirtualBox/' | sed 's/ .*//')"
+        Platform="$(echo -ne "$Dmi" | sed 's/^.*VirtualBox/VirtualBox/' | sed 's/ .*//')"
     elif [[ "$Dmi" = *"DMI:"* ]] ; then
-            Platform="$(dmesg | grep "DMI" | sed -n -e 's/^.*DMI: //p')"
+            Platform="$(echo -ne "$Dmi" | sed -n -e 's/^.*DMI: //p')"
     elif [[ "$Xen" = *"Xen version"* ]] ; then
-            Platform="Xen Hypervisor v""$(dmesg | grep -i 'xen version' | sed -n -e 's/^.*Xen version: //p')"
+            Platform="Xen Hypervisor v""$(echo -ne "$Xen" | sed -n -e 's/^.*Xen version: //p')"
+    elif [[ "$Rasp" = *"Rasp"* ]] ; then
+            Platform="$(echo -ne "$Rasp" | sed 's/.*: //')"
     else
-        Dmi="$(dmesg | grep "Rasp")"
-        if [[ "$Dmi" = *"Rasp"* ]] ; then
-            Platform="$(dmesg | grep "Rasp" | sed 's/.*: //')"
-        else
             Platform="Unknown"
-        fi
     fi
     CpuUtil="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
     CpuProc="$(cat /proc/cpuinfo | grep processor | wc -l)"
