@@ -1,0 +1,1 @@
+# Branch for storing screenshots for https://github.com/willemdh/firemotd
