@@ -1,10 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-<<<<<<< HEAD
-# Version:      v5.10.160629
-=======
 # Version:      v5.11.160629
->>>>>>> dev-tavinus
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -20,10 +16,7 @@
 #   28/06/16 => Colortest has default string, script aborts if no parameters 
 #   28/06/16 => Performance improvements, new check for MariaDB/MySQL 
 #   29/06/16 => New checks for Apache version using apache2ctl and apache2 sbins
-<<<<<<< HEAD
-=======
 #               Gray theme;
->>>>>>> dev-tavinus
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -225,15 +218,6 @@ GatherInfo () {
         HttpdVersion="$(${HttpdPath} -v 2>/dev/null | grep "Server version" | sed -e 's/.*[^0-9]\([0-9].[0-9]\+.[0-9]\+\)[^0-9]*$/\1/')"
         WriteLog Verbose Info "HttpdVersion: $HttpdVersion"
     fi
-<<<<<<< HEAD
-#    case $UpdateType in
-#        "yum" )
-#            MariadbVersion="$(rpm -qa | grep mariadb-server | sed 's/.*-\(\([0-9]\+\.[0-9]\+\.[0-9]\+-[0-9]\+\)\).*/\1/')"
-#            WriteLog Verbose Info "MariadbVersion: $MariadbVersion" ;;
-#        *) WriteLog Verbose Info "$UpdateType not yet supported." ;;
-#    esac
-=======
->>>>>>> dev-tavinus
     MySqlVersion=""
     MySqlDistribution=""
     MySqlPath="$(which mysql 2>/dev/null)"
@@ -738,7 +722,7 @@ while :; do
                 modern|Modern) GatherInfo ; GenerateOriginal256Color ;;
                 red|Red) GatherInfo ; StartRedTheme ; GenerateBasic16Color ;;
                 blue|Blue) GatherInfo ; StartBlueTheme ; GenerateBasic16Color ;;
-                gray|gray) GatherInfo ; StartGrayTheme ; GenerateBasic16Color ;;
+                gray|Gray) GatherInfo ; StartGrayTheme ; GenerateBasic16Color ;;
                 html|Html) GatherInfo ; GenerateHtmlTheme ;;
                 blank|Blank|blanco|Blanco|Text|Clean|clean) GatherInfo ; GenerateBasic16Color ;;
                 *) echo "You specified a non-existant theme: $1" ; exit 2 ;;
