@@ -1,22 +1,19 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.11.160629
+# Version:      v5.12.160629
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
+# Contributors: Gustavo Neves
 # Purpose:      Bash script that will dynamically generate a message
 #               of they day for users logging in.
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   01/05/16 => Swap and Memory percentages /var/tmp/updatecount.txt
-#   19/05/16 => Migration to FireMotD
-#   27/05/16 => Fix for WriteLog on OpenSUSE
-#   24/06/16 => Added new options, help and version messages (tavinus)
+#   24/06/16 => Added new options, help and version messages (GN)
 #   25/06/16 => Cleanup for release and better colortest 
-#   28/06/16 => Colortest has default string, script aborts if no parameters 
-#   28/06/16 => Performance improvements, new check for MariaDB/MySQL 
-#   29/06/16 => New checks for Apache version using apache2ctl and apache2 sbins
-#               Gray theme;
+#   28/06/16 => Colortest default string, script aborts if no parameters (GN)
+#   28/06/16 => Performance improvements, new check for MariaDB/MySQL (GN)
+#   29/06/16 => Improved Apache version, Gray theme (GN)
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -27,8 +24,6 @@
 # Public License for more details. You should have received a copy of the
 # GNU General Public License along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
-#
-# 1st Contribution by Gustavo Neves: Jun 24 2016 
 
 Verbose=0
 UpdateFile=/var/tmp/updatecount.txt
@@ -103,7 +98,6 @@ ColorTest () {
 
 GatherInfo () {
     OsVersionFull="$(cat /etc/*release)"
-    #OsVersion="$(cat /etc/*release | head -n 1)"
     OsVersion="$(echo "$OsVersionFull" | head -n 1)"
     if [[ "$OsVersion" == "SUSE"* ]] ; then
         OsVersion="$(echo "$OsVersion" | sed 's/ (.*//')"
@@ -120,8 +114,6 @@ GatherInfo () {
     fi
     IpPath="$(which ip 2>/dev/null)"
     IpAddress="$(${IpPath} route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
-    # get external IP on Amazon EC2 instances
-    # requires curl or wget, but will not execute if none is installed
     if [ -f /sys/hypervisor/uuid ] && [ `head -c 3 /sys/hypervisor/uuid` == ec2 ]; then
         CurlExec=$(which curl 2>/dev/null)
         WgetExec=$(which wget 2>/dev/null)
@@ -136,7 +128,6 @@ GatherInfo () {
     UptimeHours=$(awk '{print int($1%86400/3600)}' /proc/uptime)
     UptimeMinutes=$(awk '{print int(($1%3600)/60)}' /proc/uptime)
     UptimeSeconds=$(awk '{print int($1%60)}' /proc/uptime)
-    # modified to reuse dmesg information, called only once # Tavinus
     Dmesg="$(dmesg)"
     Dmi="$(echo "$Dmesg" | grep "DMI:")"
     Rasp="$(echo "$Dmesg" | grep "Rasp")"
@@ -267,7 +258,6 @@ StartGrayTheme () {
     # Version Color
     SVC="\e[0;90m"
 }
-
 
 StartBlueTheme () {
     # Blue
@@ -626,14 +616,11 @@ EOF
                 <td>MySQL Info</td>
                 <td>Version: <span>$MySqlVersion</span>, Distribution: <span>$MySqlDistribution</span></td>
             </tr>"
-    
-    # Close Everything
     HtmlCode+="
         </tbody>
     </table>
 </body>
 </html>"
-
     echo "$HtmlCode"
 }
 
