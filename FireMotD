@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.09.160629
+# Version:      v5.10.160629
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -15,6 +15,7 @@
 #   25/06/16 => Cleanup for release and better colortest 
 #   28/06/16 => Colortest has default string, script aborts if no parameters 
 #   28/06/16 => Performance improvements, new check for MariaDB/MySQL 
+#   29/06/16 => New checks for Apache version using apache2ctl and apache2 sbins
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -26,7 +27,7 @@
 # GNU General Public License along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 #
-# Modified: Jun 24 2016 by Gustavo Neves
+# 1st Contribution by Gustavo Neves: Jun 24 2016 
 
 Verbose=0
 UpdateFile=/var/tmp/updatecount.txt
@@ -81,9 +82,9 @@ CountUpdates () {
     elif [[ -x "/usr/bin/zypper" ]] ; then
         UpdateCount=$(zypper list-updates | wc -l) 
         UpdateCount=$(expr $UpdateCount - 4)
-	if (( $UpdateCount <= 0 )) ; then
-	    UpdateCount=0
-	fi
+    if (( $UpdateCount <= 0 )) ; then
+        UpdateCount=0
+    fi
     elif [[ -x "/usr/bin/apt-get" ]] ; then
         UpdateCount=$(apt-get update > /dev/null; apt-get upgrade -u -s | grep -P "^Inst" | wc -l)
     fi
@@ -207,11 +208,11 @@ GatherInfo () {
     fi   
     WriteLog Verbose Info "UpdateType: $UpdateType"
     HttpdPath="$(which httpd 2>/dev/null)"
+    [[ ! -f $HttpdPath ]] && HttpdPath="/usr/sbin/apache2ctl"
+    [[ ! -f $HttpdPath ]] && HttpdPath="/usr/sbin/apache2"
     WriteLog Verbose Info "HttpdPath: $HttpdPath"
-    MySqlPath="$(which mysql 2>/dev/null)"
-    WriteLog Verbose Info "MySqlPath: $MySqlPath"
     if [[ (-f $HttpdPath) && (-x $HttpdPath) ]] ; then
-        HttpdVersion="$(${HttpdPath} -v | grep "Server version" | sed -e 's/.*[^0-9]\([0-9].[0-9]\+.[0-9]\+\)[^0-9]*$/\1/')"
+        HttpdVersion="$(${HttpdPath} -v 2>/dev/null | grep "Server version" | sed -e 's/.*[^0-9]\([0-9].[0-9]\+.[0-9]\+\)[^0-9]*$/\1/')"
         WriteLog Verbose Info "HttpdVersion: $HttpdVersion"
     fi
 #    case $UpdateType in
@@ -220,13 +221,15 @@ GatherInfo () {
 #            WriteLog Verbose Info "MariadbVersion: $MariadbVersion" ;;
 #        *) WriteLog Verbose Info "$UpdateType not yet supported." ;;
 #    esac
-	MySqlVersion=""
-	MySqlDistribution=""
+    MySqlVersion=""
+    MySqlDistribution=""
+    MySqlPath="$(which mysql 2>/dev/null)"
+    WriteLog Verbose Info "MySqlPath: $MySqlPath"
     if [[ (-f $MySqlPath) && (-x $MySqlPath) ]] ; then
-		MySqlString="$(${MySqlPath} --version 2>/dev/null)"
-		MySqlVersion="$(echo "$MySqlString" | awk '{print $3}')"
-		MySqlDistribution="$(echo "$MySqlString" | awk '{print $5}' | tr -d ',')"
-#		[[ ! "$MySqlDistribution" == *"MariaDB"* ]] && $MySqlDistribution+="-Oracle"
+        MySqlString="$(${MySqlPath} --version 2>/dev/null)"
+        MySqlVersion="$(echo "$MySqlString" | awk '{print $3}')"
+        MySqlDistribution="$(echo "$MySqlString" | awk '{print $5}' | tr -d ',')"
+        WriteLog Verbose Info "MySqlVersion: $MySqlVersion Distr: $MySqlDistribution"
     fi   
 }
 
