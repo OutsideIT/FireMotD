@@ -124,7 +124,7 @@ sudo crontab -e
 
 ##### Or using the old way
 ```bash
-3 3 * * * /usr/local/bin/FireMotD -U > /var/tmp/updatecount.txt &>/dev/null
+3 3 * * * /usr/local/bin/FireMotD -U > /var/tmp/updatecount.txt 
 ```
 
 ### Adding FireMotD to run on login
