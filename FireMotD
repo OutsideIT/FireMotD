@@ -114,6 +114,17 @@ GatherInfo () {
     fi
     IpPath="$(which ip 2>/dev/null)"
     IpAddress="$(${IpPath} route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
+    # get external IP on Amazon EC2 instances
+    # requires curl or wget, but will not execute if none is installed
+    if [ -f /sys/hypervisor/uuid ] && [ `head -c 3 /sys/hypervisor/uuid` == ec2 ]; then
+        CurlExec=$(which curl)
+        WgetExec=$(which wget)
+        if [[ (-f $CurlExec) && (-x $CurlExec) ]]; then
+            IpAddress=$($CurlExec -s http://instance-data/latest/meta-data/public-ipv4)
+        elif [[ (-f $WgetExec) && (-x $WgetExec) ]]; then
+            IpAddress=$($WgetExec -qO- http://instance-data/latest/meta-data/public-ipv4)
+        fi
+    fi
     Kernel="$(uname -rs)"
     UptimeDays=$(awk '{print int($1/86400)}' /proc/uptime)
     UptimeHours=$(awk '{print int($1%86400/3600)}' /proc/uptime)
@@ -547,6 +558,8 @@ while :; do
     case "$1" in
         -v|--verbose|--Verbose)
             Verbose=1 ; WriteLog Verbose Info "Verbose execution." ; shift ;;
+        -a|--amazonip|--AmazonIp|--amazonIp)
+            AmazonIp=1 ; WriteLog Verbose Info "AmazonIp=1." ; shift ;;
         -V|--version|--Version)
             PrintVersion ; exit 0 ;;
         -h|--help|--Help)
