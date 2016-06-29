@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.08.160629
+# Version:      v5.09.160629
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -14,6 +14,7 @@
 #   24/06/16 => Added new options, help and version messages (tavinus)
 #   25/06/16 => Cleanup for release and better colortest 
 #   28/06/16 => Colortest has default string, script aborts if no parameters 
+#   28/06/16 => Performance improvements, new check for MariaDB/MySQL 
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -118,8 +119,8 @@ GatherInfo () {
     # get external IP on Amazon EC2 instances
     # requires curl or wget, but will not execute if none is installed
     if [ -f /sys/hypervisor/uuid ] && [ `head -c 3 /sys/hypervisor/uuid` == ec2 ]; then
-        CurlExec=$(which curl)
-        WgetExec=$(which wget)
+        CurlExec=$(which curl 2>/dev/null)
+        WgetExec=$(which wget 2>/dev/null)
         if [[ (-f $CurlExec) && (-x $CurlExec) ]]; then
             IpAddress=$($CurlExec -s http://instance-data/latest/meta-data/public-ipv4)
         elif [[ (-f $WgetExec) && (-x $WgetExec) ]]; then
@@ -207,16 +208,26 @@ GatherInfo () {
     WriteLog Verbose Info "UpdateType: $UpdateType"
     HttpdPath="$(which httpd 2>/dev/null)"
     WriteLog Verbose Info "HttpdPath: $HttpdPath"
-    if [[ ! -z $HttpdPath ]] ; then
+    MySqlPath="$(which mysql 2>/dev/null)"
+    WriteLog Verbose Info "MySqlPath: $MySqlPath"
+    if [[ (-f $HttpdPath) && (-x $HttpdPath) ]] ; then
         HttpdVersion="$(${HttpdPath} -v | grep "Server version" | sed -e 's/.*[^0-9]\([0-9].[0-9]\+.[0-9]\+\)[^0-9]*$/\1/')"
         WriteLog Verbose Info "HttpdVersion: $HttpdVersion"
     fi
-    case $UpdateType in
-        "yum" )
-            MariadbVersion="$(rpm -qa | grep mariadb-server | sed 's/.*-\(\([0-9]\+\.[0-9]\+\.[0-9]\+-[0-9]\+\)\).*/\1/')"
-            WriteLog Verbose Info "MariadbVersion: $MariadbVersion" ;;
-        *) WriteLog Verbose Info "$UpdateType not yet supported." ;;
-    esac
+#    case $UpdateType in
+#        "yum" )
+#            MariadbVersion="$(rpm -qa | grep mariadb-server | sed 's/.*-\(\([0-9]\+\.[0-9]\+\.[0-9]\+-[0-9]\+\)\).*/\1/')"
+#            WriteLog Verbose Info "MariadbVersion: $MariadbVersion" ;;
+#        *) WriteLog Verbose Info "$UpdateType not yet supported." ;;
+#    esac
+	MySqlVersion=""
+	MySqlDistribution=""
+    if [[ (-f $MySqlPath) && (-x $MySqlPath) ]] ; then
+		MySqlString="$(${MySqlPath} --version 2>/dev/null)"
+		MySqlVersion="$(echo "$MySqlString" | awk '{print $3}')"
+		MySqlDistribution="$(echo "$MySqlString" | awk '{print $5}' | tr -d ',')"
+#		[[ ! "$MySqlDistribution" == *"MariaDB"* ]] && $MySqlDistribution+="-Oracle"
+    fi   
 }
 
 StartBlueTheme () {
@@ -331,8 +342,11 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
     if [[ $HttpdVersion =~ ^[0-9.]+$ ]] ; then
         echo -e "\e[0;38;5;17m$Fto      \e[38;5;39mApache \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$HttpdVersion"
     fi
-    if [[ $MariadbVersion =~ ^[0-9.-]+$ ]] ; then
-        echo -e "\e[0;38;5;17m$Fto     \e[38;5;39mMariaDB \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$MariadbVersion"
+#    if [[ $MariadbVersion =~ ^[0-9.-]+$ ]] ; then
+#        echo -e "\e[0;38;5;17m$Fto     \e[38;5;39mMariaDB \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$MariadbVersion"
+#    fi
+    if [[ ! -z $MySqlVersion ]] ; then
+        echo -e "\e[0;38;5;17m$Fto       \e[38;5;39mMySQL \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$MySqlVersion \e[38;5;27mDistribution: \e[38;5;33m$MySqlDistribution"
     fi
     echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme\e[0;37m"
 }
@@ -359,6 +373,9 @@ $FrS   ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$P
     fi
     if [[ $HttpdVersion =~ ^[0-9.]+$ ]] ; then
         echo -e "$FrS${KS} Apache Info $ES ${VC}Version: ${VCL}$HttpdVersion"
+    fi
+    if [[ ! -z $MySqlVersion ]] ; then
+        echo -e "$FrS${KS}  MySQL Info $ES ${VC}Version: ${VCL}$MySqlVersion ${VC}Distribution: ${VCL}$MySqlDistribution"
     fi
     echo -e "$PrHS$Sch2$HSB$Sch2$PHS$Sch1\e[0;37m"
 }
@@ -559,19 +576,25 @@ EOF
     [[ $PhpVersion =~ ^[0-9.]+$ ]] && HtmlCode+="
             <tr>
                 <td>PHP Info</td>
-                <td>Version: $PhpVersion</td>
+                <td>Version: <span>$PhpVersion</span></td>
             </tr>"
     
     [[ $HttpdVersion =~ ^[0-9.]+$ ]] && HtmlCode+="
             <tr>
                 <td>Apache Info</td>
-                <td>Version: $HttpdVersion</td>
+                <td>Version: <span>$HttpdVersion</span></td>
             </tr>"
     
-    [[ $MariadbVersion =~ ^[0-9.-]+$ ]] && HtmlCode+="
+#    [[ $MariadbVersion =~ ^[0-9.-]+$ ]] && HtmlCode+="
+#            <tr>
+#                <td>MariaDB Info</td>
+#                <td>Version: <span>$MariadbVersion</span></td>
+#            </tr>"
+    
+    [[ ! -z $MySqlVersion ]] && HtmlCode+="
             <tr>
-                <td>MariaDB Info</td>
-                <td>Version: $MariadbVersion</td>
+                <td>MySQL Info</td>
+                <td>Version: <span>$MySqlVersion</span>, Distribution: <span>$MySqlDistribution</span></td>
             </tr>"
     
     # Close Everything
@@ -636,7 +659,7 @@ CheckSudo () {
     if [ "$EUID" -ne 0 ]; then 
         echo "Update check requires root privileges"
         echo "Example:"
-        echo "    sudo $0 $1"
+        echo "    sudo $ScriptName $1"
         exit 1
     fi
     return 0
