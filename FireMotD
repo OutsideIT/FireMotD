@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.07.160629
+# Version:      v5.08.160629
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script that will dynamically generate a message
@@ -99,19 +99,19 @@ ColorTest () {
 GatherInfo () {
     OsVersionFull="$(cat /etc/*release)"
     #OsVersion="$(cat /etc/*release | head -n 1)"
-    OsVersion="$(echo -ne "$OsVersionFull" | head -n 1)"
+    OsVersion="$(echo "$OsVersionFull" | head -n 1)"
     if [[ "$OsVersion" == "SUSE"* ]] ; then
-        OsVersion="$(echo $OsVersion | sed 's/ (.*//')"
+        OsVersion="$(echo "$OsVersion" | sed 's/ (.*//')"
         PatchLevel="$(cat /etc/*release | sed -n 3p | sed 's/.*= //')"
         OsVersion="${OsVersion}.$PatchLevel"
     elif [[ "$OsVersion" == "openSUSE"* ]] ; then
         OsVersion="$(cat /etc/os-release | sed -n 4p | sed 's/PRETTY_NAME="//' | sed 's/ (.*//')"
     elif [[ "$OsVersion" == *"Raspbian"* ]] ; then
-        OsVersion="$(echo -ne "$OsVersionFull" | head -n 1 | sed 's/.*"\(.*\)"[^"]*$/\1/')"
+        OsVersion="$(echo "$OsVersionFull" | head -n 1 | sed 's/.*"\(.*\)"[^"]*$/\1/')"
     elif [[ "$OsVersionFull" == *"PRETTY_NAME"* ]] ; then
-        OsVersion="$(echo -ne "$OsVersionFull" | grep 'PRETTY_NAME' | cut -f2 -d'"')"
+        OsVersion="$(echo "$OsVersionFull" | grep 'PRETTY_NAME' | cut -f2 -d'"')"
     elif [[ "$OsVersionFull" == *"DISTRIB_DESCRIPTION"* ]] ; then
-        OsVersion="$(echo -ne "$OsVersionFull" | grep 'DISTRIB_DESCRIPTION' | cut -f2 -d'"')"
+        OsVersion="$(echo "$OsVersionFull" | grep 'DISTRIB_DESCRIPTION' | cut -f2 -d'"')"
     fi
     IpPath="$(which ip 2>/dev/null)"
     IpAddress="$(${IpPath} route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
@@ -133,23 +133,23 @@ GatherInfo () {
     UptimeSeconds=$(awk '{print int($1%60)}' /proc/uptime)
     # modified to reuse dmesg information, called only once # Tavinus
     Dmesg="$(dmesg)"
-    Dmi="$(echo -ne "$Dmesg" | grep "DMI:")"
-    Rasp="$(echo -ne "$Dmesg" | grep "Rasp")"
-    Xen="$(echo -ne "$Dmesg" | grep -i 'xen version')"
+    Dmi="$(echo "$Dmesg" | grep "DMI:")"
+    Rasp="$(echo "$Dmesg" | grep "Rasp")"
+    Xen="$(echo "$Dmesg" | grep -i 'xen version')"
     if [[ "$Dmi" = *"QEMU"* ]] ; then
-        Platform="$(echo -ne "$Dmi" | sed 's/^.*QEMU/QEMU/' | sed 's/, B.*//')"
+        Platform="$(echo "$Dmi" | sed 's/^.*QEMU/QEMU/' | sed 's/, B.*//')"
     elif [[ "$Dmi" = *"VMware"* ]] ; then
-        Platform="$(echo -ne "$Dmi" | sed 's/^.*VMware/VMware/' | sed 's/, B.*//')"
+        Platform="$(echo "$Dmi" | sed 's/^.*VMware/VMware/' | sed 's/, B.*//')"
     elif [[ "$Dmi" = *"FUJITSU PRIMERGY"* ]] ; then
-        Platform="$(echo -ne "$Dmi" | sed 's/^.*FUJITSU PRIMERGY/Fujitsu Primergy/' | sed 's/, B.*//')"
+        Platform="$(echo "$Dmi" | sed 's/^.*FUJITSU PRIMERGY/Fujitsu Primergy/' | sed 's/, B.*//')"
     elif [[ "$Dmi" = *"VirtualBox"* ]] ; then
-        Platform="$(echo -ne "$Dmi" | sed 's/^.*VirtualBox/VirtualBox/' | sed 's/ .*//')"
+        Platform="$(echo "$Dmi" | sed 's/^.*VirtualBox/VirtualBox/' | sed 's/ .*//')"
     elif [[ "$Dmi" = *"DMI:"* ]] ; then
-            Platform="$(echo -ne "$Dmi" | sed -n -e 's/^.*DMI: //p')"
+            Platform="$(echo "$Dmi" | sed -n -e 's/^.*DMI: //p')"
     elif [[ "$Xen" = *"Xen version"* ]] ; then
-            Platform="Xen Hypervisor v""$(echo -ne "$Xen" | sed -n -e 's/^.*Xen version: //p')"
+            Platform="Xen Hypervisor v""$(echo "$Xen" | sed -n -e 's/^.*Xen version: //p')"
     elif [[ "$Rasp" = *"Rasp"* ]] ; then
-            Platform="$(echo -ne "$Rasp" | sed 's/.*: //')"
+            Platform="$(echo "$Rasp" | sed 's/.*: //')"
     else
             Platform="Unknown"
     fi
@@ -366,132 +366,222 @@ $FrS   ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$P
 GenerateHtmlTheme () {
 #     echo -e "<!doctype html><html lang="en"><head><meta charset="utf-8"><title>FireMotD</title><meta name="description" content="Generates a HTML MotD message"><meta name="author" content="OutsideIT"><link rel="stylesheet" href="css/styles.css?v=1.0"></head><body><script src="js/scripts.js"></script><p>test</p><table><thead><tr><th>Hostname</th><th>Head2</th></tr></thead><tbody><tr><td>Bla</td><td>Bla</td></tr></tbody><tfoot><tr><td></td></tr></tfoot></table></body></html>"
 # TODO => Put all html into variable and ouput at end. Integrate CSS.
-HtmlCode='<!doctype html><html lang="en"><head><meta charset="utf-8"><title>FireMotD</title><meta name="description" content="Generates a HTML MotD message"><meta name="author" content="OutsideIT"><style type="text/css">'
-HtmlCode+="h1 {
-	font-family: Verdana;
-	font-weight: normal;
-	color: #024457;
-	font-weight: bold;
-        padding-left:30px;
-}
-table a:link {
-	color: #666;
-	font-weight: bold;
-	text-decoration:none;
-}
-table a:visited {
-	color: #999999;
-	font-weight:bold;
-	text-decoration:none;
-}
-table a:active,
-table a:hover {
-	color: #bd5a35;
-	text-decoration:underline;
-}
-table {
-	font-family:Arial, Helvetica, sans-serif;
-	color:#666;
-	font-size:12px;
-	text-shadow: 1px 1px 0px #fff;
-	background:#eaebec;
-	margin:35px;
-	width:80%;
-	height:100%
-	border:#ccc 3px solid;
- 	-moz-border-radius:3px;
-	-webkit-border-radius:3px;
-	border-radius:3px;
-	-moz-box-shadow: 0 1px 2px #d1d1d1;
-	-webkit-box-shadow: 0 1px 2px #d1d1d1;
-	box-shadow: 0 1px 2px #d1d1d1;
-}
-table th {
-	padding:12px 25px 12px 25px;
-	border-top:2px solid #fafafa;
-	border-bottom:2px solid #e0e0e0;
-	font-size:22px;
-        font-weight:bold;
-	background: #ededed;
-	background: -webkit-gradient(linear, left top, left bottom, from(#ededed), to(#ebebeb));
-	background: -moz-linear-gradient(top,  #ededed,  #ebebeb);
-}
-table th:first-child {
-	text-align: left;
-	padding-left:20px;
-}
-table tr:first-child th:first-child {
-	-moz-border-radius-topleft:3px;
-	-webkit-border-top-left-radius:3px;
-	border-top-left-radius:3px;
-}
-table tr:first-child th:last-child {
-	-moz-border-radius-topright:3px;
-	-webkit-border-top-right-radius:3px;
-	border-top-right-radius:3px;
-}
-table tr {
-	text-align: left;
-	padding-left: 20px;
-}
-table td:first-child {
-	text-align: left;
-	padding-left:20px;
-	border-left: 0;
-}
-table td {
-	padding: 8px;
-	border-top: 1px solid #ffffff;
-	border-bottom: 1px solid #e0e0e0;
-	border-left: 2px solid #e0e0e0;
+read -d '' HtmlCode <<EOF
+<!doctype html><html lang="en">
+<head>
+    <title>FireMotD</title>
+    <meta charset="utf-8">
+    <meta name="description" content="Generates a HTML MotD message">
+    <meta name="author" content="OutsideIT">
+    <!-- <script src=\"js/scripts.js\"></script> -->
+    <style type="text/css">
+        h1 {
+            font-family: Verdana;
+            font-weight: normal;
+            color: #024457;
+            font-weight: bold;
+            padding-left:30px;
+        }
+        table a:link {
+            color: #666;
+            font-weight: bold;
+            text-decoration:none;
+        }
+        table a:visited {
+            color: #999999;
+            font-weight:bold;
+            text-decoration:none;
+        }
+        table a:active,
+        table a:hover {
+            color: #bd5a35;
+            text-decoration:underline;
+        }
+        table {
+            font-family:Arial, Helvetica, sans-serif;
+            color:#666;
+            font-size:12px;
+            text-shadow: 1px 1px 0px #fff;
+            background:#eaebec;
+            margin:35px;
+            width:80%;
+            height:100%
+            border:#ccc 3px solid;
+            -moz-border-radius:3px;
+            -webkit-border-radius:3px;
+            border-radius:3px;
+            -moz-box-shadow: 0 1px 2px #d1d1d1;
+            -webkit-box-shadow: 0 1px 2px #d1d1d1;
+            box-shadow: 0 1px 2px #d1d1d1;
+        }
+        table th {
+            padding:12px 25px 12px 25px;
+            border-top:2px solid #fafafa;
+            border-bottom:2px solid #e0e0e0;
+            font-size:22px;
+            font-weight:bold;
+            background: #ededed;
+            background: -webkit-gradient(linear, left top, left bottom, from(#ededed), to(#ebebeb));
+            background: -moz-linear-gradient(top,  #ededed,  #ebebeb);
+        }
+        table th:first-child {
+            text-align: left;
+            padding-left:20px;
+        }
+        table tr:first-child th:first-child {
+            -moz-border-radius-topleft:3px;
+            -webkit-border-top-left-radius:3px;
+            border-top-left-radius:3px;
+        }
+        table tr:first-child th:last-child {
+            -moz-border-radius-topright:3px;
+            -webkit-border-top-right-radius:3px;
+            border-top-right-radius:3px;
+        }
+        table tr {
+            text-align: left;
+            padding-left: 20px;
+        }
+        table td:first-child {
+            text-align: left;
+            padding-left:20px;
+            border-left: 0;
+        }
+        table td {
+            padding: 8px;
+            border-top: 1px solid #ffffff;
+            border-bottom: 1px solid #e0e0e0;
+            border-left: 2px solid #e0e0e0;
 
-	background: #fafafa;
-	background: -webkit-gradient(linear, left top, left bottom, from(#fbfbfb), to(#fafafa));
-	background: -moz-linear-gradient(top,  #fbfbfb,  #fafafa);
-}
-table tr.even td {
-	background: #f6f6f6;
-	background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#f6f6f6));
-	background: -moz-linear-gradient(top,  #f8f8f8,  #f6f6f6);
-}
-table tr:last-child td {
-	border-bottom:0;
-}
-table tr:last-child td:first-child {
-	-moz-border-radius-bottomleft:3px;
-	-webkit-border-bottom-left-radius:3px;
-	border-bottom-left-radius:3px;
-}
-table tr:last-child td:last-child {
-	-moz-border-radius-bottomright:3px;
-	-webkit-border-bottom-right-radius:3px;
-	border-bottom-right-radius:3px;
-}
-table tr:hover td {
-	background: #f2f2f2;
-	background: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#f0f0f0));
-	background: -moz-linear-gradient(top,  #f2f2f2,  #f0f0f0);	
-}
-.strong {
-   	font-weight: bold; 
-}
-.em {
-	font-style: italic; 
-}
-.right {
-	text-align: right;
-}
-"
-    HtmlCode+="</style></head>"
-    HtmlCode+="<body><script src=\"js/scripts.js\"></script><h1>System Overview - $Hostname</h1>"
-    HtmlCode+="<table><thead><th>$Hostname</th><th class=\"right\">$ScriptVersion</th></thead>"
-    HtmlCode+="<tr><td>Ip</td><td>$IpAddress</td></tr>"
-    HtmlCode+="<tbody><tr><td>Operating System</td><td>$OsVersion</td></tr>"
-    HtmlCode+="<tr><td>Kernel</td><td>$Kernel</td></tr>"
-    HtmlCode+="<tr><td>Platform</td><td>$Platform</td></tr>"
-    HtmlCode+="<tr><td>Uptime</td><td>${UptimeDays} day(s). ${UptimeHours}:${UptimeMinutes}:${UptimeSeconds}</td></tr>"
-    HtmlCode+="</tbody></table></body></html>"
-    echo $HtmlCode
+            background: #fafafa;
+            background: -webkit-gradient(linear, left top, left bottom, from(#fbfbfb), to(#fafafa));
+            background: -moz-linear-gradient(top,  #fbfbfb,  #fafafa);
+        }
+        table tr.even td {
+            background: #f6f6f6;
+            background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#f6f6f6));
+            background: -moz-linear-gradient(top,  #f8f8f8,  #f6f6f6);
+        }
+        table tr:last-child td {
+            border-bottom:0;
+        }
+        table tr:last-child td:first-child {
+            -moz-border-radius-bottomleft:3px;
+            -webkit-border-bottom-left-radius:3px;
+            border-bottom-left-radius:3px;
+        }
+        table tr:last-child td:last-child {
+            -moz-border-radius-bottomright:3px;
+            -webkit-border-bottom-right-radius:3px;
+            border-bottom-right-radius:3px;
+        }
+        table tr:hover td {
+            background: #f2f2f2;
+            background: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#f0f0f0));
+            background: -moz-linear-gradient(top,  #f2f2f2,  #f0f0f0);  
+        }
+        .strong {
+            font-weight: bold; 
+        }
+        .em {
+            font-style: italic; 
+        }
+        .right {
+            text-align: right;
+        }
+        span {
+            font-weight: bold; 
+        }
+    </style>
+</head>
+<body>
+    <h1>System Overview - $Hostname</h1>
+    <table>
+        <thead>
+            <th>$Hostname</th>
+            <th class=\"right\">$ScriptVersion</th>
+        </thead>
+        <tbody>
+            <tr>
+                <td>IP</td>
+                <td><span>$IpAddress</span></td>
+            </tr>
+            <tr>
+                <td>Operating System</td>
+                <td>$OsVersion</td>
+            </tr>
+            <tr>
+                <td>Kernel</td>
+                <td>$Kernel</td>
+            </tr>
+            <tr>
+                <td>Platform</td>
+                <td>$Platform</td>
+            </tr>
+            <tr>
+                <td>Uptime</td>
+                <td><span>${UptimeDays}</span> day(s). <span>${UptimeHours}</span>:<span>${UptimeMinutes}</span>:<span>${UptimeSeconds}</span></td>
+            </tr>
+            <tr>
+                <td>CPU Usage</td>
+                <td><span>${CpuUtil}</span> average CPU usage over <span>$CpuProc</span> core(s)</td>
+            </tr>
+            <tr>
+                <td>CPU Load</td>
+                <td>$CpuLoad</td>
+            </tr>
+            <tr>
+                <td>Memory</td>
+                <td>Free: <span>${MemFree}</span>GB (<span>$MemFreePerc</span>%), Used: <span>${MemUsed}</span>GB (<span>$MemUsedPerc</span>%), Total: <span>${MemTotal}</span>GB</td>
+            </tr>
+            <tr>
+                <td>Swap</td>
+                <td>Free: <span>${SwapFree}</span>GB (<span>$SwapFreePerc</span>%), Used: <span>${SwapUsed}</span>GB (<span>$SwapUsedPerc</span>%), Total: <span>${SwapTotal}</span>GB</td>
+            </tr>
+            <tr>
+                <td>Root</td>
+                <td>Free: <span>${RootFree}</span>GB (<span>$RootFreePerc</span>%), Used: <span>${RootUsed}</span>GB (<span>$RootUsedPerc</span>%), Total: <span>${RootTotal}</span>GB</td>
+            </tr>
+            <tr>
+                <td>Updates</td>
+                <td><span>$UpdateCount</span> ${UpdateType} updates available</td>
+            </tr>
+            <tr>
+                <td>Sessions</td>
+                <td><span>$SessionCount</span> sessions</td>
+            </tr>
+            <tr>
+                <td>Processes</td>
+                <td><span>$ProcessCount</span> running processes of <span>$ProcessMax</span> maximum processes</td>
+            </tr>
+EOF
+    
+    [[ $PhpVersion =~ ^[0-9.]+$ ]] && HtmlCode+="
+            <tr>
+                <td>PHP Info</td>
+                <td>Version: $PhpVersion</td>
+            </tr>"
+    
+    [[ $HttpdVersion =~ ^[0-9.]+$ ]] && HtmlCode+="
+            <tr>
+                <td>Apache Info</td>
+                <td>Version: $HttpdVersion</td>
+            </tr>"
+    
+    [[ $MariadbVersion =~ ^[0-9.-]+$ ]] && HtmlCode+="
+            <tr>
+                <td>MariaDB Info</td>
+                <td>Version: $MariadbVersion</td>
+            </tr>"
+    
+    # Close Everything
+    HtmlCode+="
+        </tbody>
+    </table>
+</body>
+</html>"
+
+    echo "$HtmlCode"
 }
 
 PrintHelp () {
@@ -582,7 +672,10 @@ while :; do
                 *) echo "You specified a non-existant theme: $1" ; exit 2 ;;
             esac
             shift ;;
-        -C|--Colortest|--colortest) shift ; [[ -z $1 ]] && Pattern='FireMotD' || Pattern=$1 ; WriteLog Verbose Info "ColorTest with pattern $Pattern" ; ColorTest ; shift ;;
+        -C|--Colortest|--colortest) 
+                shift ; [[ -z $1 ]] && Pattern='FireMotD' || Pattern=$1 
+                WriteLog Verbose Info "ColorTest with pattern $Pattern" ; 
+                ColorTest ; shift ;;
         -*) echo "You specified a non-existant option: $1" ; exit 2 ;;
         *) break ;;
     esac
