@@ -51,7 +51,7 @@ sudo apt-get install bc sysstat
 
 ```
 $ FireMotD --help
-FireMotD v5.08.160629
+FireMotD v5.11.160629
 
 Usage: 
  FireMotD [-v] -t <Theme Name> 
@@ -75,6 +75,7 @@ Available Themes:
  red
  blue
  clean
+ gray
  html
 
 Examples:
