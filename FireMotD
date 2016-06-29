@@ -131,6 +131,7 @@ GatherInfo () {
     UptimeMinutes=$(awk '{print int(($1%3600)/60)}' /proc/uptime)
     UptimeSeconds=$(awk '{print int($1%60)}' /proc/uptime)
     Dmi="$(dmesg | grep "DMI:")"
+    Xen="$(dmesg | grep -i 'xen version')"
     if [[ "$Dmi" = *"QEMU"* ]] ; then
         Platform="$(dmesg | grep "DMI:" | sed 's/^.*QEMU/QEMU/' | sed 's/, B.*//')"
     elif [[ "$Dmi" = *"VMware"* ]] ; then
@@ -141,6 +142,8 @@ GatherInfo () {
         Platform="$(dmesg | grep "DMI:" | sed 's/^.*VirtualBox/VirtualBox/' | sed 's/ .*//')"
     elif [[ "$Dmi" = *"DMI:"* ]] ; then
             Platform="$(dmesg | grep "DMI" | sed -n -e 's/^.*DMI: //p')"
+    elif [[ "$Xen" = *"Xen version"* ]] ; then
+            Platform="Xen Hypervisor v""$(dmesg | grep -i 'xen version' | sed -n -e 's/^.*Xen version: //p')"
     else
         Dmi="$(dmesg | grep "Rasp")"
         if [[ "$Dmi" = *"Rasp"* ]] ; then
