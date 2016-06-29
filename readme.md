@@ -51,7 +51,7 @@ sudo apt-get install bc sysstat
 
 ```
 $ FireMotD --help
-FireMotD v5.05.160628
+FireMotD v5.08.160629
 
 Usage: 
  FireMotD [-v] -t <Theme Name> 
@@ -66,7 +66,7 @@ Options:
  -C | --colortest [string] Prints color test to screen using the provided string,
                            or the default string 'FireMotD' if none provided.
  -U | --updates            Checks for system updates and prints count to stdout
- -s | --saveupdates        Checks for system updates and saves count to disk
+ -S | --saveupdates        Checks for system updates and saves count to disk
                            same as [ FireMotD -U > /var/tmp/updatecount.txt ]
 
 Available Themes:
@@ -85,7 +85,8 @@ Examples:
 
 Note:
  Some functionalities may require superuser privileges. Eg. check for updates.
- Please try doing sudo ./FireMotD if you have problems.
+ If you have problems, try:
+    sudo /usr/local/bin/FireMotD
 ```
 
 ### System Install
@@ -118,18 +119,20 @@ sudo crontab -e
 
 ##### Then add this line (updates everyday at 3:03am)
 ```bash
-3 3 * * * /usr/local/bin/FireMotD -s
+3 3 * * * /usr/local/bin/FireMotD -S &>/dev/null
 ```
 
 ##### Or using the old way
 ```bash
-3 3 * * * /usr/local/bin/FireMotD -U > /var/tmp/updatecount.txt
+3 3 * * * /usr/local/bin/FireMotD -U > /var/tmp/updatecount.txt &>/dev/null
 ```
 
 ### Adding FireMotD to run on login
 
+Choosing where to run your script is kind of situational. Some files will only run on remote logins, other local logins, or even both. You should find out what suits best your needs on each case.
+
 ##### To add FireMotD to a single user
-Edit the user's `~/.profile` file, or the `~/.bashrc` file
+Edit the user's `~/.profile` file, `~/.bash_profile` file, or the `~/.bashrc` file
 ```bash
 nano ~/.profile
 ```

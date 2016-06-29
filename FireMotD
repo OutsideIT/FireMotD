@@ -620,7 +620,8 @@ Examples:
 
 Note:
  Some functionalities may require superuser privileges. Eg. check for updates.
- Please try doing sudo $0 if you have problems.
+ If you have problems, try:
+    sudo $ScriptName
 "
     exit 0
 }
