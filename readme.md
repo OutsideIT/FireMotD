@@ -3,25 +3,29 @@
 ### Idea
 
 This tool displays useful system information after logging into a Linux system, such as version, CPU information, 
-memory, disk information. 
+memory, disk information, number of updates, ...
 
 ### Screenshots
 
 Modern:
 
-![MotD Generator Modern Raspbian](/../screenshots/generate-motd-modern-raspbian.png?raw=true "MotD Generator Modern Raspbian")
+![FireMotD Modern](/../screenshots/FireMotD-Theme-Modern-v5.12.png?raw=true "FireMotD Modern")
 
 Blue:
 
-![MotD Generator Blue Raspbian](/../screenshots/generate-motd-blue-raspbian.png?raw=true "MotD Generator Blue Raspbian")
+![FireMotD Blue](/../screenshots/FireMotD-Theme-Blue-v5.12.png?raw=true "FireMotD Blue")
 
 Red:
 
-![MotD Generator Red Raspbian](/../screenshots/generate-motd-red-raspbian.png?raw=true "MotD Generator Red Raspbian")
+![FireMotD Red](/../screenshots/FireMotD-Theme-Red-v5.12.png?raw=true "FireMotD Red")
+
+Red:
+
+![FireMotD Gray](/../screenshots/FireMotD-Theme-Gray-v5.12.png?raw=true "FireMotD Gray")
 
 Original:
 
-![MotD Generator Original Raspbian](/../screenshots/generate-motd-original-raspbian.png?raw=true "MotD Generator Original Raspbian")
+![FireMotD Original](/../screenshots/FireMotD-Theme-Original-v5.12.png?raw=true "FireMotD Original")
 
 
 ### Status
@@ -51,7 +55,7 @@ sudo apt-get install bc sysstat
 
 ```
 $ FireMotD --help
-FireMotD v5.11.160629
+FireMotD v5.12.160629
 
 Usage: 
  FireMotD [-v] -t <Theme Name> 
