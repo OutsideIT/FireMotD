@@ -558,8 +558,6 @@ while :; do
     case "$1" in
         -v|--verbose|--Verbose)
             Verbose=1 ; WriteLog Verbose Info "Verbose execution." ; shift ;;
-        -a|--amazonip|--AmazonIp|--amazonIp)
-            AmazonIp=1 ; WriteLog Verbose Info "AmazonIp=1." ; shift ;;
         -V|--version|--Version)
             PrintVersion ; exit 0 ;;
         -h|--help|--Help)
