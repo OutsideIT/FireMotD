@@ -95,12 +95,10 @@ ColorTest () {
     #for code in {0..255}; do echo -n -e "\e[38;05;${code}m $Pattern" ; done
 	#for code in {0..255}; do echo -n -e "\e[0;${code}m###$code###  "  ; done ; echo ''
     #for code in {0..255}; do echo -n -e "\e[38;05;${code}m###$code###  " ; done
-	echo 
-	echo -n -e "\e[1mYour terminal \e[4mdoes not\e[24m support 256 colors if:\e[0m\n"
+	echo -n -e "\n\e[1mYour terminal \e[4mdoes not\e[24m support 256 colors if:\e[0m\n"
 	echo " * The Color Cube colors are the same as System Colors"
 	echo " * Your gray scale ramp has only 3 variations"
-	echo 
-	echo -n -e "System colors:\n"
+	echo -n -e "\nSystem colors:\n"
 	for code in {0..15}; do
 		ds="  "
 		if [[ $ColorMap -eq 0 ]]; then
@@ -688,17 +686,22 @@ Options:
  -S | --saveupdates        Checks for system updates and saves count to disk
                            same as [ $bn -U > $UpdateFile ]
 
-Available Themes:
+256 colors themes:
  original
  modern
+ gray
+
+16 colors themes:
  red
  blue
  clean
- gray
+
+HTML theme:
  html
 
 Examples:
  $bn -t original
+ $bn -t html > /tmp/motd.html
  $bn --theme Modern
  $bn --colortest
  $bn -M
@@ -706,8 +709,8 @@ Examples:
 
 Note:
  Some functionalities may require superuser privileges. Eg. check for updates.
- If you have problems, try:
-    sudo $ScriptName
+ If you have problems, try something like:
+ sudo $ScriptName -S
 "
     exit 0
 }
