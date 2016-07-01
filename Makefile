@@ -1,4 +1,4 @@
-# Installs to /usr/local/sbin
+# Installs to /usr/local/bin
 # Change variables to adjust locations
 #
 # Jun 24 2016 - Gustavo Neves
