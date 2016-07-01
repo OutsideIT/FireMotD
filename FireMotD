@@ -100,7 +100,7 @@ ColorTest () {
 	echo " * The Color Cube colors are the same as System Colors"
 	echo " * Your gray scale ramp has only 3 variations"
 	echo 
-	echo -n -e "\e[1mSystem colors:\e[0m\n"
+	echo -n -e "System colors:\n"
 	for code in {0..15}; do
 		ds="  "
 		if [[ $ColorMap -eq 0 ]]; then
@@ -111,7 +111,7 @@ ColorTest () {
 	done
 	
 	tcolor=255
-	echo -n -e "\n\e[1mColor cube, 6x6x6:\e[0m\n"
+	echo -n -e "\nColor cube, 6x6x6:\n"
 	for green in {0..5}; do
 		for red in {0..5}; do
 			for blue in {0..5}; do
@@ -129,7 +129,7 @@ ColorTest () {
 	done
 
 	tcolor=255
-	echo -n -e "\n\e[1mGrayscale ramp:\e[0m\n"
+	echo -n -e "\nGrayscale ramp:\n"
 	for gray in {232..255}; do
 		[[ $gray -gt 245 ]] && tcolor=0
 		ds="  "
