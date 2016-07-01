@@ -719,8 +719,8 @@ Options:
  -v | --verbose            Verbose mode (shows messages)
  -V | --version            Shows version information and exits
  -t | --theme <Theme Name> Shows Motd info on screen, based on the chosen theme
- -C | --colortest          Prints color test to screen.
- -M | --colormap           Prints color test to screen, with color numbers in it.
+ -C | --colortest          Prints color test to screen
+ -M | --colormap           Prints color test to screen, with color numbers in it
  -U | --updates            Checks for system updates and prints count to stdout
  -S | --saveupdates        Checks for system updates and saves count to disk
                            same as [ $bn -U > $UpdateFile ]

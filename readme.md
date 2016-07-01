@@ -67,8 +67,8 @@ Options:
  -v | --verbose            Verbose mode (shows messages)
  -V | --version            Shows version information and exits
  -t | --theme <Theme Name> Shows Motd info on screen, based on the chosen theme
- -C | --colortest          Prints color test to screen.
- -M | --colormap           Prints color test to screen, with color numbers in it.
+ -C | --colortest          Prints color test to screen
+ -M | --colormap           Prints color test to screen, with color numbers in it
  -U | --updates            Checks for system updates and prints count to stdout
  -S | --saveupdates        Checks for system updates and saves count to disk
                            same as [ FireMotD -U > /var/tmp/updatecount.txt ]
@@ -116,9 +116,9 @@ With this you can probably run FireMotD from anywhere in your system. If not, yo
 sudo make bash_completion
 ```
 With this you can use TAB to autocomplete parameters and options with FireMotD.
-Does not require the sudo make install above (system install), but requires the `bash-completion` package to be installed and working. Then you should logout-login or source the bash completion file, eg. `$ . /etc/bash_completion.d/FireMotD`.  
+Does not require the sudo make install above (system install), but requires the `bash-completion` package to be installed and working. Then you should logout-login or source the bash completion file, eg. `$ . /etc/bash_completion.d/FireMotD`  
 
-If you don't have root access, just install everything on your user's folder and source the file from your user's .profile file.
+If you don't have root access, just install everything on your user's folder and source the file from your user's .profile file
 
 ### Crontab to get system updates count
 
