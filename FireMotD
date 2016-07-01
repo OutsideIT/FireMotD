@@ -94,7 +94,7 @@ ColorTest () {
     #for code in {0..255}; do echo -n -e "\e[38;05;${code}m $Pattern" ; done
 	#for code in {0..255}; do echo -n -e "\e[0;${code}m###$code###  "  ; done ; echo ''
     #for code in {0..255}; do echo -n -e "\e[38;05;${code}m###$code###  " ; done
-	echo "System colors:"
+	echo; echo "System colors:"
 	for code in {0..15}; do
 		ds="  "
 		if [[ $ColorMap -eq 0 ]]; then
@@ -676,8 +676,8 @@ Options:
  -v | --verbose            Verbose mode (shows messages)
  -V | --version            Shows version information and exits
  -t | --theme <Theme Name> Shows Motd info on screen, based on the chosen theme
- -C | --colortest [string] Prints color test to screen using the provided string,
-                           or the default string 'FireMotD' if none provided.
+ -C | --colortest          Prints color test to screen.
+ -M | --colormap           Prints color test to screen, with color numbers in it.
  -U | --updates            Checks for system updates and prints count to stdout
  -S | --saveupdates        Checks for system updates and saves count to disk
                            same as [ $bn -U > $UpdateFile ]
@@ -694,8 +694,9 @@ Available Themes:
 Examples:
  $bn -t original
  $bn --theme Modern
- $bn --colortest '###'
- sudo $bn --saveupdates
+ $bn --colortest
+ $bn -M
+ sudo $ScriptName --saveupdates
 
 Note:
  Some functionalities may require superuser privileges. Eg. check for updates.
