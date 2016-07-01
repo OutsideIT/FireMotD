@@ -93,7 +93,7 @@ Examples:
  FireMotD --theme Modern
  FireMotD --colortest
  FireMotD -M
- sudo /home/tavinus/FireMotD/FireMotD --saveupdates
+ sudo /usr/local/bin/FireMotD --saveupdates
 
 Note:
  Some functionalities may require superuser privileges. Eg. check for updates.
