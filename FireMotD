@@ -25,7 +25,8 @@
 # GNU General Public License along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-Verbose=0
+Verbose=0   # I wonder why using 1 as TRUE here -> Tavinus
+ColorMap=1  # Defaults to false
 UpdateFile=/var/tmp/updatecount.txt
 ScriptName="$(readlink -e $0)"
 ScriptVersion=" $(cat $ScriptName | grep "# Version:" | awk {'print $3'} | tr -cd '[[:digit:].-]' | sed 's/.\{2\}$//') "
@@ -89,11 +90,48 @@ CountUpdates () {
 }
 
 ColorTest () {
-    WriteLog Verbose Info "Executing colortest with pattern $Pattern"
-    for code in {0..255}; do echo -n -e "\e[38;05;${code}m $Pattern" ; done
+    WriteLog Verbose Info "Executing colortest with ColorMap=$ColorMap"
+    #for code in {0..255}; do echo -n -e "\e[38;05;${code}m $Pattern" ; done
 	#for code in {0..255}; do echo -n -e "\e[0;${code}m###$code###  "  ; done ; echo ''
     #for code in {0..255}; do echo -n -e "\e[38;05;${code}m###$code###  " ; done
-    echo -e "\e[0;37m"
+	echo "System colors:"
+	for code in {0..15}; do
+		ds="  "
+		if [[ $ColorMap -eq 0 ]]; then
+			[[ $code -lt 10 ]] && ds=" $code  " || ds=" $code "
+		fi
+		echo -n -e "\e[48;05;${code}m${ds}"
+		[[ ($code -eq 7) || ($code -eq 15) ]] && echo -n -e "\e[0m\n"
+	done
+	
+	tcolor=255
+	echo -e "\nColor cube, 6x6x6:"
+	for green in {0..5}; do
+		for red in {0..5}; do
+			for blue in {0..5}; do
+				color=$((16 + ($red * 36) + ($green * 6) + $blue));
+				ds="  "
+				if [[ $ColorMap -eq 0 ]]; then
+					[[ $color -lt 100 ]] && ds="$color  " || ds="$color "
+				fi
+				echo -n -e "\e[38;05;${tcolor}m\e[48;05;${color}m${ds}"
+			done
+			echo -n -e "\e[0m "
+		done
+		echo -n -e "\e[0m\n"
+		tcolor=0
+	done
+
+	tcolor=255
+	echo -e "\nGrayscale ramp:"
+	for gray in {232..255}; do
+		[[ $gray -gt 245 ]] && tcolor=0
+		ds="  "
+		[[ $ColorMap -eq 0 ]] && ds=" $gray "
+		echo -n -e "\e[38;05;${tcolor}m\e[48;05;${gray}m${ds}"
+	done
+
+    echo -e "\e[0;37m\e[0m\n"
 }
 
 GatherInfo () {
@@ -715,10 +753,10 @@ while :; do
                 *) echo "You specified a non-existant theme: $1" ; exit 2 ;;
             esac
             shift ;;
-        -C|--Colortest|--colortest) 
-                shift ; [[ -z $1 ]] && Pattern='FireMotD' || Pattern=$1 
-                WriteLog Verbose Info "ColorTest with pattern $Pattern" ; 
-                ColorTest ; shift ;;
+        -C|--Colortest|--colortest|--ColorTest|--colorTest) 
+                ColorMap=1 ;ColorTest ; shift ;;
+        -M|--Colormap|--colormap|--ColorMap|--colorMap) 
+                ColorMap=0 ; ColorTest ; shift ;;
         -*) echo "You specified a non-existant option: $1" ; exit 2 ;;
         *) break ;;
     esac
