@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.13.160630
+# Version:      v5.14.160701
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves
@@ -9,11 +9,11 @@
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   24/06/16 => Added new options, help and version messages (GN)
-#   25/06/16 => Cleanup for release and better colortest 
 #   28/06/16 => Colortest default string, script aborts if no parameters (GN)
 #   28/06/16 => Performance improvements, new check for MariaDB/MySQL (GN)
 #   29/06/16 => Improved Apache version, Gray theme (GN)
+#   30/06/16 => Orange theme and color array test (GN)
+#   01/07/16 => Invader theme (WD) 
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -25,8 +25,10 @@
 # GNU General Public License along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-Verbose=0   # I wonder why using 1 as TRUE here -> Tavinus
-UpdateFile=/var/tmp/updatecount.txt
+Verbose=0   
+# Because I've been using this in hundreds of scripts in combination with WriteLog
+# I've experimented with true and false but had some weird issues, what is your suggestion?
+UpdateFile='/var/tmp/updatecount.txt'
 ScriptName="$(readlink -e $0)"
 ScriptVersion=" $(cat $ScriptName | grep "# Version:" | awk {'print $3'} | tr -cd '[[:digit:].-]' | sed 's/.\{2\}$//') "
 
@@ -90,8 +92,6 @@ CountUpdates () {
 
 ColorTest () {
     ColorMap=1; [[ (! -z $1) && ($1 -eq 0) ]] && ColorMap=0
-    WriteLog Verbose Info "Executing colortest with ColorMap=$ColorMap"
-
     echo -n -e "\n\e[1mYour terminal \e[4mdoes not\e[24m support 256 colors if:\e[0m\n"
     echo " * The Color Cube colors are the same as System Colors"
     echo " * Your gray scale ramp has only 3 variations"
@@ -703,6 +703,37 @@ EOF
     echo "$HtmlCode"
 }
 
+GenerateInvader () {
+    f=3 b=4
+    for j in f b; do
+        for i in {0..7}; do
+            printf -v $j$i %b "\e[${!j}${i}m"
+        done
+   done
+   bld=$'\e[1m'
+   rst=$'\e[0m'
+cat << EOF
+
+ $f1  ▀▄   ▄▀     $f2 ▄▄▄████▄▄▄    $f3  ▄██▄     $f4  ▀▄   ▄▀     $f5 ▄▄▄████▄▄▄    $f6  ▄██▄  $rst
+ $f1 ▄█▀███▀█▄    $f2███▀▀██▀▀███   $f3▄█▀██▀█▄   $f4 ▄█▀███▀█▄    $f5███▀▀██▀▀███   $f6▄█▀██▀█▄$rst
+ $f1█▀███████▀█   $f2▀▀███▀▀███▀▀   $f3▀█▀██▀█▀   $f4█▀███████▀█   $f5▀▀███▀▀███▀▀   $f6▀█▀██▀█▀$rst
+ $f1▀ ▀▄▄ ▄▄▀ ▀   $f2 ▀█▄ ▀▀ ▄█▀    $f3▀▄    ▄▀   $f4▀ ▀▄▄ ▄▄▀ ▀   $f5 ▀█▄ ▀▀ ▄█▀    $f6▀▄    ▄▀$rst
+ $f2 Hostname: $Hostname  
+ $f3 Ip: $IpAddress 
+ $f4 Os: $OsVersion
+ $f5 Kernel: $Kernel 
+ $f6 Platform: $Platform  
+ $bld$f1▄ ▀▄   ▄▀ ▄   $f2 ▄▄▄████▄▄▄    $f3  ▄██▄     $f4▄ ▀▄   ▄▀ ▄   $f5 ▄▄▄████▄▄▄    $f6  ▄██▄  $rst
+ $bld$f1█▄█▀███▀█▄█   $f2███▀▀██▀▀███   $f3▄█▀██▀█▄   $f4█▄█▀███▀█▄█   $f5███▀▀██▀▀███   $f6▄█▀██▀█▄$rst
+ $bld$f1▀█████████▀   $f2▀▀▀██▀▀██▀▀▀   $f3▀▀█▀▀█▀▀   $f4▀█████████▀   $f5▀▀▀██▀▀██▀▀▀   $f6▀▀█▀▀█▀▀$rst
+ $bld$f1 ▄▀     ▀▄    $f2▄▄▀▀ ▀▀ ▀▀▄▄   $f3▄▀▄▀▀▄▀▄   $f4 ▄▀     ▀▄    $f5▄▄▀▀ ▀▀ ▀▀▄▄   $f6▄▀▄▀▀▄▀▄$rst
+ $f2 Uptime ${UptimeDays} day(s). ${UptimeHours}:${UptimeMinutes}:${UptimeSeconds}
+ $f3 CPU Usage: ${CpuUtil} average CPU usage over $CpuProc core(s) 
+ $f4 CPU Load: $CpuLoad                                 
+ $f5 Updates: $UpdateCount ${UpdateType} updates available                               $f7▌$rst
+EOF
+}
+
 PrintHelp () {
     PrintVersion
     bn=$(basename $0)
@@ -788,7 +819,7 @@ while :; do
             CheckSudo $@ ; CountUpdates ; exit $? ;;
         -s|-S|--saveupdates|--SaveUpdates|--saveUpdates)
             CheckSudo $@ ; CountUpdates > "$UpdateFile" && chmod 644 "$UpdateFile" ; exit $? ;;
-        -t|--Theme|--theme)
+        -t|-T|--Theme|--theme)
             shift ; Theme=$1 
             case "$Theme" in
                 original|Original) GatherInfo ; StartOriginalBlue ; GenerateOriginal256Color ;;
@@ -799,6 +830,7 @@ while :; do
                 orange|Orange) GatherInfo ; StartOrangeTheme ; GenerateBasic16Color ;;
                 html|Html) GatherInfo ; GenerateHtmlTheme ;;
                 blank|Blank|blanco|Blanco|Text|Clean|clean) GatherInfo ; GenerateBasic16Color ;;
+                invader|Invader) GatherInfo ; GenerateInvader ;;
                 *) echo "You specified a non-existant theme: $1" ; exit 2 ;;
             esac
             shift ;;
