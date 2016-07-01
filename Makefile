@@ -12,7 +12,7 @@ BCIFILE=$(BCIDIR)/FireMotD
 BCODIR=/etc/bash_completion.d
 BCOFILE=$(BCODIR)/FireMotD
 
-all:
+all: install bash_completion
 
 install:
 	cp FireMotD $(IFILE)
