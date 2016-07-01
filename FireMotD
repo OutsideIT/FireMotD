@@ -26,7 +26,6 @@
 # <http://www.gnu.org/licenses/>.
 
 Verbose=0   # I wonder why using 1 as TRUE here -> Tavinus
-ColorMap=1  # Defaults to false
 UpdateFile=/var/tmp/updatecount.txt
 ScriptName="$(readlink -e $0)"
 ScriptVersion=" $(cat $ScriptName | grep "# Version:" | awk {'print $3'} | tr -cd '[[:digit:].-]' | sed 's/.\{2\}$//') "
@@ -90,6 +89,8 @@ CountUpdates () {
 }
 
 ColorTest () {
+	ColorMap=1
+	[[ (! -z $1) && ($1 -eq 0) ]] && ColorMap=0
 	# DISCLAIMER: This color test is based on a Perl colortest from the XFree86 project
     WriteLog Verbose Info "Executing colortest with ColorMap=$ColorMap"
     #for code in {0..255}; do echo -n -e "\e[38;05;${code}m $Pattern" ; done
@@ -764,9 +765,9 @@ while :; do
             esac
             shift ;;
         -C|--Colortest|--colortest|--ColorTest|--colorTest) 
-                ColorMap=1 ;ColorTest ; shift ;;
+                ColorTest ; shift ;;
         -M|--Colormap|--colormap|--ColorMap|--colorMap) 
-                ColorMap=0 ; ColorTest ; shift ;;
+                ColorTest 0 ; shift ;;
         -*) echo "You specified a non-existant option: $1" ; exit 2 ;;
         *) break ;;
     esac
