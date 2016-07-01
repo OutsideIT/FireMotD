@@ -117,6 +117,7 @@ sudo make bash_completion
 ```
 With this you can use TAB to autocomplete parameters and options with FireMotD.
 Does not require the sudo make install above (system install), but requires the `bash-completion` package to be installed and working. Then you should logout-login or source the bash completion file, eg. `. /etc/bash_completion.d/FireMotD`.  
+
 If you don't have root access, just install everything on your user's folder and source the file from your user's .profile file.
 
 ### Crontab to get system updates count
