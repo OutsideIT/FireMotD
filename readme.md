@@ -73,12 +73,13 @@ Options:
  -S | --saveupdates        Checks for system updates and saves count to disk
                            same as [ FireMotD -U > /var/tmp/updatecount.txt ]
 
-256 colors themes:
+256-color themes:
  original
  modern
  gray
+ orange
 
-16 colors themes:
+16-color themes:
  red
  blue
  clean
