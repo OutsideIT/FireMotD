@@ -95,7 +95,12 @@ ColorTest () {
     #for code in {0..255}; do echo -n -e "\e[38;05;${code}m $Pattern" ; done
 	#for code in {0..255}; do echo -n -e "\e[0;${code}m###$code###  "  ; done ; echo ''
     #for code in {0..255}; do echo -n -e "\e[38;05;${code}m###$code###  " ; done
-	echo; echo "System colors:"
+	echo 
+	echo "Your terminal does not support 256 colors if:"
+	echo " * The Color Cube colors are the same as System Colors"
+	echo " * Your gray scale ramp has only 3 variations"
+	echo 
+	echo "System colors:"
 	for code in {0..15}; do
 		ds="  "
 		if [[ $ColorMap -eq 0 ]]; then
