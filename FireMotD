@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.13.160629
+# Version:      v5.13.160630
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves
@@ -90,6 +90,7 @@ CountUpdates () {
 }
 
 ColorTest () {
+	# DISCLAIMER: This color test is based on a Perl colortest from the XFree86 project
     WriteLog Verbose Info "Executing colortest with ColorMap=$ColorMap"
     #for code in {0..255}; do echo -n -e "\e[38;05;${code}m $Pattern" ; done
 	#for code in {0..255}; do echo -n -e "\e[0;${code}m###$code###  "  ; done ; echo ''
