@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.12.160629
+# Version:      v5.13.160630
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves
@@ -25,7 +25,7 @@
 # GNU General Public License along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-Verbose=0
+Verbose=0   # I wonder why using 1 as TRUE here -> Tavinus
 UpdateFile=/var/tmp/updatecount.txt
 ScriptName="$(readlink -e $0)"
 ScriptVersion=" $(cat $ScriptName | grep "# Version:" | awk {'print $3'} | tr -cd '[[:digit:].-]' | sed 's/.\{2\}$//') "
@@ -89,11 +89,52 @@ CountUpdates () {
 }
 
 ColorTest () {
-    WriteLog Verbose Info "Executing colortest with pattern $Pattern"
-    for code in {0..255}; do echo -n -e "\e[38;05;${code}m $Pattern" ; done
-	#for code in {0..255}; do echo -n -e "\e[0;${code}m###$code###  "  ; done ; echo ''
-    #for code in {0..255}; do echo -n -e "\e[38;05;${code}m###$code###  " ; done
-    echo -e "\e[0;37m"
+    ColorMap=1; [[ (! -z $1) && ($1 -eq 0) ]] && ColorMap=0
+    WriteLog Verbose Info "Executing colortest with ColorMap=$ColorMap"
+
+    echo -n -e "\n\e[1mYour terminal \e[4mdoes not\e[24m support 256 colors if:\e[0m\n"
+    echo " * The Color Cube colors are the same as System Colors"
+    echo " * Your gray scale ramp has only 3 variations"
+
+    # This color test is inspired on a Perl colortest from the XFree86 project
+    echo -n -e "\nSystem colors:\n"
+    for code in {0..15}; do
+        ds="  "
+        if [[ $ColorMap -eq 0 ]]; then
+            [[ $code -lt 10 ]] && ds=" $code  " || ds=" $code "
+        fi
+        echo -n -e "\e[48;05;${code}m${ds}"
+        [[ ($code -eq 7) || ($code -eq 15) ]] && echo -n -e "\e[0m\n"
+    done
+    
+    tcolor=255
+    echo -n -e "\nColor cube, 6x6x6:\n"
+    for green in {0..5}; do
+        for red in {0..5}; do
+            for blue in {0..5}; do
+                color=$((16 + ($red * 36) + ($green * 6) + $blue));
+                ds="  "
+                if [[ $ColorMap -eq 0 ]]; then
+                    [[ $color -lt 100 ]] && ds="$color  " || ds="$color "
+                fi
+                echo -n -e "\e[38;05;${tcolor}m\e[48;05;${color}m${ds}"
+            done
+            echo -n -e "\e[0m "
+        done
+        echo -n -e "\e[0m\n"
+        tcolor=0
+    done
+
+    tcolor=255
+    echo -n -e "\nGrayscale ramp:\n"
+    for gray in {232..255}; do
+        [[ $gray -gt 245 ]] && tcolor=0
+        ds="  "
+        [[ $ColorMap -eq 0 ]] && ds=" $gray "
+        echo -n -e "\e[38;05;${tcolor}m\e[48;05;${gray}m${ds}"
+    done
+
+    echo -e "\e[0;37m\e[0m\n"
 }
 
 GatherInfo () {
@@ -221,42 +262,80 @@ GatherInfo () {
     fi   
 }
 
-StartGrayTheme () {
-    # Red
-    Sch1="\e[0;2m####"
-    # Light Red
-    Sch2="\e[1;2m#####"
-    # Light Yellow
-    Sch3="\e[1;90m#####"
-    # Yellow
-    Sch4="\e[0;90m#####"
+StartOrangeTheme () {
+    # 1st block top
+    Sch1="\e[38;5;202m####"
+    # 2nd block top
+    Sch2="\e[38;5;208m#####"
+    # 3rd block top
+    Sch3="\e[38;5;214m#####"
+    # 4th block top
+    Sch4="\e[38;5;220m#####"
     # Pre-Host Scheme
     PrHS=$Sch1$Sch1$Sch2$Sch2
     # Host Scheme Top
-    HST="\e[1;90m`head -c $HostChars /dev/zero|tr '\0' '#'`"
+    HST="\e[38;5;226m`head -c $HostChars /dev/zero|tr '\0' '#'`"
     # Host Scheme Top Filler
-    HSF="\e[1;2m###"
+    HSF="\e[38;5;214m###"
     # Host Scheme Bot
-    HSB="\e[0;90m`head -c $HostChars /dev/zero|tr '\0' '#'`"
+    HSB="\e[38;5;226m`head -c $HostChars /dev/zero|tr '\0' '#'`"
     # Post Host Scheme
-    PHS="\e[1;90m`head -c $LeftoverChars /dev/zero|tr '\0' '#'`"
+    PHS="\e[38;5;214m`head -c $LeftoverChars /dev/zero|tr '\0' '#'`"
     # Host Version Filler
-    HVF="\e[1;90m`head -c 9 /dev/zero|tr '\0' '#'`"
+    HVF="\e[38;5;214m`head -c 9 /dev/zero|tr '\0' '#'`"
     # Front Scheme
-    FrS="\e[0;2m##"
-    # Equal Scheme
-    ES="\e[1;90m="
+    FrS="\e[38;5;202m##"
     # 16 Color Yellow Value Scheme
     # Host Color
-    HC="\e[0;1m"
-    # Yellow Value Color
-    VC="\e[0;0m"
-    # Light Yellow Value Color
-    VCL="\e[0;1m"
-    # Light Yellow Key Color
-    KS="\e[0;0m"
+    HC="\e[38;5;202m"
     # Version Color
-    SVC="\e[0;90m"
+    SVC="\e[38;5;130m"
+    # Key Color
+    KS="\e[38;5;214m"
+    # Equal Scheme
+    ES="\e[38;5;226m="
+    # Value Color
+    VC="\e[38;5;208m"
+    # Variable Value Color
+    VCL="\e[38;5;202m"
+}
+
+StartGrayTheme () {
+    # 1st block top
+    Sch1="\e[38;5;252m####"
+    # 2nd block top
+    Sch2="\e[38;5;243m#####"
+    # 3rd block top
+    Sch3="\e[38;5;233m#####"
+    # 4th block top
+    Sch4="\e[38;5;254m#####"
+    # Pre-Host Scheme
+    PrHS=$Sch1$Sch1$Sch2$Sch2
+    # Host Scheme Top
+    HST="\e[38;5;233m`head -c $HostChars /dev/zero|tr '\0' '#'`"
+    # Host Scheme Top Filler
+    HSF="\e[38;5;233m###"
+    # Host Scheme Bot
+    HSB="\e[38;5;233m`head -c $HostChars /dev/zero|tr '\0' '#'`"
+    # Post Host Scheme
+    PHS="\e[38;5;243m`head -c $LeftoverChars /dev/zero|tr '\0' '#'`"
+    # Host Version Filler
+    HVF="\e[38;5;243m`head -c 9 /dev/zero|tr '\0' '#'`"
+    # Front Scheme
+    FrS="\e[38;5;252m##"
+    # Equal Scheme
+    ES="\e[38;5;15m="
+    # 16 Color Yellow Value Scheme
+    # Host Color
+    HC="\e[38;5;250m"
+    # Yellow Value Color
+    VC="\e[38;5;248m"
+    # Light Yellow Value Color
+    VCL="\e[38;5;254m"
+    # Light Yellow Key Color
+    KS="\e[38;5;242m"
+    # Version Color
+    SVC="\e[38;5;240m"
 }
 
 StartBlueTheme () {
@@ -542,7 +621,7 @@ read -d '' HtmlCode <<EOF
     <table>
         <thead>
             <th>$Hostname</th>
-            <th class=\"right\">$ScriptVersion</th>
+            <th class="right">$ScriptVersion</th>
         </thead>
         <tbody>
             <tr>
@@ -638,31 +717,38 @@ Options:
  -v | --verbose            Verbose mode (shows messages)
  -V | --version            Shows version information and exits
  -t | --theme <Theme Name> Shows Motd info on screen, based on the chosen theme
- -C | --colortest [string] Prints color test to screen using the provided string,
-                           or the default string 'FireMotD' if none provided.
+ -C | --colortest          Prints color test to screen
+ -M | --colormap           Prints color test to screen, with color numbers in it
  -U | --updates            Checks for system updates and prints count to stdout
  -S | --saveupdates        Checks for system updates and saves count to disk
                            same as [ $bn -U > $UpdateFile ]
 
-Available Themes:
+256-color themes:
  original
  modern
+ gray
+ orange
+
+16-color themes:
  red
  blue
  clean
- gray
+
+HTML theme:
  html
 
 Examples:
  $bn -t original
+ $bn -t html > /tmp/motd.html
  $bn --theme Modern
- $bn --colortest '###'
- sudo $bn --saveupdates
+ $bn --colortest
+ $bn -M
+ sudo $ScriptName --saveupdates
 
 Note:
  Some functionalities may require superuser privileges. Eg. check for updates.
- If you have problems, try:
-    sudo $ScriptName
+ If you have problems, try something like:
+ sudo $ScriptName -S
 "
     exit 0
 }
@@ -710,15 +796,16 @@ while :; do
                 red|Red) GatherInfo ; StartRedTheme ; GenerateBasic16Color ;;
                 blue|Blue) GatherInfo ; StartBlueTheme ; GenerateBasic16Color ;;
                 gray|Gray) GatherInfo ; StartGrayTheme ; GenerateBasic16Color ;;
+                orange|Orange) GatherInfo ; StartOrangeTheme ; GenerateBasic16Color ;;
                 html|Html) GatherInfo ; GenerateHtmlTheme ;;
                 blank|Blank|blanco|Blanco|Text|Clean|clean) GatherInfo ; GenerateBasic16Color ;;
                 *) echo "You specified a non-existant theme: $1" ; exit 2 ;;
             esac
             shift ;;
-        -C|--Colortest|--colortest) 
-                shift ; [[ -z $1 ]] && Pattern='FireMotD' || Pattern=$1 
-                WriteLog Verbose Info "ColorTest with pattern $Pattern" ; 
+        -C|--Colortest|--colortest|--ColorTest|--colorTest) 
                 ColorTest ; shift ;;
+        -M|--Colormap|--colormap|--ColorMap|--colorMap) 
+                ColorTest 0 ; shift ;;
         -*) echo "You specified a non-existant option: $1" ; exit 2 ;;
         *) break ;;
     esac

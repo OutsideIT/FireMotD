@@ -1,4 +1,4 @@
-# Installs to /usr/local/sbin
+# Installs to /usr/local/bin
 # Change variables to adjust locations
 #
 # Jun 24 2016 - Gustavo Neves
@@ -12,7 +12,7 @@ BCIFILE=$(BCIDIR)/FireMotD
 BCODIR=/etc/bash_completion.d
 BCOFILE=$(BCODIR)/FireMotD
 
-all:
+all: install bash_completion
 
 install:
 	cp FireMotD $(IFILE)

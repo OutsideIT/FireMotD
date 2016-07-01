@@ -15,13 +15,13 @@ _FireMotD ()   #  By convention, the function name
   if [[ $prev = "-t" ]] || [[ $prev = "--theme" ]] || [[ $prev = "--Theme" ]]; then
     COMPREPLY=( $( compgen -W "original Original modern Modern red Red \
                                blue Blue html Html blank Blank text Text\
-                               clean Clean" -- $cur ) )
+                               clean Clean gray Gray orange Orange" -- $cur ) )
   elif [[ ! $prev = "-t" ]] && [[ ! $prev = "--theme" ]] && [[ ! $prev = "--Theme" ]]; then
-    COMPREPLY=( $( compgen -W '-v -V -h -U -s -t -C \
+    COMPREPLY=( $( compgen -W '-v -V -h -U -s -t -C -M \
                                --verbose --Verbose --help --Help \
                                --updates --Updates --saveupdates --saveUpdates \
                                --SaveUpdates --theme --Theme \
-                               --colortest --Colortest' -- $cur ) )
+                               --colortest --Colortest --colormap --Colormap' -- $cur ) )
   fi
 
   return 0
