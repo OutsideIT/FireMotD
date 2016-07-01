@@ -621,7 +621,7 @@ read -d '' HtmlCode <<EOF
     <table>
         <thead>
             <th>$Hostname</th>
-            <th class=\"right\">$ScriptVersion</th>
+            <th class="right">$ScriptVersion</th>
         </thead>
         <tbody>
             <tr>
