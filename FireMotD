@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.14.160701
+# Version:      v5.15.160729
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves
@@ -9,11 +9,11 @@
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   28/06/16 => Colortest default string, script aborts if no parameters (GN)
 #   28/06/16 => Performance improvements, new check for MariaDB/MySQL (GN)
 #   29/06/16 => Improved Apache version, Gray theme (GN)
 #   30/06/16 => Orange theme and color array test (GN)
-#   01/07/16 => Invader theme (WD) 
+#   01/07/16 => Invader theme (WD)
+#   29/07/16 => Better ip route support for remote ssh command
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -26,14 +26,10 @@
 # <http://www.gnu.org/licenses/>.
 
 Verbose=0   
-# Because I've been using this in hundreds of scripts in combination with WriteLog
-# I've experimented with true and false but had some weird issues, what is your suggestion?
 UpdateFile='/var/tmp/updatecount.txt'
 ScriptName="$(readlink -e $0)"
 ScriptVersion=" $(cat $ScriptName | grep "# Version:" | awk {'print $3'} | tr -cd '[[:digit:].-]' | sed 's/.\{2\}$//') "
 
-# Make sure we have the correct locales or we will have problems
-# Had many issues on a pt_BR.iso88591 system before adding this
 LC_MEASUREMENT="C"
 LC_ALL="C"
 LC_CTYPE="C"
@@ -154,7 +150,21 @@ GatherInfo () {
         OsVersion="$(echo "$OsVersionFull" | grep 'DISTRIB_DESCRIPTION' | cut -f2 -d'"')"
     fi
     IpPath="$(which ip 2>/dev/null)"
-    IpAddress="$(${IpPath} route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
+    WriteLog Verbose Info "IpPath: $IpPath"
+    if [ -z $IpPath ] ; then
+        if [ -f /usr/sbin/ip ] ; then
+            IpPath="/usr/sbin/ip"
+        elif [ -f /sbin/ip ] ; then
+            IpPath="/sbin/ip"
+        else
+            WriteLog Verbose Warning "Path doesn't contain ip tool"
+        fi
+    fi
+    if [ ! -z $IpPath ] ; then
+        IpAddress="$(${IpPath} route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
+    else
+        IpAddress="Unable to use ip route. Please debug."
+    fi
     if [ -f /sys/hypervisor/uuid ] && [ `head -c 3 /sys/hypervisor/uuid` == ec2 ]; then
         CurlExec=$(which curl 2>/dev/null)
         WgetExec=$(which wget 2>/dev/null)
