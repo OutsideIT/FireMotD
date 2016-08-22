@@ -180,9 +180,9 @@ GatherInfo () {
     UptimeMinutes=$(awk '{print int(($1%3600)/60)}' /proc/uptime)
     UptimeSeconds=$(awk '{print int($1%60)}' /proc/uptime)
     Dmesg="$(dmesg)"
-    Dmi="$(echo "$Dmesg" | grep "DMI:")"
-    Rasp="$(echo "$Dmesg" | grep "Rasp")"
-    Xen="$(echo "$Dmesg" | grep -i 'xen version')"
+    Dmi="$(echo "$Dmesg" | GREP_OPTIONS= \grep "DMI:")"
+    Rasp="$(echo "$Dmesg" | GREP_OPTIONS= \grep "Raspberry")"
+    Xen="$(echo "$Dmesg" | GREP_OPTIONS= \grep -i 'xen version')"
     if [[ "$Dmi" = *"QEMU"* ]] ; then
         Platform="$(echo "$Dmi" | sed 's/^.*QEMU/QEMU/' | sed 's/, B.*//')"
     elif [[ "$Dmi" = *"VMware"* ]] ; then
