@@ -221,7 +221,7 @@ GatherInfo () {
     SwapTotalB="$(cat /proc/meminfo | grep SwapTotal | awk {'print $2'})"
     SwapUsedB="$(expr $SwapTotalB - $SwapFreeB)"
     SwapFree="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapFreeB/1024/1024))"
-    SwapFreePerc=$(echo "scale=2; $SwapFreeB*100/$SwapTotalB" | bc)
+    SwapFreePerc=$(echo "scale=2; $SwapFreeB*100/$SwapTotalB" | bc  &> /dev/null)
     SwapFreePerc=$(echo $(LC_NUMERIC=C printf "%.0f" $SwapFreePerc))
     SwapUsed="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapUsedB/1024/1024))"
     SwapUsedPerc=$(echo "100-$SwapFreePerc" | bc)
