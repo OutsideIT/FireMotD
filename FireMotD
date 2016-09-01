@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.15.160729
+# Version:      v5.16.160828
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves
@@ -9,11 +9,11 @@
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   28/06/16 => Performance improvements, new check for MariaDB/MySQL (GN)
 #   29/06/16 => Improved Apache version, Gray theme (GN)
 #   30/06/16 => Orange theme and color array test (GN)
 #   01/07/16 => Invader theme (WD)
 #   29/07/16 => Better ip route support for remote ssh command
+#   28/08/16 => Fix divide by zero when no swap available (TD)
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
