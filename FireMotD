@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.16.160828
+# Version:      v5.17.160901
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves
@@ -14,6 +14,7 @@
 #   01/07/16 => Invader theme (WD)
 #   29/07/16 => Better ip route support for remote ssh command
 #   28/08/16 => Fix divide by zero when no swap available (TD)
+#   01/09/16 => System total process count (AB)
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -202,6 +203,7 @@ GatherInfo () {
     fi
     CpuUtil="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
     CpuProc="$(cat /proc/cpuinfo | grep processor | wc -l)"
+    CpuSock=”$(cat /proc/cpuinfo | grep "physical id" | sort -u | wc -l)”
     CpuLoad="$(uptime | grep -ohe '[s:][: ].*' | awk '{ print "1m: "$2 " 5m: "$3 " 15m: " $4}')"
     MemFreeB="$(cat /proc/meminfo | grep MemFree | awk {'print $2'})"
     MemTotalB="$(cat /proc/meminfo | grep MemTotal | awk {'print $2'})"
@@ -237,8 +239,8 @@ GatherInfo () {
     UpdateCount="Unknown"
     [[ -f $UpdateFile ]] && UpdateCount="$(cat $UpdateFile)"
     SessionCount="$(who | grep $USER | wc -l)"
-    ProcessCount="$(ps -Afl | wc -l)"
-    ProcessMax="$(ulimit -u)"
+    ProcessCount="$(ps -Afl -no-headers | wc -l)"
+    ProcessMax="$(sysctl -n kernel.pid_max)"
     PhpVersion="$(/usr/bin/php -v 2>/dev/null | grep -oE '^PHP\s[0-9]+\.[0-9]+\.[0-9]+' | awk '{ print $2}')"
     MaxLeftOverChars=35
     Hostname="$(hostname)"
