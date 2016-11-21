@@ -284,7 +284,15 @@ GatherInfo () {
         MySqlVersion="$(echo "$MySqlString" | awk '{print $3}')"
         MySqlDistribution="$(echo "$MySqlString" | awk '{print $5}' | tr -d ',')"
         WriteLog Verbose Info "MySqlVersion: $MySqlVersion Distr: $MySqlDistribution"
-    fi   
+    fi
+    PostgreSqlVersion=""
+    PostgreSqlPath="$(which psql 2>/dev/null)"
+    WriteLog Verbose Info "PostgreSqlPath: $PostgreSqlPath"
+    if [[ (-f $PostgreSqlPath) && (-x $PostgreSqlPath) ]] ; then
+        PostgreSqlString="$(${PostgreSqlPath} --version 2>/dev/null)"
+        PostgreSqlVersion="$(echo "$PostgreSqlString" | awk '{print $3}')"
+        WriteLog Verbose Info "PostgreSqlVersion: $PostgreSqlVersion"
+    fi    
 }
 
 StartOrangeTheme () {
@@ -478,6 +486,10 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
     if [[ ! -z $MySqlVersion ]] ; then
         echo -e "\e[0;38;5;17m$Fto       \e[38;5;39mMySQL \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$MySqlVersion \e[38;5;27mDistribution: \e[38;5;33m$MySqlDistribution"
     fi
+    if [[ ! -z $PostgreSqlVersion ]] ; then
+        echo -e "\e[0;38;5;17m$Fto       \e[38;5;39mPostgreSQL \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PostgreSqlVersion"
+    fi
+    
     echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme\e[0;37m"
 }
 
@@ -506,6 +518,9 @@ $FrS   ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$P
     fi
     if [[ ! -z $MySqlVersion ]] ; then
         echo -e "$FrS${KS}  MySQL Info $ES ${VC}Version: ${VCL}$MySqlVersion ${VC}Distribution: ${VCL}$MySqlDistribution"
+    fi
+    if [[ ! -z $PostgreSqlVersion ]] ; then
+        echo -e "$FrS${KS}  PostgreSQL $ES ${VC}Version: ${VCL}$PostgreSqlVersion"
     fi
     echo -e "$PrHS$Sch2$HSB$Sch2$PHS$Sch1\e[0;37m"
 }
@@ -719,6 +734,13 @@ EOF
                 <td>MySQL Info</td>
                 <td>Version: <span>$MySqlVersion</span>, Distribution: <span>$MySqlDistribution</span></td>
             </tr>"
+    
+    [[ ! -z $PostgreSqlVersion ]] && HtmlCode+="
+            <tr>
+                <td>PostgreSQL Info</td>
+                <td>Version: <span>$PostgreSqlVersion</span></td>
+            </tr>"
+
     HtmlCode+="
         </tbody>
     </table>
