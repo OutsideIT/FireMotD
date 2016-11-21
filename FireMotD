@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.20.161009
+# Version:      v5.21.161121
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves
@@ -9,11 +9,11 @@
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   28/08/16 => Fix divide by zero when no swap available (TD)
 #   01/09/16 => System total process count (AB)
 #   13/09/16 => sysctl which fix for CentOS 6
 #   07/10/16 => Added PHP memory limit
 #   09/10/16 => Check if PHP ini exists
+#   21/11/16 => PostgresQL support (DR)
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
