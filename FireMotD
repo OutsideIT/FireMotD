@@ -275,6 +275,14 @@ GatherInfo () {
         HttpdVersion="$(${HttpdPath} -v 2>/dev/null | grep "Server version" | sed -e 's/.*[^0-9]\([0-9].[0-9]\+.[0-9]\+\)[^0-9]*$/\1/')"
         WriteLog Verbose Info "HttpdVersion: $HttpdVersion"
     fi
+    nginxVersion=""
+    nginxPath="$(which nginx 2>/dev/null)"
+    WriteLog Verbose Info "nginxPath: $nginxPath"
+    if [[ (-f $nginxPath) && (-x $nginxPath) ]] ; then
+        nginxString="$(${nginxPath} -v 2>&1)"
+        nginxVersion="$(echo "$nginxString" | awk -F"/" '{print $2}')"
+        WriteLog Verbose Info "nginxVersion: $nginxVersion"
+    fi    
     MySqlVersion=""
     MySqlDistribution=""
     MySqlPath="$(which mysql 2>/dev/null)"
@@ -483,6 +491,9 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
     if [[ $HttpdVersion =~ ^[0-9.]+$ ]] ; then
         echo -e "\e[0;38;5;17m$Fto      \e[38;5;39mApache \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$HttpdVersion"
     fi
+    if [[ ! -z $nginxVersion ]] ; then
+        echo -e "\e[0;38;5;17m$Fto       \e[38;5;39mnginx \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$nginxVersion"
+    fi
     if [[ ! -z $MySqlVersion ]] ; then
         echo -e "\e[0;38;5;17m$Fto       \e[38;5;39mMySQL \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$MySqlVersion \e[38;5;27mDistribution: \e[38;5;33m$MySqlDistribution"
     fi
@@ -515,6 +526,9 @@ $FrS   ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$P
     fi
     if [[ $HttpdVersion =~ ^[0-9.]+$ ]] ; then
         echo -e "$FrS${KS} Apache Info $ES ${VC}Version: ${VCL}$HttpdVersion"
+    fi
+    if [[ ! -z $nginxVersion ]] ; then
+        echo -e "$FrS${KS}  nginx Info $ES ${VC}Version: ${VCL}$nginxVersion"
     fi
     if [[ ! -z $MySqlVersion ]] ; then
         echo -e "$FrS${KS}  MySQL Info $ES ${VC}Version: ${VCL}$MySqlVersion ${VC}Distribution: ${VCL}$MySqlDistribution"
@@ -728,7 +742,11 @@ EOF
                 <td>Apache Info</td>
                 <td>Version: <span>$HttpdVersion</span></td>
             </tr>"
-    
+    [[ ! -z $nginxVersion ]] && HtmlCode+="
+            <tr>
+                <td>nginx Info</td>
+                <td>Version: <span>$nginxVersion</span></td>
+            </tr>"   
     [[ ! -z $MySqlVersion ]] && HtmlCode+="
             <tr>
                 <td>MySQL Info</td>
