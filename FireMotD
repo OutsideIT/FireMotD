@@ -183,6 +183,8 @@ GatherInfo () {
     Dmi="$(echo "$Dmesg" | GREP_OPTIONS= \grep "DMI:")"
     Rasp="$(echo "$Dmesg" | GREP_OPTIONS= \grep "Raspberry")"
     Xen="$(echo "$Dmesg" | GREP_OPTIONS= \grep -i 'xen version')"
+    Custom="$(systemd-detect-virt)"
+
     if [[ "$Dmi" = *"QEMU"* ]] ; then
         Platform="$(echo "$Dmi" | sed 's/^.*QEMU/QEMU/' | sed 's/, B.*//')"
     elif [[ "$Dmi" = *"VMware"* ]] ; then
@@ -197,6 +199,12 @@ GatherInfo () {
             Platform="Xen Hypervisor v""$(echo "$Xen" | sed -n -e 's/^.*Xen version: //p')"
     elif [[ "$Rasp" = *"Rasp"* ]] ; then
             Platform="$(echo "$Rasp" | sed 's/.*: //')"
+    elif [[ ! -z $Custom ]] ; then
+        if [[ "$Custom" = *"openvz"* ]] ; then
+            Platform="OpenVZ"
+        else
+            Platform=$Custom
+        fi
     else
             Platform="Unknown"
     fi
