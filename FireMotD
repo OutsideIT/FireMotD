@@ -183,7 +183,7 @@ GatherInfo () {
     Dmi="$(echo "$Dmesg" | GREP_OPTIONS= \grep "DMI:")"
     Rasp="$(echo "$Dmesg" | GREP_OPTIONS= \grep "Raspberry")"
     Xen="$(echo "$Dmesg" | GREP_OPTIONS= \grep -i 'xen version')"
-    Custom="$(systemd-detect-virt)"
+    InitSystem="$(cat /proc/1/comm)"
 
     if [[ "$Dmi" = *"QEMU"* ]] ; then
         Platform="$(echo "$Dmi" | sed 's/^.*QEMU/QEMU/' | sed 's/, B.*//')"
@@ -199,14 +199,19 @@ GatherInfo () {
             Platform="Xen Hypervisor v""$(echo "$Xen" | sed -n -e 's/^.*Xen version: //p')"
     elif [[ "$Rasp" = *"Rasp"* ]] ; then
             Platform="$(echo "$Rasp" | sed 's/.*: //')"
-    elif [[ ! -z $Custom ]] ; then
-        if [[ "$Custom" = *"openvz"* ]] ; then
-            Platform="OpenVZ"
+    elif [[ "$InitSystem" == "systemd" ]] ; then
+        Custom="$(systemd-detect-virt)"
+        if [[ ! -z $Custom ]] ; then
+            if [[ "$Custom" = *"openvz"* ]] ; then
+                Platform="OpenVZ"
+            else
+                Platform=$Custom
+            fi
         else
-            Platform=$Custom
+            Platform="Unknown"
         fi
     else
-            Platform="Unknown"
+        Platform="Unknown"
     fi
     CpuUtil="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
     CpuProc="$(cat /proc/cpuinfo | grep processor | wc -l)"
