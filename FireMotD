@@ -183,6 +183,8 @@ GatherInfo () {
     Dmi="$(echo "$Dmesg" | GREP_OPTIONS= \grep "DMI:")"
     Rasp="$(echo "$Dmesg" | GREP_OPTIONS= \grep "Raspberry")"
     Xen="$(echo "$Dmesg" | GREP_OPTIONS= \grep -i 'xen version')"
+    InitSystem="$(cat /proc/1/comm)"
+
     if [[ "$Dmi" = *"QEMU"* ]] ; then
         Platform="$(echo "$Dmi" | sed 's/^.*QEMU/QEMU/' | sed 's/, B.*//')"
     elif [[ "$Dmi" = *"VMware"* ]] ; then
@@ -197,8 +199,19 @@ GatherInfo () {
             Platform="Xen Hypervisor v""$(echo "$Xen" | sed -n -e 's/^.*Xen version: //p')"
     elif [[ "$Rasp" = *"Rasp"* ]] ; then
             Platform="$(echo "$Rasp" | sed 's/.*: //')"
-    else
+    elif [[ "$InitSystem" == "systemd" ]] ; then
+        Custom="$(systemd-detect-virt)"
+        if [[ ! -z $Custom ]] ; then
+            if [[ "$Custom" = *"openvz"* ]] ; then
+                Platform="OpenVZ"
+            else
+                Platform=$Custom
+            fi
+        else
             Platform="Unknown"
+        fi
+    else
+        Platform="Unknown"
     fi
     CpuUtil="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
     CpuProc="$(cat /proc/cpuinfo | grep processor | wc -l)"
