@@ -267,6 +267,8 @@ GatherInfo () {
     PhpVersion="$(/usr/bin/php -v 2>/dev/null | grep -oE '^PHP\s[0-9]+\.[0-9]+\.[0-9]+' | awk '{ print $2}')"
     if [ -f /etc/php.ini ] ; then
         PhpMaxMemory=$(grep -F memory_limit /etc/php.ini | sed -n 's/.* = \([0-9]*\)/\1/p')
+    elif [ -f /etc/php5/fpm/php.ini ] ; then
+        PhpMaxMemory=$(grep -F memory_limit /etc/php5/fpm/php.ini | sed -n 's/.* = \([0-9]*\)/\1/p')
     fi
     MaxLeftOverChars=35
     Hostname="$(hostname)"
