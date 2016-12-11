@@ -320,15 +320,13 @@ GatherInfo () {
 
 StartOrangeTheme () {
     # 1st block top
-    Sch1="\e[38;5;202m####"
+    Sch1="\e[38;5;202m###"
     # 2nd block top
     Sch2="\e[38;5;208m#####"
     # 3rd block top
     Sch3="\e[38;5;214m#####"
     # 4th block top
     Sch4="\e[38;5;220m#####"
-    # Pre-Host Scheme
-    PrHS=$Sch1$Sch1$Sch2$Sch2
     # Host Scheme Top
     HST="\e[38;5;226m`head -c $HostChars /dev/zero|tr '\0' '#'`"
     # Host Scheme Top Filler
@@ -358,15 +356,13 @@ StartOrangeTheme () {
 
 StartGrayTheme () {
     # 1st block top
-    Sch1="\e[38;5;252m####"
+    Sch1="\e[38;5;252m###"
     # 2nd block top
     Sch2="\e[38;5;243m#####"
     # 3rd block top
     Sch3="\e[38;5;233m#####"
     # 4th block top
     Sch4="\e[38;5;254m#####"
-    # Pre-Host Scheme
-    PrHS=$Sch1$Sch1$Sch2$Sch2
     # Host Scheme Top
     HST="\e[38;5;233m`head -c $HostChars /dev/zero|tr '\0' '#'`"
     # Host Scheme Top Filler
@@ -396,15 +392,13 @@ StartGrayTheme () {
 
 StartBlueTheme () {
     # Blue
-    Sch1="\e[0;34m####"
+    Sch1="\e[0;34m###"
     # Light Blue
     Sch2="\e[1;34m#####"
     # Light Cyan
     Sch3="\e[1;36m#####"
     # Cyan
     Sch4="\e[0;36m#####"
-    # Pre-Host Scheme
-    PrHS=$Sch1$Sch1$Sch2$Sch2
     # Host Scheme Top
     HST="\e[1;36m`head -c $HostChars /dev/zero|tr '\0' '#'`"
     # Host Scheme Top Filler
@@ -434,15 +428,13 @@ StartBlueTheme () {
 
 StartRedTheme () {
     # Red
-    Sch1="\e[0;31m####"
+    Sch1="\e[0;31m###"
     # Light Red
     Sch2="\e[1;31m#####"
     # Light Yellow
     Sch3="\e[1;33m#####"
     # Yellow
     Sch4="\e[0;33m#####"
-    # Pre-Host Scheme
-    PrHS=$Sch1$Sch1$Sch2$Sch2
     # Host Scheme Top
     HST="\e[1;33m`head -c $HostChars /dev/zero|tr '\0' '#'`"
     # Host Scheme Top Filler
@@ -520,9 +512,9 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 }
 
 GenerateBasic16Color () {
-    echo -e "$PrHS$Sch2$HST$Sch2$PHS$Sch1
-$PrHS$Sch3$HSF $HC$Hostname $HSF$Sch3$HSF$HVF$SVC$ScriptVersion$Sch1
-$PrHS$Sch2$HST$Sch2$PHS$Sch1
+    echo -e "$Sch1$Sch1$Sch2$Sch2$Sch2$HST$Sch2$PHS$Sch1
+$Sch1$Sch1$Sch2$Sch2$Sch3$HSF $HC$Hostname $HSF$Sch3$HSF$HVF$SVC$ScriptVersion$Sch1
+$Sch1$Sch1$Sch2$Sch2$Sch2$HST$Sch2$PHS$Sch1
 $FrS          ${KS}Ip $ES ${VCL}$IpAddress
 $FrS     ${KS}Release $ES ${VC}$OsVersion
 $FrS      ${KS}Kernel $ES ${VC}$Kernel
@@ -551,7 +543,7 @@ $FrS   ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$P
     if [[ ! -z $PostgreSqlVersion ]] ; then
         echo -e "$FrS${KS}  PostgreSQL $ES ${VC}Version: ${VCL}$PostgreSqlVersion"
     fi
-    echo -e "$PrHS$Sch2$HSB$Sch2$PHS$Sch1\e[0;37m"
+    echo -e "$Sch1$Sch1$Sch2$Sch2$Sch2$HSB$Sch2$PHS$Sch1\e[0;37m"
 }
 
 GenerateHtmlTheme () {
