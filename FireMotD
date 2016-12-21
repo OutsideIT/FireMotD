@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.21.161121
+# Version:      v5.22.161221
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves
@@ -9,11 +9,11 @@
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   01/09/16 => System total process count (AB)
 #   13/09/16 => sysctl which fix for CentOS 6
 #   07/10/16 => Added PHP memory limit
 #   09/10/16 => Check if PHP ini exists
 #   21/11/16 => PostgresQL support (DR)
+#   21/12/16 => Removed info for original themes and reordered
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -91,8 +91,6 @@ ColorTest () {
     echo -n -e "\n\e[1mYour terminal \e[4mdoes not\e[24m support 256 colors if:\e[0m\n"
     echo " * The Color Cube colors are the same as System Colors"
     echo " * Your gray scale ramp has only 3 variations"
-
-    # This color test is inspired on a Perl colortest from the XFree86 project
     echo -n -e "\nSystem colors:\n"
     for code in {0..15}; do
         ds="  "
@@ -102,7 +100,6 @@ ColorTest () {
         echo -n -e "\e[48;05;${code}m${ds}"
         [[ ($code -eq 7) || ($code -eq 15) ]] && echo -n -e "\e[0m\n"
     done
-    
     tcolor=255
     echo -n -e "\nColor cube, 6x6x6:\n"
     for green in {0..5}; do
@@ -120,7 +117,6 @@ ColorTest () {
         echo -n -e "\e[0m\n"
         tcolor=0
     done
-
     tcolor=255
     echo -n -e "\nGrayscale ramp:\n"
     for gray in {232..255}; do
@@ -129,7 +125,6 @@ ColorTest () {
         [[ $ColorMap -eq 0 ]] && ds=" $gray "
         echo -n -e "\e[38;05;${tcolor}m\e[48;05;${gray}m${ds}"
     done
-
     echo -e "\e[0;37m\e[0m\n"
 }
 
@@ -492,9 +487,6 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 \e[0;38;5;17m$Fto     \e[38;5;39mUpdates \e[38;5;93m= \e[38;5;33m$UpdateCount\e[38;5;27m ${UpdateType} updates available
 \e[0;38;5;17m$Fto    \e[38;5;39mSessions \e[38;5;93m= \e[38;5;33m$SessionCount\e[38;5;27m sessions
 \e[0;38;5;17m$Fto   \e[38;5;39mProcesses \e[38;5;93m= \e[38;5;33m$ProcessCount\e[38;5;27m running processes of \e[38;5;33m$ProcessMax\e[38;5;27m maximum processes"
-    if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
-        echo -e "\e[0;38;5;17m$Fto         \e[38;5;39mPHP \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PhpVersion \e[38;5;27mMemory Limit: \e[38;5;33m$PhpMaxMemory"
-    fi
     if [[ $HttpdVersion =~ ^[0-9.]+$ ]] ; then
         echo -e "\e[0;38;5;17m$Fto      \e[38;5;39mApache \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$HttpdVersion"
     fi
@@ -507,7 +499,9 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
     if [[ ! -z $PostgreSqlVersion ]] ; then
         echo -e "\e[0;38;5;17m$Fto       \e[38;5;39mPostgreSQL \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PostgreSqlVersion"
     fi
-    
+    if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
+        echo -e "\e[0;38;5;17m$Fto         \e[38;5;39mPHP \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PhpVersion \e[38;5;27mMemory Limit: \e[38;5;33m$PhpMaxMemory"
+    fi    
     echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme\e[0;37m"
 }
 
@@ -528,20 +522,20 @@ $FrS        ${KS}Root $ES ${VC}Free: ${VCL}${RootFree}${VC} GB (${VCL}$RootFreeP
 $FrS     ${KS}Updates $ES ${VCL}$UpdateCount${VC} ${UpdateType} updates available.
 $FrS    ${KS}Sessions $ES ${VCL}$SessionCount ${VC}sessions
 $FrS   ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$ProcessMax ${VC}maximum processes"
-    if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
-        echo -e "$FrS    ${KS}PHP Info $ES ${VC}Version: ${VCL}$PhpVersion ${VC}Memory Limit: ${VCL}$PhpMaxMemory"
-    fi
     if [[ $HttpdVersion =~ ^[0-9.]+$ ]] ; then
-        echo -e "$FrS${KS} Apache Info $ES ${VC}Version: ${VCL}$HttpdVersion"
+        echo -e "$FrS${KS}      Apache $ES ${VC}Version: ${VCL}$HttpdVersion"
     fi
     if [[ ! -z $nginxVersion ]] ; then
-        echo -e "$FrS${KS}  nginx Info $ES ${VC}Version: ${VCL}$nginxVersion"
+        echo -e "$FrS${KS}       Nginx $ES ${VC}Version: ${VCL}$nginxVersion"
     fi
     if [[ ! -z $MySqlVersion ]] ; then
-        echo -e "$FrS${KS}  MySQL Info $ES ${VC}Version: ${VCL}$MySqlVersion ${VC}Distribution: ${VCL}$MySqlDistribution"
+        echo -e "$FrS${KS}       MySQL $ES ${VC}Version: ${VCL}$MySqlVersion ${VC}Distribution: ${VCL}$MySqlDistribution"
     fi
     if [[ ! -z $PostgreSqlVersion ]] ; then
         echo -e "$FrS${KS}  PostgreSQL $ES ${VC}Version: ${VCL}$PostgreSqlVersion"
+    fi
+    if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
+        echo -e "$FrS${KS}         PHP $ES ${VC}Version: ${VCL}$PhpVersion ${VC}Memory Limit: ${VCL}$PhpMaxMemory"
     fi
     echo -e "$Sch1$Sch1$Sch2$Sch2$Sch2$HSB$Sch2$PHS$Sch1\e[0;37m"
 }
