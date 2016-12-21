@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.22.161221
+# Version:      v5.23.161221
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves
@@ -13,7 +13,7 @@
 #   07/10/16 => Added PHP memory limit
 #   09/10/16 => Check if PHP ini exists
 #   21/11/16 => PostgresQL support (DR)
-#   21/12/16 => Removed info for original themes and reordered
+#   21/12/16 => Age, cleanup
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -174,12 +174,15 @@ GatherInfo () {
     UptimeHours=$(awk '{print int($1%86400/3600)}' /proc/uptime)
     UptimeMinutes=$(awk '{print int(($1%3600)/60)}' /proc/uptime)
     UptimeSeconds=$(awk '{print int($1%60)}' /proc/uptime)
+    RpmPath="$(which rpm 2>/dev/null)"
+    if [[ (-f $RpmPath) && (-x $RpmPath) ]] ; then    
+        InstallDate=$(rpm -qi basesystem | grep "Install Date")
+    fi
     Dmesg="$(dmesg)"
     Dmi="$(echo "$Dmesg" | GREP_OPTIONS= \grep "DMI:")"
     Rasp="$(echo "$Dmesg" | GREP_OPTIONS= \grep "Raspberry")"
     Xen="$(echo "$Dmesg" | GREP_OPTIONS= \grep -i 'xen version')"
     InitSystem="$(cat /proc/1/comm)"
-
     if [[ "$Dmi" = *"QEMU"* ]] ; then
         Platform="$(echo "$Dmi" | sed 's/^.*QEMU/QEMU/' | sed 's/, B.*//')"
     elif [[ "$Dmi" = *"VMware"* ]] ; then
@@ -479,6 +482,7 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 \e[0;38;5;17m$Fto      \e[38;5;39mKernel \e[38;5;93m= \e[38;5;27m$Kernel
 \e[0;38;5;17m$Fto    \e[38;5;39mPlatform \e[38;5;93m= \e[38;5;27m$Platform
 \e[0;38;5;17m$Fto      \e[38;5;39mUptime \e[38;5;93m= \e[38;5;33m${UptimeDays} \e[38;5;27mday(s). \e[38;5;33m${UptimeHours}\e[38;5;27m:\e[38;5;33m${UptimeMinutes}\e[38;5;27m:\e[38;5;33m${UptimeSeconds}
+\e[0;38;5;17m$Fto         \e[38;5;39mAge \e[38;5;93m= \e[38;5;27m$InstallDate
 \e[0;38;5;17m$Fto   \e[38;5;39mCPU Usage \e[38;5;93m= \e[38;5;33m${CpuUtil}\e[38;5;27m% average CPU usage over \e[38;5;33m$CpuProc \e[38;5;27mcore(s)
 \e[0;38;5;17m$Fto    \e[38;5;39mCPU Load \e[38;5;93m= \e[38;5;27m$CpuLoad
 \e[0;38;5;17m$Fto      \e[38;5;39mMemory \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${MemFree}\e[38;5;27mGB (\e[38;5;33m$MemFreePerc\e[38;5;27m%), Used: \e[38;5;33m${MemUsed}\e[38;5;27mGB (\e[38;5;33m$MemUsedPerc\e[38;5;27m%), Total: \e[38;5;33m${MemTotal}\e[38;5;27mGB
@@ -514,6 +518,7 @@ $FrS     ${KS}Release $ES ${VC}$OsVersion
 $FrS      ${KS}Kernel $ES ${VC}$Kernel
 $FrS    ${KS}Platform $ES ${VC}$Platform
 $FrS      ${KS}Uptime $ES ${VCL}${UptimeDays} ${VC}day(s). ${VCL}${UptimeHours}${VC}:${VCL}${UptimeMinutes}${VC}:${VCL}${UptimeSeconds}
+$FrS         ${KS}Age $ES ${VC}$InstallDate
 $FrS   ${KS}CPU Usage $ES ${VCL}$CpuUtil ${VC}% average CPU usage over ${VCL}${CpuProc}${VC} core(s)
 $FrS    ${KS}CPU Load $ES ${VC}$CpuLoad
 $FrS      ${KS}Memory $ES ${VC}Free: ${VCL}${MemFree}${VC} GB (${VCL}$MemFreePerc${VC}%), Used: ${VCL}${MemUsed}${VC} GB (${VCL}$MemUsedPerc${VC}%), Total: ${VCL}${MemTotal}${VC} GB
