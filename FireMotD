@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.24.161221
+# Version:      v5.25.161224
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves
@@ -9,11 +9,11 @@
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   13/09/16 => sysctl which fix for CentOS 6
 #   07/10/16 => Added PHP memory limit
 #   09/10/16 => Check if PHP ini exists
 #   21/11/16 => PostgresQL support (DR)
 #   21/12/16 => Conditional Install Date
+#   24/12/16 => Spellchecker cleanup
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -69,18 +69,21 @@ WriteLog () {
 
 CountUpdates () {
     if [[ -x "/usr/bin/yum" ]] ; then
-        UpdateCount=$(/usr/bin/yum -d 0 check-update 2>/dev/null | echo $(($(wc -l)-1)))
+        # UpdateCount=$(/usr/bin/yum -d 0 check-update 2>/dev/null | echo $(($(wc -l)-1)))
+        UpdateCount=$(($(sudo /usr/bin/yum -d 0 check-update 2>/dev/null | wc -l)-1))
         if [ $UpdateCount == -1 ]; then
             UpdateCount=0
         fi
     elif [[ -x "/usr/bin/zypper" ]] ; then
-        UpdateCount=$(zypper list-updates | wc -l) 
-        UpdateCount=$(expr $UpdateCount - 4)
-    if (( $UpdateCount <= 0 )) ; then
+        UpdateCount=$(zypper list-updates | wc -l)
+        # UpdateCount=$(expr $UpdateCount - 4) 
+        UpdateCount=$((UpdateCount-4))
+    if ((UpdateCount<=0)) ; then
         UpdateCount=0
     fi
     elif [[ -x "/usr/bin/apt-get" ]] ; then
-        UpdateCount=$(apt-get update > /dev/null; apt-get upgrade -u -s | grep -P "^Inst" | wc -l)
+        # UpdateCount=$(apt-get update > /dev/null; apt-get upgrade -u -s | grep -P "^Inst" | wc -l)
+        UpdateCount=$(apt-get update > /dev/null; apt-get upgrade -u -s | grep -c -P "^Inst")
     fi
     echo "$UpdateCount"
     return 0
@@ -132,11 +135,13 @@ GatherInfo () {
     OsVersionFull="$(cat /etc/*release)"
     OsVersion="$(echo "$OsVersionFull" | head -n 1)"
     if [[ "$OsVersion" == "SUSE"* ]] ; then
-        OsVersion="$(echo "$OsVersion" | sed 's/ (.*//')"
+        # OsVersion="$(echo "$OsVersion" | sed 's/ (.*//')"
+        OsVersion=${OsVersion%% \(*}
         PatchLevel="$(cat /etc/*release | sed -n 3p | sed 's/.*= //')"
         OsVersion="${OsVersion}.$PatchLevel"
     elif [[ "$OsVersion" == "openSUSE"* ]] ; then
-        OsVersion="$(cat /etc/os-release | sed -n 4p | sed 's/PRETTY_NAME="//' | sed 's/ (.*//')"
+        # OsVersion="$(cat /etc/os-release | sed -n 4p | sed 's/PRETTY_NAME="//' | sed 's/ (.*//')"
+        OsVersion="$(< /etc/os-release sed -n 4p | sed 's/PRETTY_NAME="//' | sed 's/ (.*//')"
     elif [[ "$OsVersion" == *"Raspbian"* ]] ; then
         OsVersion="$(echo "$OsVersionFull" | head -n 1 | sed 's/.*"\(.*\)"[^"]*$/\1/')"
     elif [[ "$OsVersionFull" == *"PRETTY_NAME"* ]] ; then
@@ -146,7 +151,7 @@ GatherInfo () {
     fi
     IpPath="$(which ip 2>/dev/null)"
     WriteLog Verbose Info "IpPath: $IpPath"
-    if [ -z $IpPath ] ; then
+    if [ -z "$IpPath" ] ; then
         if [ -f /usr/sbin/ip ] ; then
             IpPath="/usr/sbin/ip"
         elif [ -f /sbin/ip ] ; then
@@ -160,7 +165,7 @@ GatherInfo () {
     else
         IpAddress="Unable to use ip route. Please debug."
     fi
-    if [ -f /sys/hypervisor/uuid ] && [ `head -c 3 /sys/hypervisor/uuid` == ec2 ]; then
+    if [ -f /sys/hypervisor/uuid ] && [ "$(head -c 3 /sys/hypervisor/uuid)" == ec2 ]; then
         CurlExec=$(which curl 2>/dev/null)
         WgetExec=$(which wget 2>/dev/null)
         if [[ (-f $CurlExec) && (-x $CurlExec) ]]; then
