@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.25.161224
+# Version:      v5.26.161230
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves
@@ -9,11 +9,11 @@
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   07/10/16 => Added PHP memory limit
-#   09/10/16 => Check if PHP ini exists
 #   21/11/16 => PostgresQL support (DR)
 #   21/12/16 => Conditional Install Date
 #   24/12/16 => Spellchecker cleanup
+#   29/12/16 => Swap bugfix (YC)
+#   30/12/16 => Debug and shellcheck fixes
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -25,17 +25,23 @@
 # GNU General Public License along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-Verbose=0   
+Debug=0
+Verbose=0
+LogLocal=''
 UpdateFile='/var/tmp/updatecount.txt'
-ScriptName="$(readlink -e $0)"
-ScriptVersion=" $(cat $ScriptName | grep "# Version:" | awk {'print $3'} | tr -cd '[[:digit:].-]' | sed 's/.\{2\}$//') "
+ScriptName="$(readlink -e "$0")"
+ScriptVersion=" $(< "$ScriptName" grep "# Version:" | awk '{print $3}' | tr -cd '[:digit:.-]' | sed 's/.\{2\}$//') "
 
-LC_MEASUREMENT="C"
 LC_ALL="C"
 LC_CTYPE="C"
 LC_NUMERIC="C"
 
 WriteLog () {
+    if [ "$0" = "${BASH_SOURCE[0]}" ] ; then
+        ScriptName=$(basename "${BASH_SOURCE[0]}")
+    else
+        ScriptName=$(basename "$0")
+    fi
     if [ -z "$1" ] ; then
         echo "WriteLog: Log parameter #1 is zero length. Please debug..."
         exit 1
@@ -51,19 +57,23 @@ WriteLog () {
         fi
     fi
     Now=$(date '+%Y-%m-%d %H:%M:%S,%3N')
-    FullScriptName="${BASH_SOURCE[0]}"
-    ScriptName=$(basename "$FullScriptName")
-    if [ "$1" = "Verbose" -a $Verbose = 1 ] ; then
+    if [ "$1" = "Debug" ] && [ "$Debug" = 1 ] ; then
+        echo "$Now: $ScriptName: $2: Debug: $3 "
+    elif [ "$1" = "Verbose" ] && [ "$Verbose" = 1 ] ; then
         echo "$Now: $ScriptName: $2: $3"
-    elif [ "$1" = "Verbose" -a $Verbose = 0 ] ; then
-        :
     elif [ "$1" = "Output" ] ; then
         echo "${Now}: $ScriptName: $2: $3"
-    elif [ -f $1 ] ; then
-        echo "${Now}: $ScriptName: $2: $3" >> $1
+    elif [ -f "$1" ] ; then
+        echo "${Now}: $ScriptName: $2: $3" >> "$1"
     fi
-    if [ ! -z $LogLocal ] ; then
-        echo "${Now}: $ScriptName: $2: $3" >> $LogLocal
+    if [ ! -z "$LogLocal" ] ; then
+        if [ "$1" = "Debug" ] && [ "$Debug" = 1 ] ; then
+            echo "$Now: $ScriptName: $2: Debug: $3 " >> "$LogLocal"
+        elif [ "$1" = "Verbose" ] && [ "$Verbose" = 1 ] ; then
+            echo "$Now: $ScriptName: $2: $3" >> "$LogLocal"
+        elif [ "$1" = "Output" ] ; then 
+            echo "${Now}: $ScriptName: $2: $3" >> "$LogLocal"
+		fi
     fi
 }
 
