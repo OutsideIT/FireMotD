@@ -791,6 +791,7 @@ EOF
 }
 
 GenerateInvader () {
+# shellcheck disable=SC2154
     f=3 b=4
     for j in f b; do
         for i in {0..7}; do
@@ -872,8 +873,8 @@ Note:
 }
 
 PrintVersion () {
-    cVersion="$(echo -e "${ScriptVersion}" | tr -d '[[:space:]]')"
-    echo "$(basename $0) v$cVersion"
+    cVersion="$(echo -e "${ScriptVersion}" | tr -d '[:space:]')"
+    echo "$(basename "$0") v$cVersion"
     return 0
 }
 
@@ -903,9 +904,9 @@ while :; do
         -h|--help|--Help)
             PrintHelp ; exit 0 ;;
         yum|YUM|Yum|Zypper|zypper|-U|--Updates|--updates|-Y)
-            CheckSudo $@ ; CountUpdates ; exit $? ;;
+            CheckSudo "$@" ; CountUpdates ; exit $? ;;
         -s|-S|--saveupdates|--SaveUpdates|--saveUpdates)
-            CheckSudo $@ ; CountUpdates > "$UpdateFile" && chmod 644 "$UpdateFile" ; exit $? ;;
+            CheckSudo "$@" ; CountUpdates > "$UpdateFile" && chmod 644 "$UpdateFile" ; exit $? ;;
         -t|-T|--Theme|--theme)
             shift ; Theme=$1 
             case "$Theme" in
