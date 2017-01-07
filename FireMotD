@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.27.170107
+# Version:      v5.28.170108
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves
@@ -9,11 +9,11 @@
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   21/12/16 => Conditional Install Date
 #   24/12/16 => Spellchecker cleanup
 #   29/12/16 => Swap bugfix (YC)
 #   30/12/16 => Debug and shellcheck fixes
 #   07/01/16 => Fixed version
+#   08/01/17 => More shellcheck cleanup
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -246,7 +246,7 @@ GatherInfo () {
     SwapFreeB="$(cat /proc/meminfo | grep SwapFree | awk {'print $2'})"
     SwapTotalB="$(cat /proc/meminfo | grep SwapTotal | awk {'print $2'})"
     SwapUsedB="$(expr $SwapTotalB - $SwapFreeB)"
-    SwapFree="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapFreeB/1024/1024))"
+    SwapFree="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$SwapFreeB"/1024/1024)")"
     SwapFreePerc=$(echo "scale=2; $SwapFreeB*100/$SwapTotalB" | bc  2> /dev/null)
     SwapFreePerc=$(echo $(LC_NUMERIC=C printf "%.0f" $SwapFreePerc))
     SwapUsed="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapUsedB/1024/1024))"
@@ -255,9 +255,9 @@ GatherInfo () {
     RootFreeB="$(df -kP / | tail -1 | awk '{print $4}')"
     RootUsedB="$(df -kP / | tail -1 | awk '{print $3}')"
     RootTotalB="$(df -kP / | tail -1 | awk '{print $2}')"
-    RootFree="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootFreeB/1024/1024))"
-    RootUsed="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootUsedB/1024/1024))"
-    RootTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootTotalB/1024/1024))"
+    RootFree="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$RootFreeB"/1024/1024)")"
+    RootUsed="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$RootUsedB"/1024/1024)")"
+    RootTotal="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$RootTotalB"/1024/1024)")"
     RootUsedPerc="$(df -kP / | tail -1 | awk '{print $5}'| sed s'/%$//')"
     RootFreePerc="$((100 - $RootUsedPerc))" 
     UpdateCount="Unknown"
@@ -526,9 +526,9 @@ echo -e "\e[0;38;5;17m$Fto   \e[38;5;39mCPU Usage \e[38;5;93m= \e[38;5;33m${CpuU
 }
 
 GenerateBasic16Color () {
-    echo -e "$Sch1$Sch1$Sch2$Sch2$Sch2$HST$Sch2$PHS$Sch1
+    echo -e "$Sch1$Sch1$Sch2$Sch2$Sch2$HST$Sch2$PHS$PHS$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1
 $Sch1$Sch1$Sch2$Sch2$Sch3$HSF $HC$Hostname $HSF$Sch3$HSF$HVF$SVC$ScriptVersion$Sch1
-$Sch1$Sch1$Sch2$Sch2$Sch2$HST$Sch2$PHS$Sch1
+$Sch1$Sch1$Sch2$Sch2$Sch2$HST$Sch2$PHS$PHS$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1
 $FrS          ${KS}Ip $ES ${VCL}$IpAddress
 $FrS     ${KS}Release $ES ${VC}$OsVersion
 $FrS      ${KS}Kernel $ES ${VC}$Kernel
@@ -560,7 +560,7 @@ $FrS   ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$P
     if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
         echo -e "$FrS${KS}         PHP $ES ${VC}Version: ${VCL}$PhpVersion ${VC}Memory Limit: ${VCL}$PhpMaxMemory"
     fi
-    echo -e "$Sch1$Sch1$Sch2$Sch2$Sch2$HSB$Sch2$PHS$Sch1\e[0;37m"
+    echo -e "$Sch1$Sch1$Sch2$Sch2$Sch2$HSB$Sch2$PHS$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1\e[0;37m"
 }
 
 GenerateHtmlTheme () {
