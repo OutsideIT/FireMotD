@@ -259,14 +259,14 @@ GatherInfo () {
     RootUsed="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootUsedB/1024/1024))"
     RootTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$RootTotalB/1024/1024))"
     RootUsedPerc="$(df -kP / | tail -1 | awk '{print $5}'| sed s'/%$//')"
-    RootFreePerc="$(expr 100 - $RootUsedPerc)" 
+    RootFreePerc="$((100 - $RootUsedPerc))" 
     UpdateCount="Unknown"
     [[ -f $UpdateFile ]] && UpdateCount="$(cat $UpdateFile)"
-    SessionCount="$(who | grep $USER | wc -l)"
+    SessionCount="$(who | grep "$USER" | wc -l)"
     ProcessCount="$(ps -Afl -no-headers | wc -l)"
     SysctlPath="$(which sysctl 2>/dev/null)"
     WriteLog Verbose Info "IpPath: $IpPath"
-    if [ -z $SysctlPath ] ; then
+    if [ -z "$SysctlPath" ] ; then
         if [ -f /usr/sbin/sysctl ] ; then
             SysctlPath="/usr/sbin/sysctl"
         elif [ -f /sbin/sysctl ] ; then
@@ -285,7 +285,7 @@ GatherInfo () {
     MaxLeftOverChars=35
     Hostname="$(hostname)"
     HostChars=$((${#Hostname} + 8))
-    LeftoverChars=$((MaxLeftOverChars - HostCHars -10))
+    LeftoverChars=$((MaxLeftOverChars - HostChars -10))
     if [[ -x "/usr/bin/yum" ]] ; then
         UpdateType="yum"
     elif [[ -x "/usr/bin/zypper" ]] ; then
@@ -340,15 +340,15 @@ StartOrangeTheme () {
     # 4th block top
     Sch4="\e[38;5;220m#####"
     # Host Scheme Top
-    HST="\e[38;5;226m`head -c $HostChars /dev/zero|tr '\0' '#'`"
+    HST="\e[38;5;226m$(head -c $HostChars /dev/zero|tr '\0' '#')"
     # Host Scheme Top Filler
     HSF="\e[38;5;214m###"
     # Host Scheme Bot
-    HSB="\e[38;5;226m`head -c $HostChars /dev/zero|tr '\0' '#'`"
+    HSB="\e[38;5;226m$(head -c $HostChars /dev/zero|tr '\0' '#')"
     # Post Host Scheme
-    PHS="\e[38;5;214m`head -c $LeftoverChars /dev/zero|tr '\0' '#'`"
+    PHS="\e[38;5;214m$(head -c $LeftoverChars /dev/zero|tr '\0' '#')"
     # Host Version Filler
-    HVF="\e[38;5;214m`head -c 9 /dev/zero|tr '\0' '#'`"
+    HVF="\e[38;5;214m$(head -c 9 /dev/zero|tr '\0' '#')"
     # Front Scheme
     FrS="\e[38;5;202m##"
     # 16 Color Yellow Value Scheme
@@ -376,15 +376,15 @@ StartGrayTheme () {
     # 4th block top
     Sch4="\e[38;5;254m#####"
     # Host Scheme Top
-    HST="\e[38;5;233m`head -c $HostChars /dev/zero|tr '\0' '#'`"
+    HST="\e[38;5;233m$(head -c $HostChars /dev/zero|tr '\0' '#')"
     # Host Scheme Top Filler
     HSF="\e[38;5;233m###"
     # Host Scheme Bot
-    HSB="\e[38;5;233m`head -c $HostChars /dev/zero|tr '\0' '#'`"
+    HSB="\e[38;5;233m$(head -c $HostChars /dev/zero|tr '\0' '#')"
     # Post Host Scheme
-    PHS="\e[38;5;243m`head -c $LeftoverChars /dev/zero|tr '\0' '#'`"
+    PHS="\e[38;5;243m$(head -c $LeftoverChars /dev/zero|tr '\0' '#')"
     # Host Version Filler
-    HVF="\e[38;5;243m`head -c 9 /dev/zero|tr '\0' '#'`"
+    HVF="\e[38;5;243m$(head -c 9 /dev/zero|tr '\0' '#')"
     # Front Scheme
     FrS="\e[38;5;252m##"
     # Equal Scheme
@@ -566,6 +566,7 @@ $FrS   ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$P
 GenerateHtmlTheme () {
 #     echo -e "<!doctype html><html lang="en"><head><meta charset="utf-8"><title>FireMotD</title><meta name="description" content="Generates a HTML MotD message"><meta name="author" content="OutsideIT"><link rel="stylesheet" href="css/styles.css?v=1.0"></head><body><script src="js/scripts.js"></script><p>test</p><table><thead><tr><th>Hostname</th><th>Head2</th></tr></thead><tbody><tr><td>Bla</td><td>Bla</td></tr></tbody><tfoot><tr><td></td></tr></tfoot></table></body></html>"
 # TODO => Put all html into variable and ouput at end. Integrate CSS.
+# shellcheck disable=SC2162
 read -d '' HtmlCode <<EOF
 <!doctype html><html lang="en">
 <head>
@@ -790,7 +791,7 @@ EOF
     echo "$HtmlCode"
 }
 
-# shellcheck disable=SC2154
+# shellcheck disable=SC2154,SC2034
 GenerateInvader () {
     f=3 b=4
     for j in f b; do
