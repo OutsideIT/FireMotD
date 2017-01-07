@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.26.161230
+# Version:      v5.27.170107
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves
@@ -9,11 +9,11 @@
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   21/11/16 => PostgresQL support (DR)
 #   21/12/16 => Conditional Install Date
 #   24/12/16 => Spellchecker cleanup
 #   29/12/16 => Swap bugfix (YC)
 #   30/12/16 => Debug and shellcheck fixes
+#   07/01/16 => Fixed version
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -30,8 +30,7 @@ Verbose=0
 LogLocal=''
 UpdateFile='/var/tmp/updatecount.txt'
 ScriptName="$(readlink -e "$0")"
-ScriptVersion=" $(< "$ScriptName" grep "# Version:" | awk '{print $3}' | tr -cd '[:digit:.-]' | sed 's/.\{2\}$//') "
-
+ScriptVersion=" $(< "$ScriptName" grep "# Version: " | head -n1 | awk '{print $3}' | tr -cd '[:digit:.-]' | sed 's/.\{0\}$//') "
 LC_ALL="C"
 LC_CTYPE="C"
 LC_NUMERIC="C"
