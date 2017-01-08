@@ -29,17 +29,16 @@ Debug=0
 Verbose=0
 LogLocal=''
 UpdateFile='/var/tmp/updatecount.txt'
-ScriptName="$(readlink -e "$0")"
-ScriptVersion=" $(< "$ScriptName" grep "# Version: " | head -n1 | awk '{print $3}' | tr -cd '[:digit:.-]' | sed 's/.\{0\}$//') "
+ScriptPath="$(readlink -f "$0")"
+ScriptName="$(basename $ScriptPath)"
+ScriptVersion=" $(< "$ScriptPath" grep "# Version: " | head -n1 | awk '{print $3}' | tr -cd '[:digit:.-]' | sed 's/.\{0\}$//') "
 LC_ALL="C"
 LC_CTYPE="C"
 LC_NUMERIC="C"
 
 WriteLog () {
-    if [ "$0" = "${BASH_SOURCE[0]}" ] ; then
-        ScriptName=$(basename "${BASH_SOURCE[0]}")
-    else
-        ScriptName=$(basename "$0")
+    if [ ! -z "$ScriptName" ] ; then
+        ScriptName="$(basename $(readlink -f "$0"))"
     fi
     if [ -z "$1" ] ; then
         echo "WriteLog: Log parameter #1 is zero length. Please debug..."
@@ -78,20 +77,17 @@ WriteLog () {
 
 CountUpdates () {
     if [[ -x "/usr/bin/yum" ]] ; then
-        # UpdateCount=$(/usr/bin/yum -d 0 check-update 2>/dev/null | echo $(($(wc -l)-1)))
         UpdateCount=$(($(sudo /usr/bin/yum -d 0 check-update 2>/dev/null | wc -l)-1))
         if [ $UpdateCount == -1 ]; then
             UpdateCount=0
         fi
     elif [[ -x "/usr/bin/zypper" ]] ; then
         UpdateCount=$(zypper list-updates | wc -l)
-        # UpdateCount=$(expr $UpdateCount - 4) 
         UpdateCount=$((UpdateCount-4))
     if ((UpdateCount<=0)) ; then
         UpdateCount=0
     fi
     elif [[ -x "/usr/bin/apt-get" ]] ; then
-        # UpdateCount=$(apt-get update > /dev/null; apt-get upgrade -u -s | grep -P "^Inst" | wc -l)
         UpdateCount=$(apt-get update > /dev/null; apt-get upgrade -u -s | grep -c -P "^Inst")
     fi
     echo "$UpdateCount"
@@ -144,12 +140,10 @@ GatherInfo () {
     OsVersionFull="$(cat /etc/*release)"
     OsVersion="$(echo "$OsVersionFull" | head -n 1)"
     if [[ "$OsVersion" == "SUSE"* ]] ; then
-        # OsVersion="$(echo "$OsVersion" | sed 's/ (.*//')"
         OsVersion=${OsVersion%% \(*}
         PatchLevel="$(cat /etc/*release | sed -n 3p | sed 's/.*= //')"
         OsVersion="${OsVersion}.$PatchLevel"
     elif [[ "$OsVersion" == "openSUSE"* ]] ; then
-        # OsVersion="$(cat /etc/os-release | sed -n 4p | sed 's/PRETTY_NAME="//' | sed 's/ (.*//')"
         OsVersion="$(< /etc/os-release sed -n 4p | sed 's/PRETTY_NAME="//' | sed 's/ (.*//')"
     elif [[ "$OsVersion" == *"Raspbian"* ]] ; then
         OsVersion="$(echo "$OsVersionFull" | head -n 1 | sed 's/.*"\(.*\)"[^"]*$/\1/')"
@@ -564,8 +558,6 @@ $FrS   ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$P
 }
 
 GenerateHtmlTheme () {
-#     echo -e "<!doctype html><html lang="en"><head><meta charset="utf-8"><title>FireMotD</title><meta name="description" content="Generates a HTML MotD message"><meta name="author" content="OutsideIT"><link rel="stylesheet" href="css/styles.css?v=1.0"></head><body><script src="js/scripts.js"></script><p>test</p><table><thead><tr><th>Hostname</th><th>Head2</th></tr></thead><tbody><tr><td>Bla</td><td>Bla</td></tr></tbody><tfoot><tr><td></td></tr></tfoot></table></body></html>"
-# TODO => Put all html into variable and ouput at end. Integrate CSS.
 # shellcheck disable=SC2162
 read -d '' HtmlCode <<EOF
 <!doctype html><html lang="en">
@@ -802,7 +794,6 @@ GenerateInvader () {
    bld=$'\e[1m'
    rst=$'\e[0m'
 cat << EOF
-
  $f1  ▀▄   ▄▀     $f2 ▄▄▄████▄▄▄    $f3  ▄██▄     $f4  ▀▄   ▄▀     $f5 ▄▄▄████▄▄▄    $f6  ▄██▄  $rst
  $f1 ▄█▀███▀█▄    $f2███▀▀██▀▀███   $f3▄█▀██▀█▄   $f4 ▄█▀███▀█▄    $f5███▀▀██▀▀███   $f6▄█▀██▀█▄$rst
  $f1█▀███████▀█   $f2▀▀███▀▀███▀▀   $f3▀█▀██▀█▀   $f4█▀███████▀█   $f5▀▀███▀▀███▀▀   $f6▀█▀██▀█▀$rst
@@ -825,12 +816,11 @@ EOF
 
 PrintHelp () {
     PrintVersion
-    bn=$(basename "$0")
     echo "
 Usage: 
- $bn [-v] -t <Theme Name> 
- $bn [-v] -C ['String']
- $bn [-vUhVs]
+ $ScriptName [-v] -t <Theme Name> 
+ $ScriptName [-v] -C ['String']
+ $ScriptName [-vUhVs]
 
 Options:
  -h | --help               Shows this help and exits
@@ -841,13 +831,14 @@ Options:
  -M | --colormap           Prints color test to screen, with color numbers in it
  -U | --updates            Checks for system updates and prints count to stdout
  -S | --saveupdates        Checks for system updates and saves count to disk
-                           same as [ $bn -U > $UpdateFile ]
+                           same as [ $ScriptName -U > $UpdateFile ]
 
 256-color themes:
  original
  modern
  gray
  orange
+ invader
 
 16-color themes:
  red
@@ -858,11 +849,11 @@ HTML theme:
  html
 
 Examples:
- $bn -t original
- $bn -t html > /tmp/motd.html
- $bn --theme Modern
- $bn --colortest
- $bn -M
+ $ScriptName -t original
+ $ScriptName -t html > /tmp/motd.html
+ $ScriptName --theme Modern
+ $ScriptName --colortest
+ $ScriptName -M
  sudo $ScriptName --saveupdates
 
 Note:
@@ -883,7 +874,7 @@ CheckSudo () {
     if [ "$EUID" -ne 0 ]; then 
         echo "Update check requires root privileges"
         echo "Example:"
-        echo "    sudo $ScriptName $1"
+        echo "    sudo $ScriptPath $1"
         exit 1
     fi
     return 0
