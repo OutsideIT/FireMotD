@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v5.28.170108
+# Version:      v6.01.170108
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves
@@ -13,7 +13,7 @@
 #   29/12/16 => Swap bugfix (YC)
 #   30/12/16 => Debug and shellcheck fixes
 #   07/01/16 => Fixed version
-#   08/01/17 => More shellcheck cleanup
+#   08/01/17 => Finalized shellcheck cleanup
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -369,8 +369,6 @@ StartGrayTheme () {
     Sch2="\e[38;5;243m#####"
     # 3rd block top
     Sch3="\e[38;5;233m#####"
-    # 4th block top
-    Sch4="\e[38;5;254m#####"
     # Host Scheme Top
     HST="\e[38;5;233m$(head -c $HostChars /dev/zero|tr '\0' '#')"
     # Host Scheme Top Filler
