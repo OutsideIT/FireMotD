@@ -3,7 +3,7 @@
 # Version:      v6.01.170108
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
-# Contributors: Gustavo Neves
+# Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
 # Purpose:      Bash script that will dynamically generate a message
 #               of they day for users logging in.
 # On GitHub:    https://github.com/willemdh/FireMotD
