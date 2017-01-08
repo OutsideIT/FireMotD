@@ -224,24 +224,24 @@ GatherInfo () {
     CpuProc="$(< /proc/cpuinfo grep -c processor)"
     # CPU Socket Count 
     # CpuSock="$(< /proc/cpuinfo grep -c "physical id")"
-    CpuLoad="$(uptime | grep -ohe '[s:][: ].*' | awk '{ print "1m: "$2 " 5m: "$3 " 15m: " $4}')"
-    MemFreeB="$(< /proc/meminfo grep MemFree | awk {'print $2'})"
-    MemTotalB="$(< /proc/meminfo grep MemTotal | awk {'print $2'})"
+    CpuLoad="$(uptime | grep -ohe '[s:][: ].*' | awk '{print "1m: "$2 " 5m: "$3 " 15m: " $4}')"
+    MemFreeB="$(< /proc/meminfo grep MemFree | awk '{print $2}')"
+    MemTotalB="$(< /proc/meminfo grep MemTotal | awk '{print $2}')"
     MemUsedB="$((MemTotalB - MemFreeB))"
-    MemFree="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$MemFreeB/1024/1024))"
+    MemFree="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;$MemFreeB/1024/1024)")"
     WriteLog Verbose Info "MemFree: $MemFree"
-    MemUsed="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$MemUsedB/1024/1024))"
+    MemUsed="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;$MemUsedB/1024/1024)")"
     WriteLog Verbose Info "MemUsed: $MemUsed"
-    MemTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$MemTotalB/1024/1024))"
+    MemTotal="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;$MemTotalB/1024/1024)")"
     WriteLog Verbose Info "MemTotal: $MemTotal"
     MemFreePerc=$(echo "scale=2; $MemFree*100/$MemTotal" | bc)
     MemFreePerc=$(echo $(LC_NUMERIC=C printf "%.0f" $MemFreePerc))
     WriteLog Verbose Info "MemFreePerc: $MemFreePerc"
     MemUsedPerc=$(echo "100-$MemFreePerc" | bc)
     WriteLog Verbose Info "MemUsedPerc: $MemUsedPerc"
-    SwapFreeB="$(cat /proc/meminfo | grep SwapFree | awk {'print $2'})"
-    SwapTotalB="$(cat /proc/meminfo | grep SwapTotal | awk {'print $2'})"
-    SwapUsedB="$(expr $SwapTotalB - $SwapFreeB)"
+    SwapFreeB="$(< /proc/meminfo grep SwapFree | awk '{print $2}')"
+    SwapTotalB="$(< /proc/meminfo grep SwapTotal | awk '{print $2}')"
+    SwapUsedB="$((SwapTotalB - SwapFreeB))"
     SwapFree="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$SwapFreeB"/1024/1024)")"
     SwapFreePerc=$(echo "scale=2; $SwapFreeB*100/$SwapTotalB" | bc  2> /dev/null)
     SwapFreePerc=$(echo $(LC_NUMERIC=C printf "%.0f" $SwapFreePerc))
