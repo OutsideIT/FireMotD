@@ -30,7 +30,7 @@ Verbose=0
 LogLocal=''
 UpdateFile='/var/tmp/updatecount.txt'
 ScriptPath="$(readlink -f "$0")"
-ScriptName="$(basename $ScriptPath)"
+ScriptName="$(basename "$ScriptPath")"
 ScriptVersion=" $(< "$ScriptPath" grep "# Version: " | head -n1 | awk '{print $3}' | tr -cd '[:digit:.-]' | sed 's/.\{0\}$//') "
 LC_ALL="C"
 LC_CTYPE="C"
@@ -38,7 +38,7 @@ LC_NUMERIC="C"
 
 WriteLog () {
     if [ ! -z "$ScriptName" ] ; then
-        ScriptName="$(basename $(readlink -f "$0"))"
+        ScriptName="$(basename "$(readlink -f "$0")")"
     fi
     if [ -z "$1" ] ; then
         echo "WriteLog: Log parameter #1 is zero length. Please debug..."
@@ -187,9 +187,9 @@ GatherInfo () {
         InstallDate=$(rpm -qi basesystem | grep "Install Date" | sed 's/Install Date: //g' )
     fi
     Dmesg="$(dmesg)"
-    Dmi="$(echo "$Dmesg" | GREP_OPTIONS= \grep "DMI:")"
-    Rasp="$(echo "$Dmesg" | GREP_OPTIONS= \grep "Raspberry")"
-    Xen="$(echo "$Dmesg" | GREP_OPTIONS= \grep -i 'xen version')"
+    Dmi="$(echo "$Dmesg" | grep "DMI:")"
+    Rasp="$(echo "$Dmesg" | grep "Raspberry")"
+    Xen="$(echo "$Dmesg" | grep -i 'xen version')"
     InitSystem="$(cat /proc/1/comm)"
     if [[ "$Dmi" = *"QEMU"* ]] ; then
         Platform="$(echo "$Dmi" | sed 's/^.*QEMU/QEMU/' | sed 's/, B.*//')"
@@ -204,7 +204,8 @@ GatherInfo () {
     elif [[ "$Xen" = *"Xen version"* ]] ; then
             Platform="Xen Hypervisor v""$(echo "$Xen" | sed -n -e 's/^.*Xen version: //p')"
     elif [[ "$Rasp" = *"Rasp"* ]] ; then
-            Platform="$(echo "$Rasp" | sed 's/.*: //')"
+#            Platform="$(echo "$Rasp" | sed 's/.*: //')" => SC2001: See if you can use ${variable//search/replace} instead.
+            Platform=${Rasp//.*: /}
     elif [[ "$InitSystem" == "systemd" ]] ; then
         Custom="$(systemd-detect-virt)"
         if [[ ! -z $Custom ]] ; then
@@ -220,7 +221,7 @@ GatherInfo () {
         Platform="Unknown"
     fi
     CpuUtil="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
-    CpuProc="$(cat /proc/cpuinfo | grep processor | wc -l)"
+    CpuProc="$(< /proc/cpuinfo grep -c processor)"
     CpuSock=”$(cat /proc/cpuinfo | grep "physical id" | sort -u | wc -l)”
     CpuLoad="$(uptime | grep -ohe '[s:][: ].*' | awk '{ print "1m: "$2 " 5m: "$3 " 15m: " $4}')"
     MemFreeB="$(cat /proc/meminfo | grep MemFree | awk {'print $2'})"
