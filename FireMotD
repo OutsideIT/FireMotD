@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v6.03.170108
+# Version:      v6.04.170108
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -504,7 +504,7 @@ echo -e "\e[0;38;5;17m$Fto   \e[38;5;39mCPU Usage \e[38;5;93m= \e[38;5;33m${CpuU
         echo -e "\e[0;38;5;17m$Fto       \e[38;5;39mMySQL \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$MySqlVersion \e[38;5;27mDistribution: \e[38;5;33m$MySqlDistribution"
     fi
     if [[ ! -z $PostgreSqlVersion ]] ; then
-        echo -e "\e[0;38;5;17m$Fto       \e[38;5;39mPostgreSQL \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PostgreSqlVersion"
+        echo -e "\e[0;38;5;17m$Fto  \e[38;5;39mPostgreSQL \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PostgreSqlVersion"
     fi
     if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
         echo -e "\e[0;38;5;17m$Fto         \e[38;5;39mPHP \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PhpVersion \e[38;5;27mMemory Limit: \e[38;5;33m$PhpMaxMemory"
