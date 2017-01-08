@@ -228,14 +228,14 @@ GatherInfo () {
     MemFreeB="$(< /proc/meminfo grep MemFree | awk '{print $2}')"
     MemTotalB="$(< /proc/meminfo grep MemTotal | awk '{print $2}')"
     MemUsedB="$((MemTotalB - MemFreeB))"
-    MemFree="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;$MemFreeB/1024/1024)")"
+    MemFree="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$MemFreeB"/1024/1024)")"
     WriteLog Verbose Info "MemFree: $MemFree"
-    MemUsed="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;$MemUsedB/1024/1024)")"
+    MemUsed="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$MemUsedB"/1024/1024)")"
     WriteLog Verbose Info "MemUsed: $MemUsed"
-    MemTotal="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;$MemTotalB/1024/1024)")"
+    MemTotal="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$MemTotalB"/1024/1024)")"
     WriteLog Verbose Info "MemTotal: $MemTotal"
     MemFreePerc=$(echo "scale=2; $MemFree*100/$MemTotal" | bc)
-    MemFreePerc=$(echo $(LC_NUMERIC=C printf "%.0f" $MemFreePerc))
+    MemFreePerc="$(LC_NUMERIC=C printf "%.0f" $MemFreePerc)"
     WriteLog Verbose Info "MemFreePerc: $MemFreePerc"
     MemUsedPerc=$(echo "100-$MemFreePerc" | bc)
     WriteLog Verbose Info "MemUsedPerc: $MemUsedPerc"
@@ -244,8 +244,8 @@ GatherInfo () {
     SwapUsedB="$((SwapTotalB - SwapFreeB))"
     SwapFree="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$SwapFreeB"/1024/1024)")"
     SwapFreePerc=$(echo "scale=2; $SwapFreeB*100/$SwapTotalB" | bc  2> /dev/null)
-    SwapFreePerc=$(echo $(LC_NUMERIC=C printf "%.0f" $SwapFreePerc))
-    SwapUsed="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapUsedB/1024/1024))"
+    SwapFreePerc="$(LC_NUMERIC=C printf "%.0f" $SwapFreePerc)"
+    SwapUsed="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;$SwapUsedB/1024/1024)")"
     SwapUsedPerc=$(echo "100-$SwapFreePerc" | bc)
     SwapTotal="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$SwapTotalB/1024/1024))"
     RootFreeB="$(df -kP / | tail -1 | awk '{print $4}')"
@@ -255,10 +255,10 @@ GatherInfo () {
     RootUsed="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$RootUsedB"/1024/1024)")"
     RootTotal="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$RootTotalB"/1024/1024)")"
     RootUsedPerc="$(df -kP / | tail -1 | awk '{print $5}'| sed s'/%$//')"
-    RootFreePerc="$((100 - $RootUsedPerc))" 
+    RootFreePerc="$((100 - RootUsedPerc))" 
     UpdateCount="Unknown"
     [[ -f $UpdateFile ]] && UpdateCount="$(cat $UpdateFile)"
-    SessionCount="$(who | grep "$USER" | wc -l)"
+    SessionCount="$(who | grep -c "$USER")"
     ProcessCount="$(ps -Afl -no-headers | wc -l)"
     SysctlPath="$(which sysctl 2>/dev/null)"
     WriteLog Verbose Info "IpPath: $IpPath"
