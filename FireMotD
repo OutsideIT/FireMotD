@@ -333,8 +333,6 @@ StartOrangeTheme () {
     Sch2="\e[38;5;208m#####"
     # 3rd block top
     Sch3="\e[38;5;214m#####"
-    # 4th block top
-    Sch4="\e[38;5;220m#####"
     # Host Scheme Top
     HST="\e[38;5;226m$(head -c $HostChars /dev/zero|tr '\0' '#')"
     # Host Scheme Top Filler
