@@ -222,11 +222,12 @@ GatherInfo () {
     fi
     CpuUtil="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
     CpuProc="$(< /proc/cpuinfo grep -c processor)"
-    CpuSock=”$(cat /proc/cpuinfo | grep "physical id" | sort -u | wc -l)”
+    # CPU Socket Count 
+    # CpuSock="$(< /proc/cpuinfo grep -c "physical id")"
     CpuLoad="$(uptime | grep -ohe '[s:][: ].*' | awk '{ print "1m: "$2 " 5m: "$3 " 15m: " $4}')"
-    MemFreeB="$(cat /proc/meminfo | grep MemFree | awk {'print $2'})"
-    MemTotalB="$(cat /proc/meminfo | grep MemTotal | awk {'print $2'})"
-    MemUsedB="$(expr $MemTotalB - $MemFreeB)"
+    MemFreeB="$(< /proc/meminfo grep MemFree | awk {'print $2'})"
+    MemTotalB="$(< /proc/meminfo grep MemTotal | awk {'print $2'})"
+    MemUsedB="$((MemTotalB - MemFreeB))"
     MemFree="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$MemFreeB/1024/1024))"
     WriteLog Verbose Info "MemFree: $MemFree"
     MemUsed="$(printf "%0.2f\n" $(bc -q <<< scale=2\;$MemUsedB/1024/1024))"
