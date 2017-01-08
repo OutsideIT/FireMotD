@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v6.01.170108
+# Version:      v6.02.170108
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -204,8 +204,7 @@ GatherInfo () {
     elif [[ "$Xen" = *"Xen version"* ]] ; then
             Platform="Xen Hypervisor v""$(echo "$Xen" | sed -n -e 's/^.*Xen version: //p')"
     elif [[ "$Rasp" = *"Rasp"* ]] ; then
-#            Platform="$(echo "$Rasp" | sed 's/.*: //')" => SC2001: See if you can use ${variable//search/replace} instead.
-            Platform=${Rasp//.*: /}
+            Platform=${Rasp//*: /}
     elif [[ "$InitSystem" == "systemd" ]] ; then
         Custom="$(systemd-detect-virt)"
         if [[ ! -z $Custom ]] ; then
@@ -222,7 +221,7 @@ GatherInfo () {
     fi
     CpuUtil="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
     CpuProc="$(< /proc/cpuinfo grep -c processor)"
-    # CPU Socket Count 
+    # CPU Socket Count Idea 
     # CpuSock="$(< /proc/cpuinfo grep -c "physical id")"
     CpuLoad="$(uptime | grep -ohe '[s:][: ].*' | awk '{print "1m: "$2 " 5m: "$3 " 15m: " $4}')"
     MemFreeB="$(< /proc/meminfo grep MemFree | awk '{print $2}')"
@@ -515,7 +514,7 @@ echo -e "\e[0;38;5;17m$Fto   \e[38;5;39mCPU Usage \e[38;5;93m= \e[38;5;33m${CpuU
 
 GenerateBasic16Color () {
     echo -e "$Sch1$Sch1$Sch2$Sch2$Sch2$HST$Sch2$PHS$PHS$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1
-$Sch1$Sch1$Sch2$Sch2$HSF$HSF $HC$Hostname $HSF$Sch3$HSF$HVF$SVC$ScriptVersion$Sch1
+$Sch1$Sch1$Sch2$Sch2$HSF$HSF $HC$Hostname $HSF$Sch3$HSF$HVF$SVC$ScriptVersion$FrS$FrS
 $Sch1$Sch1$Sch2$Sch2$Sch2$HST$Sch2$PHS$PHS$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1
 $FrS          ${KS}Ip $ES ${VCL}$IpAddress
 $FrS     ${KS}Release $ES ${VC}$OsVersion
