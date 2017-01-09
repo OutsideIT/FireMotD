@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v6.06.170109
+# Version:      v6.08.170109
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -13,7 +13,7 @@
 #   30/12/16 => Debug and shellcheck fixes
 #   07/01/16 => Fixed version
 #   08/01/17 => Finalized shellcheck cleanup, bugfixes
-#   09/01/17 => Check InitSystem, sed Build Host
+#   09/01/17 => InitSystem, Build Host, non DMI vmware, PHP Limit
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -210,6 +210,8 @@ GatherInfo () {
         if [[ ! -z $Custom ]] ; then
             if [[ "$Custom" = *"openvz"* ]] ; then
                 Platform="OpenVZ"
+            elif [[ "$Custom" = *"vmware"* ]] ; then
+                Platform="VMware Virtual Platform"
             else
                 Platform=$Custom
             fi
@@ -273,9 +275,9 @@ GatherInfo () {
     ProcessMax="$($SysctlPath -n kernel.pid_max)"
     PhpVersion="$(/usr/bin/php -v 2>/dev/null | grep -oE '^PHP\s[0-9]+\.[0-9]+\.[0-9]+' | awk '{ print $2}')"
     if [ -f /etc/php.ini ] ; then
-        PhpMaxMemory=$(grep -F memory_limit /etc/php.ini | sed -n 's/.* = \([0-9]*\)/\1/p')
+        PhpMaxMemory=$(grep -F memory_limit /etc/php.ini | sed -n 's/.* = \([0-9]*\)/\1/p' | sed 's/; .*//g')
     elif [ -f /etc/php5/fpm/php.ini ] ; then
-        PhpMaxMemory=$(grep -F memory_limit /etc/php5/fpm/php.ini | sed -n 's/.* = \([0-9]*\)/\1/p')
+        PhpMaxMemory=$(grep -F memory_limit /etc/php5/fpm/php.ini | sed -n 's/.* = \([0-9]*\)/\1/p' | sed 's/; .*//g')
     fi
     MaxLeftOverChars=35
     Hostname="$(hostname)"
