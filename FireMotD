@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v6.04.170108
+# Version:      v6.05.170109
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -9,11 +9,11 @@
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   24/12/16 => Spellchecker cleanup
 #   29/12/16 => Swap bugfix (YC)
 #   30/12/16 => Debug and shellcheck fixes
 #   07/01/16 => Fixed version
 #   08/01/17 => Finalized shellcheck cleanup, bugfixes
+#   09/01/17 => Check InitSystem
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -190,7 +190,7 @@ GatherInfo () {
     Dmi="$(echo "$Dmesg" | grep "DMI:")"
     Rasp="$(echo "$Dmesg" | grep "Raspberry")"
     Xen="$(echo "$Dmesg" | grep -i 'xen version')"
-    InitSystem="$(cat /proc/1/comm)"
+    [[ -f "/proc/1/comm" ]] && InitSystem="$(cat /proc/1/comm)"
     if [[ "$Dmi" = *"QEMU"* ]] ; then
         Platform="$(echo "$Dmi" | sed 's/^.*QEMU/QEMU/' | sed 's/, B.*//')"
     elif [[ "$Dmi" = *"VMware"* ]] ; then
