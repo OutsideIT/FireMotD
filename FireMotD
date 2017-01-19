@@ -260,7 +260,7 @@ GatherInfo () {
     UpdateCount="Unknown"
     [[ -f $UpdateFile ]] && UpdateCount="$(cat $UpdateFile)"
     SessionCount="$(who | grep -c "$USER")"
-    ProcessCount="$(ps -Afl -no-headers | wc -l)"
+    ProcessCount="$(ps -A --no-headers | wc -l)"
     SysctlPath="$(which sysctl 2>/dev/null)"
     WriteLog Verbose Info "IpPath: $IpPath"
     if [ -z "$SysctlPath" ] ; then
