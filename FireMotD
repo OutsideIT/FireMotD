@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v6.09.170119
+# Version:      v6.10.170213
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -9,11 +9,11 @@
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   30/12/16 => Debug and shellcheck fixes
 #   07/01/16 => Fixed version
 #   08/01/17 => Finalized shellcheck cleanup, bugfixes
 #   09/01/17 => InitSystem, Build Host, non DMI vmware, PHP Limit
 #   19/01/17 => Fixed no-header (stgarf)
+#   13/02/17 => Check for egative LeftoverChars
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -282,7 +282,10 @@ GatherInfo () {
     MaxLeftOverChars=35
     Hostname="$(hostname)"
     HostChars=$((${#Hostname} + 8))
+    WriteLog Verbose Info "HostChars: $HostChars"
     LeftoverChars=$((MaxLeftOverChars - HostChars -10))
+    (( $LeftoverChars <= 0 )) && LeftoverChars=0
+    WriteLog Verbose Info "LeftoverChars: $LeftoverChars"
     if [[ -x "/usr/bin/yum" ]] ; then
         UpdateType="yum"
     elif [[ -x "/usr/bin/zypper" ]] ; then
@@ -324,7 +327,8 @@ GatherInfo () {
         PostgreSqlString="$(${PostgreSqlPath} --version 2>/dev/null)"
         PostgreSqlVersion="$(echo "$PostgreSqlString"  | head -n1 | awk '{print $3}')"
         WriteLog Verbose Info "PostgreSqlVersion: $PostgreSqlVersion"
-    fi    
+    fi
+    WriteLog Verbose Info "All information gathered successfully. " 
 }
 
 StartOrangeTheme () {
@@ -430,6 +434,7 @@ StartBlueTheme () {
 }
 
 StartRedTheme () {
+    WriteLog Verbose Info "Function StartRedTheme started. "
     # Red
     Sch1="\e[0;31m###"
     # Light Red
@@ -438,14 +443,18 @@ StartRedTheme () {
     Sch3="\e[1;33m#####"
     # Host Scheme Top
     HST="\e[1;33m$(head -c $HostChars /dev/zero|tr '\0' '#')"
+    WriteLog Verbose Info "HST: $HST"
     # Host Scheme Top Filler
     HSF="\e[1;33m###"
     # Host Scheme Bot
     HSB="\e[0;31m$(head -c $HostChars /dev/zero|tr '\0' '#')"
+    WriteLog Verbose Info "HSB: $HSB"
     # Post Host Scheme
     PHS="\e[2;31m$(head -c $LeftoverChars /dev/zero|tr '\0' '#')"
+    WriteLog Verbose Info "PHS: $PHS"
     # Host Version Filler
     HVF="\e[2;31m$(head -c 9 /dev/zero|tr '\0' '#')"
+    WriteLog Verbose Info "HVF: $HVF"
     # Front Scheme
     FrS="\e[0;31m##"
     # Equal Scheme
@@ -461,6 +470,7 @@ StartRedTheme () {
     KS="\e[0;37m"
     # Version Color
     SVC="\e[1;33m"
+    WriteLog Verbose Info "Function StartRedTheme finished successfully. "
 }
 
 StartOriginalBlue () {
@@ -515,6 +525,7 @@ echo -e "\e[0;38;5;17m$Fto   \e[38;5;39mCPU Usage \e[38;5;93m= \e[38;5;33m${CpuU
 }
 
 GenerateBasic16Color () {
+    WriteLog Verbose Info "Generating 16 color MotD"
     echo -e "$Sch1$Sch1$Sch2$Sch2$Sch2$HST$Sch2$PHS$PHS$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1
 $Sch1$Sch1$Sch2$Sch2$HSF$HSF $HC$Hostname $HSF$Sch3$HSF$HVF$SVC$ScriptVersion$FrS$FrS
 $Sch1$Sch1$Sch2$Sch2$Sch2$HST$Sch2$PHS$PHS$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1
