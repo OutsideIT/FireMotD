@@ -205,6 +205,12 @@ GatherInfo () {
             Platform="Xen Hypervisor v""$(echo "$Xen" | sed -n -e 's/^.*Xen version: //p')"
     elif [[ "$Rasp" = *"Rasp"* ]] ; then
             Platform=${Rasp//*: /}
+    elif [[ $(uname -r) =~ "pine64-longsleep" ]] ; then
+            Platform="Pine A64"
+            _mem="$(< /proc/meminfo grep MemTotal | awk '{print $2}')"
+            if [ $_mem -gt  500000 ] && [ $_mem -gt  503000 ]; then Platform="Pine A64 512MB Rev B Board"; fi
+            if [ $_mem -gt 1000000 ] && [ $_mem -gt 1006000 ]; then Platform="Pine A64+ 1GB Rev B Board"; fi
+            if [ $_mem -gt 2000000 ] && [ $_mem -gt 2012000 ]; then Platform="Pine A64+ 2GB Rev C Board"; fi
     elif [[ "$InitSystem" == "systemd" ]] ; then
         Custom="$(systemd-detect-virt)"
         if [[ ! -z $Custom ]] ; then
