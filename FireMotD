@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v6.10.170213
+# Version:      v6.11.170219
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -9,11 +9,11 @@
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   07/01/16 => Fixed version
 #   08/01/17 => Finalized shellcheck cleanup, bugfixes
 #   09/01/17 => InitSystem, Build Host, non DMI vmware, PHP Limit
 #   19/01/17 => Fixed no-header (stgarf)
 #   13/02/17 => Check for egative LeftoverChars
+#   19/02/17 => Better Sessions in user@ip format
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -271,7 +271,8 @@ GatherInfo () {
     RootFreePerc="$((100 - RootUsedPerc))" 
     UpdateCount="Unknown"
     [[ -f $UpdateFile ]] && UpdateCount="$(cat $UpdateFile)"
-    SessionCount="$(who | grep -c "$USER")"
+#    SessionCount="$(who | grep -c "$USER")"
+    SessionCount="$(who | cut -d' ' -f1,12 | tr ' ' @ | tr '\n' ',' | tr -d '()' | rev | cut -c 2- | rev)"
     ProcessCount="$(ps -A --no-headers | wc -l)"
     SysctlPath="$(which sysctl 2>/dev/null)"
     WriteLog Verbose Info "IpPath: $IpPath"
@@ -516,7 +517,7 @@ echo -e "\e[0;38;5;17m$Fto   \e[38;5;39mCPU Usage \e[38;5;93m= \e[38;5;33m${CpuU
 \e[0;38;5;17m$Fto        \e[38;5;39mSwap \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${SwapFree}\e[38;5;27mGB (\e[38;5;33m$SwapFreePerc\e[38;5;27m%), Used: \e[38;5;33m${SwapUsed}\e[38;5;27mGB (\e[38;5;33m$SwapUsedPerc\e[38;5;27m%), Total: \e[38;5;33m${SwapTotal}\e[38;5;27mGB
 \e[0;38;5;17m$Fto        \e[38;5;39mRoot \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${RootFree}\e[38;5;27mGB (\e[38;5;33m$RootFreePerc\e[38;5;27m%), Used: \e[38;5;33m${RootUsed}\e[38;5;27mGB (\e[38;5;33m$RootUsedPerc\e[38;5;27m%), Total: \e[38;5;33m${RootTotal}\e[38;5;27mGB
 \e[0;38;5;17m$Fto     \e[38;5;39mUpdates \e[38;5;93m= \e[38;5;33m$UpdateCount\e[38;5;27m ${UpdateType} updates available
-\e[0;38;5;17m$Fto    \e[38;5;39mSessions \e[38;5;93m= \e[38;5;33m$SessionCount\e[38;5;27m sessions
+\e[0;38;5;17m$Fto    \e[38;5;39mSessions \e[38;5;93m= \e[38;5;33m$SessionCount\e[38;5;27m
 \e[0;38;5;17m$Fto   \e[38;5;39mProcesses \e[38;5;93m= \e[38;5;33m$ProcessCount\e[38;5;27m running processes of \e[38;5;33m$ProcessMax\e[38;5;27m maximum processes"
     if [[ $HttpdVersion =~ ^[0-9.]+$ ]] ; then
         echo -e "\e[0;38;5;17m$Fto      \e[38;5;39mApache \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$HttpdVersion"
@@ -555,7 +556,7 @@ $FrS      ${KS}Memory $ES ${VC}Free: ${VCL}${MemFree}${VC} GB (${VCL}$MemFreePer
 $FrS        ${KS}Swap $ES ${VC}Free: ${VCL}${SwapFree}${VC} GB (${VCL}$SwapFreePerc${VC}%), Used: ${VCL}${SwapUsed}${VC} GB (${VCL}$SwapUsedPerc${VC}%), Total: ${VCL}${SwapTotal}${VC} GB
 $FrS        ${KS}Root $ES ${VC}Free: ${VCL}${RootFree}${VC} GB (${VCL}$RootFreePerc${VC}%), Used: ${VCL}${RootUsed}${VC} GB (${VCL}$RootUsedPerc${VC}%), Total: ${VCL}${RootTotal}${VC} GB
 $FrS     ${KS}Updates $ES ${VCL}$UpdateCount${VC} ${UpdateType} updates available.
-$FrS    ${KS}Sessions $ES ${VCL}$SessionCount ${VC}sessions
+$FrS    ${KS}Sessions $ES ${VCL}$SessionCount
 $FrS   ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$ProcessMax ${VC}maximum processes"
     if [[ $HttpdVersion =~ ^[0-9.]+$ ]] ; then
         echo -e "$FrS${KS}      Apache $ES ${VC}Version: ${VCL}$HttpdVersion"
@@ -759,7 +760,7 @@ read -d '' HtmlCode <<EOF
             </tr>
             <tr>
                 <td>Sessions</td>
-                <td><span>$SessionCount</span> sessions</td>
+                <td><span>$SessionCount</span></td>
             </tr>
             <tr>
                 <td>Processes</td>
