@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v6.11.170219
+# Version:      v6.12.170220
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -9,11 +9,11 @@
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   08/01/17 => Finalized shellcheck cleanup, bugfixes
 #   09/01/17 => InitSystem, Build Host, non DMI vmware, PHP Limit
 #   19/01/17 => Fixed no-header (stgarf)
 #   13/02/17 => Check for egative LeftoverChars
 #   19/02/17 => Better Sessions in user@ip format
+#   20/02/17 => Fixed bug with SessionCount on login
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -134,6 +134,23 @@ ColorTest () {
         echo -n -e "\e[38;05;${tcolor}m\e[48;05;${gray}m${ds}"
     done
     echo -e "\e[0;37m\e[0m\n"
+}
+
+ContainsValidIp () {
+    WriteLog Verbose Info "Checking if $1 contains an ip"
+    local  ip=$1
+    local  stat=1
+    Extract=$(echo "$ip" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
+    WriteLog Verbose Info "Extract: $Extract"
+    if [[ $Extract =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+        OIFS=$IFS
+        IFS='.'
+        Extract=($Extract)
+        IFS=$OIFS
+        [[ ${Extract[0]} -le 255 && ${Extract[1]} -le 255 && ${Extract[2]} -le 255 && ${Extract[3]} -le 255 ]]
+        stat=$?
+    fi
+    return $stat
 }
 
 GatherInfo () {
@@ -273,6 +290,10 @@ GatherInfo () {
     [[ -f $UpdateFile ]] && UpdateCount="$(cat $UpdateFile)"
 #    SessionCount="$(who | grep -c "$USER")"
     SessionCount="$(who | cut -d' ' -f1,12 | tr ' ' @ | tr '\n' ',' | tr -d '()' | rev | cut -c 2- | rev)"
+    WriteLog Verbose Info "SessionCount: $SessionCount"
+    if ! ContainsValidIp $SessionCount ; then
+        SessionCount="$(who | cut -d' ' -f1,13 | tr ' ' @ | tr '\n' ',' | tr -d '()' | rev | cut -c 2- | rev)"
+    fi
     ProcessCount="$(ps -A --no-headers | wc -l)"
     SysctlPath="$(which sysctl 2>/dev/null)"
     WriteLog Verbose Info "IpPath: $IpPath"
