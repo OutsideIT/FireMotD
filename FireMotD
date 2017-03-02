@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v6.12.170220
+# Version:      v6.13.170302
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -9,11 +9,11 @@
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   09/01/17 => InitSystem, Build Host, non DMI vmware, PHP Limit
 #   19/01/17 => Fixed no-header (stgarf)
 #   13/02/17 => Check for egative LeftoverChars
 #   19/02/17 => Better Sessions in user@ip format
 #   20/02/17 => Fixed bug with SessionCount on login
+#   02/03/17 => Reverted sessions and test function (tbc)
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -26,7 +26,7 @@
 # <http://www.gnu.org/licenses/>.
 
 Debug=0
-Verbose=0
+Verbose=1
 LogLocal=''
 UpdateFile='/var/tmp/updatecount.txt'
 ScriptPath="$(readlink -f "$0")"
@@ -149,8 +149,36 @@ ContainsValidIp () {
         IFS=$OIFS
         [[ ${Extract[0]} -le 255 && ${Extract[1]} -le 255 && ${Extract[2]} -le 255 && ${Extract[3]} -le 255 ]]
         stat=$?
+        WriteLog Verbose Info "Match result: $?"
     fi
     return $stat
+}
+
+GetSessions () {
+    WriteLog Verbose Info "Output who: $(who)"
+    WriteLog Verbose Info "Output who: $(who | cut -d' ' -f1,14)"
+    SessionCount="$(who | cut -d' ' -f1,12 | tr ' ' @ | tr '\n' ',' | tr -d '()' | rev | cut -c 2- | rev)"
+    WriteLog Verbose Info "SessionCount 1: f1,12: $SessionCount"
+    CleanSessionHost=$(echo $SessionCount  | cut -d, -f2 | cut -d@ -f2- | cut -d@ -f2- )
+    WriteLog Verbose Info "CleanSessionhost: $CleanSessionHost"
+    RegexHost="^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.){6,}*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]){6,}$"
+    if ! ContainsValidIp $SessionCount ; then
+        WriteLog Verbose Info "SessionCount $SessionCount does not contain an ip address. "
+        if ! [[ "$CleanSessionHost" =~ $RegexHost ]] ; then
+            WriteLog Verbose Info "CleanSessionHost $CleanSessionHost does not contain a hostname. "
+            SessionCount="$(who | cut -d' ' -f1,13 | tr ' ' @ | tr '\n' ',' | tr -d '()' | rev | cut -c 2- | rev)"
+            WriteLog Verbose Info "SessionCount 2: f1,13: $SessionCount"
+            if ! ContainsValidIp $SessionCount && ! [[ "$CleanSessionHost" =~ $RegexHost ]] ; then
+                SessionCount="$(who | cut -d' ' -f1,14 | tr ' ' @ | tr '\n' ',' | tr -d '()' | rev | cut -c 2- | rev)"
+                WriteLog Verbose Info "SessionCount 3: f1,14: $SessionCount"
+            fi
+        else
+            SessionCount="$(who | cut -d' ' -f1,12 | tr ' ' @ | tr '\n' ',' | tr -d '()' | rev | cut -c 2- | rev)"
+            WriteLog Verbose Info "CleanSessionHost $CleanSessionHost contains a hostname. "
+        fi
+    else
+        WriteLog Verbose Info "SessionCount $SessionCount contains an ip address. "
+    fi
 }
 
 GatherInfo () {
@@ -288,12 +316,7 @@ GatherInfo () {
     RootFreePerc="$((100 - RootUsedPerc))" 
     UpdateCount="Unknown"
     [[ -f $UpdateFile ]] && UpdateCount="$(cat $UpdateFile)"
-#    SessionCount="$(who | grep -c "$USER")"
-    SessionCount="$(who | cut -d' ' -f1,12 | tr ' ' @ | tr '\n' ',' | tr -d '()' | rev | cut -c 2- | rev)"
-    WriteLog Verbose Info "SessionCount: $SessionCount"
-    if ! ContainsValidIp $SessionCount ; then
-        SessionCount="$(who | cut -d' ' -f1,13 | tr ' ' @ | tr '\n' ',' | tr -d '()' | rev | cut -c 2- | rev)"
-    fi
+    SessionCount="$(who | grep -c "$USER") sessions"
     ProcessCount="$(ps -A --no-headers | wc -l)"
     SysctlPath="$(which sysctl 2>/dev/null)"
     WriteLog Verbose Info "IpPath: $IpPath"
