@@ -558,7 +558,7 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
     if [[ ! -z $InstallDate ]] ; then
         echo -e "\e[0;38;5;17m$Fto   \e[38;5;39mInstalled \e[38;5;93m= \e[38;5;27m$InstallDate"
     fi
-echo -e "\e[0;38;5;17m$Fto   \e[38;5;39mCPU Usage \e[38;5;93m= \e[38;5;33m${CpuUtil}\e[38;5;27m% avg over \e[38;5;33m$CpuProc \e[38;5;27mcpu(s) with $CoreCount core(s) and $SocketCount socket(s)
+echo -e "\e[0;38;5;17m$Fto   \e[38;5;39mCPU Usage \e[38;5;93m= \e[38;5;33m${CpuUtil}\e[38;5;27m% avg over \e[38;5;33m$CpuProc \e[38;5;27mcpu(s) ($CoreCount core(s) x $SocketCount socket(s))
 \e[0;38;5;17m$Fto    \e[38;5;39mCPU Load \e[38;5;93m= \e[38;5;27m$CpuLoad
 \e[0;38;5;17m$Fto      \e[38;5;39mMemory \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${MemFree}\e[38;5;27mGB (\e[38;5;33m$MemFreePerc\e[38;5;27m%), Used: \e[38;5;33m${MemUsed}\e[38;5;27mGB (\e[38;5;33m$MemUsedPerc\e[38;5;27m%), Total: \e[38;5;33m${MemTotal}\e[38;5;27mGB
 \e[0;38;5;17m$Fto        \e[38;5;39mSwap \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${SwapFree}\e[38;5;27mGB (\e[38;5;33m$SwapFreePerc\e[38;5;27m%), Used: \e[38;5;33m${SwapUsed}\e[38;5;27mGB (\e[38;5;33m$SwapUsedPerc\e[38;5;27m%), Total: \e[38;5;33m${SwapTotal}\e[38;5;27mGB
