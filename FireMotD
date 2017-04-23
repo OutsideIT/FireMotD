@@ -281,7 +281,7 @@ GatherInfo () {
     CpuUtil="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
     CpuProc="$(< /proc/cpuinfo grep -c processor)"
     WriteLog Verbose Info "CpuProc: $CpuProc"
-    CoreCount="$(lscpu | grep 'Core(s) per socket:' | head -1 | awk -F " " '{print $2}')"
+    CoreCount="$(lscpu | grep 'Core(s) per socket:' | head -1 | awk -F " " '{print $4}')"
     WriteLog Verbose Info "CoreCount: $CoreCount"
     SocketCount="$(lscpu | grep 'Socket(s):' | head -1 | awk -F " " '{print $2}')"
     WriteLog Verbose Info "SocketCount: $SocketCount"
