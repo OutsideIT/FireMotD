@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v6.13.170302
+# Version:      v6.14.170423
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -9,11 +9,11 @@
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   19/01/17 => Fixed no-header (stgarf)
 #   13/02/17 => Check for egative LeftoverChars
 #   19/02/17 => Better Sessions in user@ip format
 #   20/02/17 => Fixed bug with SessionCount on login
 #   02/03/17 => Reverted sessions and test function (tbc)
+#   23/04/17 => CpuCount and SocketCount
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -280,8 +280,11 @@ GatherInfo () {
     fi
     CpuUtil="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
     CpuProc="$(< /proc/cpuinfo grep -c processor)"
-    # CPU Socket Count Idea 
-    # CpuSock="$(< /proc/cpuinfo grep -c "physical id")"
+    WriteLog Verbose Info "CpuProc: $CpuProc"
+    CpuCount="$(lscpu | grep 'CPU(s):' | head -1 | awk -F " " '{print $2}')"
+    WriteLog Verbose Info "CpuCount: $CpuCount"
+    SocketCount="$(lscpu | grep 'Socket(s):' | head -1 | awk -F " " '{print $2}')"
+    WriteLog Verbose Info "SocketCount: $SocketCount"
     CpuLoad="$(uptime | grep -ohe '[s:][: ].*' | awk '{print "1m: "$2 " 5m: "$3 " 15m: " $4}')"
     MemFreeB="$(< /proc/meminfo grep MemFree | awk '{print $2}')"
     MemTotalB="$(< /proc/meminfo grep MemTotal | awk '{print $2}')"
