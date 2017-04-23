@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v6.15.170423
+# Version:      v6.16.170423
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -9,7 +9,7 @@
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   13/02/17 => Check for egative LeftoverChars
+#   13/02/17 => Check for negative LeftoverChars
 #   19/02/17 => Better Sessions in user@ip format
 #   20/02/17 => Fixed bug with SessionCount on login
 #   02/03/17 => Reverted sessions and test function (tbc)
@@ -597,7 +597,7 @@ $FrS      ${KS}Uptime $ES ${VCL}${UptimeDays} ${VC}day(s). ${VCL}${UptimeHours}$
     if [[ ! -z $InstallDate ]] ; then
         echo -e "$FrS${KS}   Installed $ES ${VC}$InstallDate"
     fi
-echo -e "$FrS   ${KS}CPU Usage $ES ${VCL}$CpuUtil ${VC}% average CPU usage over ${VCL}${CpuProc}${VC} core(s)
+echo -e "$FrS   ${KS}CPU Usage $ES ${VCL}$CpuUtil ${VC}% avg over ${VCL}${CpuProc}${VC} cpu(s)  ($CoreCount core(s) x $SocketCount socket(s))
 $FrS    ${KS}CPU Load $ES ${VC}$CpuLoad
 $FrS      ${KS}Memory $ES ${VC}Free: ${VCL}${MemFree}${VC} GB (${VCL}$MemFreePerc${VC}%), Used: ${VCL}${MemUsed}${VC} GB (${VCL}$MemUsedPerc${VC}%), Total: ${VCL}${MemTotal}${VC} GB
 $FrS        ${KS}Swap $ES ${VC}Free: ${VCL}${SwapFree}${VC} GB (${VCL}$SwapFreePerc${VC}%), Used: ${VCL}${SwapUsed}${VC} GB (${VCL}$SwapUsedPerc${VC}%), Total: ${VCL}${SwapTotal}${VC} GB
