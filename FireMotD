@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v7.03.170503
+# Version:      v7.04.170503
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -346,7 +346,10 @@ GatherInfo () {
     MaxLeftOverChars=35
     Hostname="$(hostname)"
     HostChars=$((${#Hostname} + 8))
-    WriteLog Verbose Info "HostChars: $HostChars"
+    if (( HostChars > 47 )); then
+        WriteLog Verbose Warning "HostChars $HostChars is greater then 47 characters."
+        Hostname=${Hostname:0:47}
+    fi
     LeftoverChars=$((MaxLeftOverChars - HostChars -10))
     (( $LeftoverChars <= 0 )) && LeftoverChars=0
     WriteLog Verbose Info "LeftoverChars: $LeftoverChars"
