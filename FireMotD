@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v6.16.170423
+# Version:      v7.02.170503
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -9,11 +9,11 @@
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   13/02/17 => Check for negative LeftoverChars
 #   19/02/17 => Better Sessions in user@ip format
 #   20/02/17 => Fixed bug with SessionCount on login
 #   02/03/17 => Reverted sessions and test function (tbc)
 #   23/04/17 => CpuCount, CoreCount and SocketCount
+#   03/05/17 => Support for WSL Platform, Format rework attempt
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -237,7 +237,7 @@ GatherInfo () {
     if [[ (-f $RpmPath) && (-x $RpmPath) ]] ; then    
         InstallDate=$(rpm -qi basesystem | grep "Install Date" | sed 's/Install Date: //g' | sed 's/Build Host: .*//g')
     fi
-    Dmesg="$(dmesg)"
+    Dmesg="$(dmesg 2>/dev/null)"
     Dmi="$(echo "$Dmesg" | grep "DMI:")"
     Rasp="$(echo "$Dmesg" | grep "Raspberry")"
     Xen="$(echo "$Dmesg" | grep -i 'xen version')"
@@ -252,6 +252,8 @@ GatherInfo () {
         Platform="$(echo "$Dmi" | sed 's/^.*VirtualBox/VirtualBox/' | sed 's/ .*//')"
     elif [[ "$Dmi" = *"DMI:"* ]] ; then
             Platform="$(echo "$Dmi" | sed -n -e 's/^.*DMI: //p')"
+    elif [[ "$Dmi" = *"klogctl"* ]] ; then
+            Platform="Windows Subsytem for Linux"
     elif [[ "$Xen" = *"Xen version"* ]] ; then
             Platform="Xen Hypervisor v""$(echo "$Xen" | sed -n -e 's/^.*Xen version: //p')"
     elif [[ "$Rasp" = *"Rasp"* ]] ; then
@@ -262,6 +264,8 @@ GatherInfo () {
             if [ $_mem -gt  500000 ] && [ $_mem -gt  503000 ]; then Platform="Pine A64 512MB Rev B Board"; fi
             if [ $_mem -gt 1000000 ] && [ $_mem -gt 1006000 ]; then Platform="Pine A64+ 1GB Rev B Board"; fi
             if [ $_mem -gt 2000000 ] && [ $_mem -gt 2012000 ]; then Platform="Pine A64+ 2GB Rev C Board"; fi
+    elif [[ $(uname -r) =~ "Microsoft" ]] ; then
+        Platform="Windows Subsystem for Linux"
     elif [[ "$InitSystem" == "systemd" ]] ; then
         Custom="$(systemd-detect-virt)"
         if [[ ! -z $Custom ]] ; then
@@ -495,26 +499,30 @@ StartBlueTheme () {
 
 StartRedTheme () {
     WriteLog Verbose Info "Function StartRedTheme started. "
-    # Red
-    Sch1="\e[0;31m###"
-    # Light Red
-    Sch2="\e[1;31m#####"
-    # Light Yellow
-    Sch3="\e[1;33m#####"
-    # Host Scheme Top
-    HST="\e[1;33m$(head -c $HostChars /dev/zero|tr '\0' '#')"
-    WriteLog Verbose Info "HST: $HST"
-    # Host Scheme Top Filler
-    HSF="\e[1;33m###"
-    # Host Scheme Bot
-    HSB="\e[0;31m$(head -c $HostChars /dev/zero|tr '\0' '#')"
-    WriteLog Verbose Info "HSB: $HSB"
-    # Post Host Scheme
-    PHS="\e[2;31m$(head -c $LeftoverChars /dev/zero|tr '\0' '#')"
-    WriteLog Verbose Info "PHS: $PHS"
-    # Host Version Filler
-    HVF="\e[2;31m$(head -c 9 /dev/zero|tr '\0' '#')"
-    WriteLog Verbose Info "HVF: $HVF"
+    C1C=$(( 79 - 6 - 16 - HostChars - 6 ))
+    WriteLog Verbose Info "Row 1 Rest Chars: $C1C"
+    C2C=$(( 79 - 6 - 10 - 9 - HostChars - 9 - 6 ))
+    WriteLog Verbose Info "Row 2 Rest Chars: $C2C"
+    CZC=$(( 79 - 6 - 6 ))
+    WriteLog Verbose Info "Row Z Rest Chars: $CZC"
+    # Color Part 1
+    CP1="\e[0;31m######"
+    # Color Row 1 Part 2
+    CP12="\e[1;31m################"
+    # Color Row 1 Host
+    CP1H="\e[1;33m$(head -c $HostChars /dev/zero|tr '\0' '#')"
+    # Color Row 1 Rest
+    C1R="\e[1;31m$(head -c $C1C /dev/zero|tr '\0' '#')"
+    # Color Row 2 Part 2
+    CP22="\e[1;31m##########"
+    # Color Row 2 Part 3
+    CP23="\e[1;33m#########"
+    # Color Row 2 Host
+    CP2H="\e[2;31m$(head -c $LeftoverChars /dev/zero|tr '\0' '#')"
+    # Color Row 2 Rest
+    C2R="\e[1;31m$(head -c $C2C /dev/zero|tr '\0' '#')"
+    # Color Row Z Rest
+    CZR="\e[1;31m$(head -c $CZC /dev/zero|tr '\0' '#')"
     # Front Scheme
     FrS="\e[0;31m##"
     # Equal Scheme
@@ -586,41 +594,41 @@ echo -e "\e[0;38;5;17m$Fto   \e[38;5;39mCPU Usage \e[38;5;93m= \e[38;5;33m${CpuU
 
 GenerateBasic16Color () {
     WriteLog Verbose Info "Generating 16 color MotD"
-    echo -e "$Sch1$Sch1$Sch2$Sch2$Sch2$HST$Sch2$PHS$PHS$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1
-$Sch1$Sch1$Sch2$Sch2$HSF$HSF $HC$Hostname $HSF$Sch3$HSF$HVF$SVC$ScriptVersion$FrS$FrS
-$Sch1$Sch1$Sch2$Sch2$Sch2$HST$Sch2$PHS$PHS$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1
-$FrS          ${KS}Ip $ES ${VCL}$IpAddress
-$FrS     ${KS}Release $ES ${VC}$OsVersion
-$FrS      ${KS}Kernel $ES ${VC}$Kernel
-$FrS    ${KS}Platform $ES ${VC}$Platform
-$FrS      ${KS}Uptime $ES ${VCL}${UptimeDays} ${VC}day(s). ${VCL}${UptimeHours}${VC}:${VCL}${UptimeMinutes}${VC}:${VCL}${UptimeSeconds}"
+    echo -e "$CP1$CP12$CP1H$C1R$CP1
+$CP1$CP22$CP23 $HC$Hostname $CP23$C2R$SVC$ScriptVersion
+$CP1$CP12$CP1H$C1R$CP1
+$FrS         ${KS}Ip $ES ${VCL}$IpAddress
+$FrS    ${KS}Release $ES ${VC}$OsVersion
+$FrS     ${KS}Kernel $ES ${VC}$Kernel
+$FrS   ${KS}Platform $ES ${VC}$Platform
+$FrS     ${KS}Uptime $ES ${VCL}${UptimeDays} ${VC}day(s). ${VCL}${UptimeHours}${VC}:${VCL}${UptimeMinutes}${VC}:${VCL}${UptimeSeconds}"
     if [[ ! -z $InstallDate ]] ; then
-        echo -e "$FrS${KS}   Installed $ES ${VC}$InstallDate"
+        echo -e "$FrS  ${KS}Installed $ES ${VC}$InstallDate"
     fi
-echo -e "$FrS   ${KS}CPU Usage $ES ${VCL}$CpuUtil ${VC}% avg over ${VCL}${CpuProc}${VC} cpu(s)  ($CoreCount core(s) x $SocketCount socket(s))
-$FrS    ${KS}CPU Load $ES ${VC}$CpuLoad
-$FrS      ${KS}Memory $ES ${VC}Free: ${VCL}${MemFree}${VC} GB (${VCL}$MemFreePerc${VC}%), Used: ${VCL}${MemUsed}${VC} GB (${VCL}$MemUsedPerc${VC}%), Total: ${VCL}${MemTotal}${VC} GB
-$FrS        ${KS}Swap $ES ${VC}Free: ${VCL}${SwapFree}${VC} GB (${VCL}$SwapFreePerc${VC}%), Used: ${VCL}${SwapUsed}${VC} GB (${VCL}$SwapUsedPerc${VC}%), Total: ${VCL}${SwapTotal}${VC} GB
-$FrS        ${KS}Root $ES ${VC}Free: ${VCL}${RootFree}${VC} GB (${VCL}$RootFreePerc${VC}%), Used: ${VCL}${RootUsed}${VC} GB (${VCL}$RootUsedPerc${VC}%), Total: ${VCL}${RootTotal}${VC} GB
-$FrS     ${KS}Updates $ES ${VCL}$UpdateCount${VC} ${UpdateType} updates available.
-$FrS    ${KS}Sessions $ES ${VCL}$SessionCount
-$FrS   ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$ProcessMax ${VC}maximum processes"
+echo -e "$FrS  ${KS}CPU Usage $ES ${VCL}$CpuUtil ${VC}% avg over ${VCL}${CpuProc}${VC} cpu(s)  ($CoreCount core(s) x $SocketCount socket(s))
+$FrS   ${KS}CPU Load $ES ${VC}$CpuLoad
+$FrS     ${KS}Memory $ES ${VC}Free: ${VCL}${MemFree}${VC} GB (${VCL}$MemFreePerc${VC}%), Used: ${VCL}${MemUsed}${VC} GB (${VCL}$MemUsedPerc${VC}%), Total: ${VCL}${MemTotal}${VC} GB
+$FrS       ${KS}Swap $ES ${VC}Free: ${VCL}${SwapFree}${VC} GB (${VCL}$SwapFreePerc${VC}%), Used: ${VCL}${SwapUsed}${VC} GB (${VCL}$SwapUsedPerc${VC}%), Total: ${VCL}${SwapTotal}${VC} GB
+$FrS       ${KS}Root $ES ${VC}Free: ${VCL}${RootFree}${VC} GB (${VCL}$RootFreePerc${VC}%), Used: ${VCL}${RootUsed}${VC} GB (${VCL}$RootUsedPerc${VC}%), Total: ${VCL}${RootTotal}${VC} GB
+$FrS    ${KS}Updates $ES ${VCL}$UpdateCount${VC} ${UpdateType} updates available.
+$FrS   ${KS}Sessions $ES ${VCL}$SessionCount
+$FrS  ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$ProcessMax ${VC}maximum processes"
     if [[ $HttpdVersion =~ ^[0-9.]+$ ]] ; then
-        echo -e "$FrS${KS}      Apache $ES ${VC}Version: ${VCL}$HttpdVersion"
+        echo -e "$FrS     ${KS}Apache $ES ${VC}Version: ${VCL}$HttpdVersion"
     fi
     if [[ ! -z $nginxVersion ]] ; then
-        echo -e "$FrS${KS}       Nginx $ES ${VC}Version: ${VCL}$nginxVersion"
+        echo -e "$FrS      ${KS}Nginx $ES ${VC}Version: ${VCL}$nginxVersion"
     fi
     if [[ ! -z $MySqlVersion ]] ; then
-        echo -e "$FrS${KS}       MySQL $ES ${VC}Version: ${VCL}$MySqlVersion ${VC}Distribution: ${VCL}$MySqlDistribution"
+        echo -e "$FrS      ${KS}MySQL $ES ${VC}Version: ${VCL}$MySqlVersion ${VC}Distribution: ${VCL}$MySqlDistribution"
     fi
     if [[ ! -z $PostgreSqlVersion ]] ; then
-        echo -e "$FrS${KS}  PostgreSQL $ES ${VC}Version: ${VCL}$PostgreSqlVersion"
+        echo -e "$FrS ${KS}PostgreSQL $ES ${VC}Version: ${VCL}$PostgreSqlVersion"
     fi
     if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
-        echo -e "$FrS${KS}         PHP $ES ${VC}Version: ${VCL}$PhpVersion ${VC}Memory Limit: ${VCL}$PhpMaxMemory"
+        echo -e "$FrS        ${KS}PHP $ES ${VC}Version: ${VCL}$PhpVersion ${VC}Memory Limit: ${VCL}$PhpMaxMemory"
     fi
-    echo -e "$Sch1$Sch1$Sch2$Sch2$Sch2$HSB$Sch2$PHS$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1$Sch1\e[0;37m"
+    echo -e "$CP1$CZR$CP1\e[0;37m"
 }
 
 GenerateHtmlTheme () {
