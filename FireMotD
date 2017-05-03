@@ -465,22 +465,22 @@ StartGrayTheme () {
 
 StartBlueTheme () {
     WriteLog Verbose Info "Function StartRedTheme started. "
-    C1C=$(( 79 - 6 - 16 - HostChars - 6 ))
+    C1C=$(( 79 - 4 - 10 - HostChars - 4 ))
     WriteLog Verbose Info "Row 1 Rest Chars: $C1C"
-    C2C=$(( 79 - 6 - 10 - 9 - HostChars - 9 - 8 ))
+    C2C=$(( 79 - 4 - 4 - 9 - HostChars - 9 - 6 ))
     WriteLog Verbose Info "Row 2 Rest Chars: $C2C"
-    CZC=$(( 79 - 6 - 6 ))
+    CZC=$(( 79 - 4 - 4 ))
     WriteLog Verbose Info "Row Z Rest Chars: $CZC"
     # Color Part 1
     CP1="\e[0;34m##"
     # Color Row 1 Part 2
-    CP12="\e[1;34m################"
+    CP12="\e[1;34m##########"
     # Color Row 1 Host
     CP1H="\e[1;36m$(head -c $HostChars /dev/zero|tr '\0' '#')"
     # Color Row 1 Rest
     C1R="\e[1;34m$(head -c $C1C /dev/zero|tr '\0' '#')"
     # Color Row 2 Part 2
-    CP22="\e[1;34m##########"
+    CP22="\e[1;34m####"
     # Color Row 2 Part 3
     CP23="\e[1;36m#########"
     # Color Row 2 Host
@@ -506,22 +506,22 @@ StartBlueTheme () {
 
 StartRedTheme () {
     WriteLog Verbose Info "Function StartRedTheme started. "
-    C1C=$(( 79 - 6 - 16 - HostChars - 6 ))
+    C1C=$(( 79 - 4 - 10 - HostChars - 4 ))
     WriteLog Verbose Info "Row 1 Rest Chars: $C1C"
-    C2C=$(( 79 - 6 - 10 - 9 - HostChars - 9 - 8 ))
+    C2C=$(( 79 - 4 - 4 - 9 - HostChars - 9 - 6 ))
     WriteLog Verbose Info "Row 2 Rest Chars: $C2C"
-    CZC=$(( 79 - 6 - 6 ))
+    CZC=$(( 79 - 4 - 4 ))
     WriteLog Verbose Info "Row Z Rest Chars: $CZC"
     # Color Part 1
     CP1="\e[0;31m##"
     # Color Row 1 Part 2
-    CP12="\e[1;31m################"
+    CP12="\e[1;31m##########"
     # Color Row 1 Host
     CP1H="\e[1;33m$(head -c $HostChars /dev/zero|tr '\0' '#')"
     # Color Row 1 Rest
     C1R="\e[1;31m$(head -c $C1C /dev/zero|tr '\0' '#')"
     # Color Row 2 Part 2
-    CP22="\e[1;31m##########"
+    CP22="\e[1;31m####"
     # Color Row 2 Part 3
     CP23="\e[1;33m#########"
     # Color Row 2 Host
