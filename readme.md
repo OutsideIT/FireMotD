@@ -131,14 +131,21 @@ Root privilege is required for this operation.
 sudo crontab -e
 ```
 
-##### Then add this line (updates everyday at 3:03am)
+##### Then add this line
 ```bash
-3 3 * * * /usr/local/bin/FireMotD -S &>/dev/null
+# FireMotD system updates check (randomly execute between 0:00:00 and 5:59:59)
+0 0 * * * root perl -e 'sleep int(rand(21600))' && /bin/bash /opt/FireMotD/FireMotD -S &>/dev/null
 ```
 
-##### Or using the old way
+### Apt configuration to update updates count
+
+On systems with apt (Debian, Ubuntu, ...) add the following configuration lines to refresh the updates count after an apt action (install, remove, ...) was performed.
+
+Create the apt configuration file `/etc/apt/apt.conf.d/15firemotd` containing:
 ```bash
-3 3 * * * /usr/local/bin/FireMotD -U > /var/tmp/updatecount.txt 
+DPkg::Post-Invoke {
+  "if [ -x /usr/local/bin/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /usr/local/bin/FireMotD -S; echo ''; fi";
+};
 ```
 
 ### Adding FireMotD to run on login
