@@ -285,9 +285,19 @@ GatherInfo () {
     CpuUtil="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
     CpuProc="$(< /proc/cpuinfo grep -c processor)"
     WriteLog Verbose Info "CpuProc: $CpuProc"
-    CoreCount="$(lscpu | grep 'Core(s) per socket:' | head -1 | awk -F " " '{print $4}')"
+    if [[ "$Platform" == "OpenVZ" ]] ; then
+        CoreCount="$(cat /proc/cpuinfo | grep "processor" | sort -u | wc -l)"
+    else
+        CoreCount="$(lscpu | grep 'Core(s) per socket:' | head -1 | awk -F " " '{print $4}')"
+    fi
     WriteLog Verbose Info "CoreCount: $CoreCount"
-    SocketCount="$(lscpu | grep 'Socket(s):' | head -1 | awk -F " " '{print $2}')"
+
+    if [[ "$Platform" == "OpenVZ" ]] ; then
+        SocketCount="$(cat /proc/cpuinfo | grep "physical id" | sort -u | wc -l)"
+    else
+        SocketCount="$(lscpu | grep 'Socket(s):' | head -1 | awk -F " " '{print $2}')"
+    fi
+ 
     WriteLog Verbose Info "SocketCount: $SocketCount"
     CpuLoad="$(uptime | grep -ohe '[s:][: ].*' | awk '{print "1m: "$2 " 5m: "$3 " 15m: " $4}')"
     MemFreeB="$(< /proc/meminfo grep MemFree | awk '{print $2}')"
