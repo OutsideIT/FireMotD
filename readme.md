@@ -134,7 +134,7 @@ sudo crontab -e
 ##### Then add this line
 ```bash
 # FireMotD system updates check (randomly execute between 0:00:00 and 5:59:59)
-0 0 * * * root perl -e 'sleep int(rand(21600))' && /bin/bash /opt/FireMotD/FireMotD -S &>/dev/null
+0 0 * * * root perl -e 'sleep int(rand(21600))' && /usr/local/bin/FireMotD -S &>/dev/null
 ```
 
 ### Apt configuration to update updates count
