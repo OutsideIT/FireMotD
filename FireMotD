@@ -620,7 +620,7 @@ echo -e "\e[0;38;5;17m$Fto   \e[38;5;39mCPU Usage \e[38;5;93m= \e[38;5;33m${CpuU
         echo -e "\e[0;38;5;17m$Fto  \e[38;5;39mPostgreSQL \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PostgreSqlVersion"
     fi
     if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
-        echo -e "\e[0;38;5;17m$Fto         \e[38;5;39mPHP \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PhpVersion \e[38;5;27mMemory Limit: \e[38;5;33m$PhpMaxMemory"
+        echo -e "\e[0;38;5;17m$Fto         \e[38;5;39mPHP \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PhpVersion, \e[38;5;27mMemory Limit: \e[38;5;33m$PhpMaxMemory"
     fi    
     echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme\e[0;37m"
 }
@@ -656,10 +656,10 @@ $CP1 ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$Pro
         echo -e "$CP1     ${KS}MySQL $ES ${VC}Version: ${VCL}$MySqlVersion ${VC}Distribution: ${VCL}$MySqlDistribution"
     fi
     if [[ ! -z $PostgreSqlVersion ]] ; then
-        echo -e "$CP1 ${KS}Postgres $ES ${VC}Version: ${VCL}$PostgreSqlVersion"
+        echo -e "$CP1  ${KS}Postgres $ES ${VC}Version: ${VCL}$PostgreSqlVersion"
     fi
     if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
-        echo -e "$CP1       ${KS}PHP $ES ${VC}Version: ${VCL}$PhpVersion ${VC}Memory Limit: ${VCL}$PhpMaxMemory"
+        echo -e "$CP1       ${KS}PHP $ES ${VC}Version: ${VCL}$PhpVersion, ${VC}Memory Limit: ${VCL}$PhpMaxMemory"
     fi
     echo -e "$CP1$CP1$CZR$CP1$CP1\e[0;37m"
 }
