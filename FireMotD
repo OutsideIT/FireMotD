@@ -336,7 +336,6 @@ GatherInfo () {
     SessionCount="$(who | grep -c "$USER") sessions"
     ProcessCount="$(ps -A --no-headers | wc -l)"
     SysctlPath="$(which sysctl 2>/dev/null)"
-    WriteLog Verbose Info "IpPath: $IpPath"
     if [ -z "$SysctlPath" ] ; then
         if [ -f /usr/sbin/sysctl ] ; then
             SysctlPath="/usr/sbin/sysctl"
@@ -346,6 +345,7 @@ GatherInfo () {
             WriteLog Verbose Warning "Path doesn't contain sysctl tool"
         fi
     fi
+    WriteLog Verbose Info "SysctlPath: $SysctlPath"
     ProcessMax="$($SysctlPath -n kernel.pid_max)"
     PhpVersion="$(/usr/bin/php -v 2>/dev/null | grep -oE '^PHP\s[0-9]+\.[0-9]+\.[0-9]+' | awk '{ print $2}')"
     if [ -f /etc/php.ini ] ; then
