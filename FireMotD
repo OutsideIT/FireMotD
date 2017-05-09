@@ -349,15 +349,15 @@ GatherInfo () {
     ProcessMax="$($SysctlPath -n kernel.pid_max)"
     PhpVersion="$(/usr/bin/php -v 2>/dev/null | grep -oE '^PHP\s[0-9]+\.[0-9]+\.[0-9]+' | awk '{ print $2}')"
     if [ -f /etc/php.ini ] ; then
-        PhpMaxMemory="/etc/php.ini"
+        PhpIniPath="/etc/php.ini"
     elif [ -f /etc/php5/fpm/php.ini ] ; then
-        PhpMaxMemory="/etc/php5/fpm/php.ini"
+        PhpIniPath="/etc/php5/fpm/php.ini"
     fi
-    if [ -n "$PhpMaxMemory" ] ; then
-        PhpMaxMemory=$(tac $PhpMaxMemory | grep -F -m 1 memory_limit | sed -n 's/.* = \([0-9]*\)/\1/p' | sed 's/; .*//g')
-    fi
-    if [[ "$PhpMaxMemory" == "-1" ]]; then
-        PhpMaxMemory="Unlimited"
+    if [ -n "$PhpIniPath" ] ; then
+        PhpMaxMemory=$(tac $PhpIniPath | grep -F -m 1 memory_limit | sed -n 's/.* = \([0-9]*\)/\1/p' | sed 's/; .*//g')
+        if [[ "$PhpMaxMemory" == "-1" ]]; then
+            PhpMaxMemory="Unlimited"
+        fi
     fi
     MaxLeftOverChars=35
     Hostname="$(hostname)"
