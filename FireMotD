@@ -27,6 +27,7 @@
 
 Debug=0
 Verbose=0
+HideVersion=0
 LogLocal=''
 UpdateFile='/var/tmp/updatecount.txt'
 ScriptPath="$(readlink -f "$0")"
@@ -71,7 +72,7 @@ WriteLog () {
             echo "$Now: $ScriptName: $2: $3" >> "$LogLocal"
         elif [ "$1" = "Output" ] ; then 
             echo "${Now}: $ScriptName: $2: $3" >> "$LogLocal"
-		fi
+        fi
     fi
 }
 
@@ -594,8 +595,16 @@ GenerateOriginal256Color () {
     else
         Fto="##"
     fi
+
+    shownVersion=""
+    if [[ "$HideVersion" -eq 1 ]]; then
+        shownVersion="$CP1$CP1$CP1$CP1$CP1$CP1"
+    else
+        shownVersion="$ScriptVersion"
+    fi
+
     echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
-$BlueScheme \e[38;5;93m $Hostname $BlueScheme $Space\e[38;5;98m$ScriptVersion
+$BlueScheme \e[38;5;93m $Hostname $BlueScheme $Space\e[38;5;98m$SVC$shownVersion
 $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 \e[0;38;5;17m$Fto          \e[38;5;39mIp \e[38;5;93m= \e[38;5;33m$IpAddress
 \e[0;38;5;17m$Fto     \e[38;5;39mRelease \e[38;5;93m= \e[38;5;27m$OsVersion
@@ -633,8 +642,15 @@ echo -e "\e[0;38;5;17m$Fto   \e[38;5;39mCPU Usage \e[38;5;93m= \e[38;5;33m${CpuU
 
 GenerateBasic16Color () {
     WriteLog Verbose Info "Generating 16 color MotD"
+    shownVersion=""
+    if [[ "$HideVersion" -eq 1 ]]; then
+        shownVersion="$CP1$CP1$CP1$CP1$CP1$CP1"
+    else
+        shownVersion="$ScriptVersion"
+    fi
+
     echo -e "$CP1$CP1$CP12$CP1H$C1R$CP1$CP1
-$CP1$CP1$CP22$CP23 $HC$Hostname $CP23$C2R$SVC$ScriptVersion
+$CP1$CP1$CP22$CP23 $HC$Hostname $CP23$C2R$SVC$shownVersion
 $CP1$CP1$CP12$CP1H$C1R$CP1$CP1
 $CP1        ${KS}Ip $ES ${VCL}$IpAddress
 $CP1   ${KS}Release $ES ${VC}$OsVersion
@@ -671,6 +687,12 @@ $CP1 ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$Pro
 }
 
 GenerateHtmlTheme () {
+if [[ "$HideVersion" -eq 1 ]]; then
+    shownVersion=""
+else
+    shownVersion="$ScriptVersion"
+fi
+
 # shellcheck disable=SC2162
 read -d '' HtmlCode <<EOF
 <!doctype html><html lang="en">
@@ -805,7 +827,7 @@ read -d '' HtmlCode <<EOF
     <table>
         <thead>
             <th>$Hostname</th>
-            <th class="right">$ScriptVersion</th>
+            <th class="right">$shownVersion</th>
         </thead>
         <tbody>
             <tr>
@@ -936,15 +958,16 @@ Usage:
  $ScriptName [-vUhVs]
 
 Options:
- -h | --help               Shows this help and exits
- -v | --verbose            Verbose mode (shows messages)
- -V | --version            Shows version information and exits
- -t | --theme <Theme Name> Shows Motd info on screen, based on the chosen theme
- -C | --colortest          Prints color test to screen
- -M | --colormap           Prints color test to screen, with color numbers in it
- -U | --updates            Checks for system updates and prints count to stdout
- -S | --saveupdates        Checks for system updates and saves count to disk
-                           same as [ $ScriptName -U > $UpdateFile ]
+  -h | --help               Shows this help and exits
+  -v | --verbose            Verbose mode (shows messages)
+  -V | --version            Shows version information and exits
+  -t | --theme <Theme Name> Shows Motd info on screen, based on the chosen theme
+  -C | --colortest          Prints color test to screen
+  -M | --colormap           Prints color test to screen, with color numbers in it
+  -U | --updates            Checks for system updates and prints count to stdout
+  -S | --saveupdates        Checks for system updates and saves count to disk
+                            same as [ $ScriptName -U > $UpdateFile ]
+ -HV | --hideversion        Hides version number
 
 256-color themes:
  original
@@ -1012,6 +1035,8 @@ while :; do
             CheckSudo "$@" ; CountUpdates ; exit $? ;;
         -s|-S|--saveupdates|--SaveUpdates|--saveUpdates)
             CheckSudo "$@" ; CountUpdates > "$UpdateFile" && chmod 644 "$UpdateFile" ; exit $? ;;
+        -HV|--hideversion|--HideVersion)
+            HideVersion=1 ; shift ;;
         -t|-T|--Theme|--theme)
             shift ; Theme=$1 
             case "$Theme" in
@@ -1028,9 +1053,9 @@ while :; do
             esac
             shift ;;
         -C|--Colortest|--colortest|--ColorTest|--colorTest) 
-                ColorTest ; shift ;;
+            ColorTest ; shift ;;
         -M|--Colormap|--colormap|--ColorMap|--colorMap) 
-                ColorTest 0 ; shift ;;
+            ColorTest 0 ; shift ;;
         -*) echo "You specified a non-existant option: $1" ; exit 2 ;;
         *) break ;;
     esac
