@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v7.05.170509
+# Version:      v7.06.170514
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -9,11 +9,11 @@
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Recent History:
-#   20/02/17 => Fixed bug with SessionCount on login
 #   02/03/17 => Reverted sessions and test function (tbc)
 #   23/04/17 => CpuCount, CoreCount and SocketCount
 #   03/05/17 => Support for WSL Platform, Format rework attempt
 #   09/05/17 => PhpMaxMemory check
+#   14/05/17 => HideVersion (DR)
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
