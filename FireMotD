@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v7.08.170521
+# Version:      v7.09.170522
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -8,12 +8,6 @@
 #               of they day for users logging in.
 # On GitHub:    https://github.com/willemdh/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
-# Recent History:
-#   02/03/17 => Reverted sessions and test function (tbc)
-#   23/04/17 => CpuCount, CoreCount and SocketCount
-#   03/05/17 => Support for WSL Platform, Format rework attempt
-#   09/05/17 => PhpMaxMemory check
-#   14/05/17 => HideVersion (DR)
 # Copyright:
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -183,6 +177,50 @@ GetSessions () {
 }
 
 GatherInfo () {
+    WriteLog Verbose Info "Info - HostName"
+    MaxLeftOverChars=35
+    HostName="$(hostname)"
+    HostChars=$((${#HostName} + 8))
+    if (( HostChars > 47 )); then
+        HostName=${HostName:0:39}
+        HostChars=47
+    fi
+    LeftoverChars=$((MaxLeftOverChars - HostChars -10))
+    (( $LeftoverChars <= 0 )) && LeftoverChars=0
+    WriteLog Verbose Info "Info - HostName: $HostName"
+    WriteLog Verbose Info "Info - HostIp"
+    IpPath="$(which ip 2>/dev/null)"
+    WriteLog Debug Info "IpPath: $IpPath"
+    if [ -z "$IpPath" ] ; then
+        if [ -f /usr/sbin/ip ] ; then
+            IpPath="/usr/sbin/ip"
+        elif [ -f /sbin/ip ] ; then
+            IpPath="/sbin/ip"
+        else
+            WriteLog Verbose Warning "Path doesn't contain ip tool"
+        fi
+    fi
+    if [ ! -z $IpPath ] ; then
+        HostIp="$(${IpPath} route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
+        if [[ ! $HostIp =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            HostIp="$(${IpPath} route get 8.8.8.8 | head -1 | awk -F' ' '{print $(NF)}')"
+        fi
+        if [[ ! $HostIp =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            HostIp="Unable to parse ip. Please debug."
+        fi
+    else
+        HostIp="Unable to use ip route. Please debug."
+    fi
+    if [ -f /sys/hypervisor/uuid ] && [ "$(head -c 3 /sys/hypervisor/uuid)" == ec2 ]; then
+        CurlExec=$(which curl 2>/dev/null)
+        WgetExec=$(which wget 2>/dev/null)
+        if [[ (-f $CurlExec) && (-x $CurlExec) ]]; then
+            HostIp=$($CurlExec -s http://instance-data/latest/meta-data/public-ipv4)
+        elif [[ (-f $WgetExec) && (-x $WgetExec) ]]; then
+            HostIp=$($WgetExec -qO- http://instance-data/latest/meta-data/public-ipv4)
+        fi
+    fi
+    WriteLog Verbose Info "Info - HostIp: $HostIp"
     OsVersionFull="$(cat /etc/*release)"
     OsVersion="$(echo "$OsVersionFull" | head -n 1)"
     if [[ "$OsVersion" == "SUSE"* ]] ; then
@@ -197,37 +235,6 @@ GatherInfo () {
         OsVersion="$(echo "$OsVersionFull" | grep 'PRETTY_NAME' | cut -f2 -d'"')"
     elif [[ "$OsVersionFull" == *"DISTRIB_DESCRIPTION"* ]] ; then
         OsVersion="$(echo "$OsVersionFull" | grep 'DISTRIB_DESCRIPTION' | cut -f2 -d'"')"
-    fi
-    IpPath="$(which ip 2>/dev/null)"
-    WriteLog Verbose Info "IpPath: $IpPath"
-    if [ -z "$IpPath" ] ; then
-        if [ -f /usr/sbin/ip ] ; then
-            IpPath="/usr/sbin/ip"
-        elif [ -f /sbin/ip ] ; then
-            IpPath="/sbin/ip"
-        else
-            WriteLog Verbose Warning "Path doesn't contain ip tool"
-        fi
-    fi
-    if [ ! -z $IpPath ] ; then
-        IpAddress="$(${IpPath} route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
-        if [[ ! $IpAddress =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            IpAddress="$(${IpPath} route get 8.8.8.8 | head -1 | awk -F' ' '{print $(NF)}')"
-        fi
-        if [[ ! $IpAddress =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            IpAddress="Unable to parse ip. Please debug."
-        fi
-    else
-        IpAddress="Unable to use ip route. Please debug."
-    fi
-    if [ -f /sys/hypervisor/uuid ] && [ "$(head -c 3 /sys/hypervisor/uuid)" == ec2 ]; then
-        CurlExec=$(which curl 2>/dev/null)
-        WgetExec=$(which wget 2>/dev/null)
-        if [[ (-f $CurlExec) && (-x $CurlExec) ]]; then
-            IpAddress=$($CurlExec -s http://instance-data/latest/meta-data/public-ipv4)
-        elif [[ (-f $WgetExec) && (-x $WgetExec) ]]; then
-            IpAddress=$($WgetExec -qO- http://instance-data/latest/meta-data/public-ipv4)
-        fi
     fi
     Kernel="$(uname -rs)"
     UptimeDays=$(awk '{print int($1/86400)}' /proc/uptime)
@@ -360,18 +367,6 @@ GatherInfo () {
             PhpMaxMemory="Unlimited"
         fi
     fi
-    MaxLeftOverChars=35
-    Hostname="$(hostname)"
-    HostChars=$((${#Hostname} + 8))
-    if (( HostChars > 47 )); then
-        WriteLog Verbose Warning "HostChars $HostChars is greater then 47 characters."
-        Hostname=${Hostname:0:39}
-        WriteLog Verbose Warning "Hostname cut to $Hostname"
-        HostChars=47
-    fi
-    LeftoverChars=$((MaxLeftOverChars - HostChars -10))
-    (( $LeftoverChars <= 0 )) && LeftoverChars=0
-    WriteLog Verbose Info "LeftoverChars: $LeftoverChars"
     if [[ -x "/usr/bin/yum" ]] ; then
         UpdateType="yum"
     elif [[ -x "/usr/bin/zypper" ]] ; then
@@ -604,9 +599,9 @@ GenerateOriginal256Color () {
     fi
 
     echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
-$BlueScheme \e[38;5;93m $Hostname $BlueScheme $Space\e[38;5;98m$SVC$shownVersion
+$BlueScheme \e[38;5;93m $HostName $BlueScheme $Space\e[38;5;98m$SVC$shownVersion
 $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
-\e[0;38;5;17m$Fto          \e[38;5;39mIp \e[38;5;93m= \e[38;5;33m$IpAddress
+\e[0;38;5;17m$Fto          \e[38;5;39mIp \e[38;5;93m= \e[38;5;33m$HostIp
 \e[0;38;5;17m$Fto     \e[38;5;39mRelease \e[38;5;93m= \e[38;5;27m$OsVersion
 \e[0;38;5;17m$Fto      \e[38;5;39mKernel \e[38;5;93m= \e[38;5;27m$Kernel
 \e[0;38;5;17m$Fto    \e[38;5;39mPlatform \e[38;5;93m= \e[38;5;27m$Platform
@@ -650,9 +645,9 @@ GenerateBasic16Color () {
     fi
 
     echo -e "$CP1$CP1$CP12$CP1H$C1R$CP1$CP1
-$CP1$CP1$CP22$CP23 $HC$Hostname $CP23$C2R$SVC$shownVersion
+$CP1$CP1$CP22$CP23 $HC$HostName $CP23$C2R$SVC$shownVersion
 $CP1$CP1$CP12$CP1H$C1R$CP1$CP1
-$CP1        ${KS}Ip $ES ${VCL}$IpAddress
+$CP1        ${KS}Ip $ES ${VCL}$HostIp
 $CP1   ${KS}Release $ES ${VC}$OsVersion
 $CP1    ${KS}Kernel $ES ${VC}$Kernel
 $CP1  ${KS}Platform $ES ${VC}$Platform
@@ -823,16 +818,16 @@ read -d '' HtmlCode <<EOF
     </style>
 </head>
 <body>
-    <h1>System Overview - $Hostname</h1>
+    <h1>System Overview - $HostName</h1>
     <table>
         <thead>
-            <th>$Hostname</th>
+            <th>$HostName</th>
             <th class="right">$shownVersion</th>
         </thead>
         <tbody>
             <tr>
                 <td>IP</td>
-                <td><span>$IpAddress</span></td>
+                <td><span>$HostIp</span></td>
             </tr>
             <tr>
                 <td>Operating System</td>
@@ -933,8 +928,8 @@ cat << EOF
  $f1 ▄█▀███▀█▄    $f2███▀▀██▀▀███   $f3▄█▀██▀█▄   $f4 ▄█▀███▀█▄    $f5███▀▀██▀▀███   $f6▄█▀██▀█▄$rst
  $f1█▀███████▀█   $f2▀▀███▀▀███▀▀   $f3▀█▀██▀█▀   $f4█▀███████▀█   $f5▀▀███▀▀███▀▀   $f6▀█▀██▀█▀$rst
  $f1▀ ▀▄▄ ▄▄▀ ▀   $f2 ▀█▄ ▀▀ ▄█▀    $f3▀▄    ▄▀   $f4▀ ▀▄▄ ▄▄▀ ▀   $f5 ▀█▄ ▀▀ ▄█▀    $f6▀▄    ▄▀$rst
- $f2 Hostname: $Hostname  
- $f3 Ip: $IpAddress 
+ $f2 Hostname: $HostName  
+ $f3 Ip: $HostIp 
  $f4 Os: $OsVersion
  $f5 Kernel: $Kernel 
  $f6 Platform: $Platform  
