@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v7.09.170522
+# Version:      v7.10.170522
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -221,21 +221,23 @@ GatherInfo () {
         fi
     fi
     WriteLog Verbose Info "Info - HostIp: $HostIp"
-    OsVersionFull="$(cat /etc/*release)"
-    OsVersion="$(echo "$OsVersionFull" | head -n 1)"
-    if [[ "$OsVersion" == "SUSE"* ]] ; then
-        OsVersion=${OsVersion%% \(*}
+    WriteLog Verbose Info "Info - Release"
+    ReleaseFull="$(cat /etc/*release)"
+    Release="$(echo "$ReleaseFull" | head -n 1)"
+    if [[ "$Release" == "SUSE"* ]] ; then
+        Release=${Release%% \(*}
         PatchLevel="$(cat /etc/*release | sed -n 3p | sed 's/.*= //')"
-        OsVersion="${OsVersion}.$PatchLevel"
-    elif [[ "$OsVersion" == "openSUSE"* ]] ; then
-        OsVersion="$(< /etc/os-release sed -n 4p | sed 's/PRETTY_NAME="//' | sed 's/ (.*//')"
-    elif [[ "$OsVersion" == *"Raspbian"* ]] ; then
-        OsVersion="$(echo "$OsVersionFull" | head -n 1 | sed 's/.*"\(.*\)"[^"]*$/\1/')"
-    elif [[ "$OsVersionFull" == *"PRETTY_NAME"* ]] ; then
-        OsVersion="$(echo "$OsVersionFull" | grep 'PRETTY_NAME' | cut -f2 -d'"')"
-    elif [[ "$OsVersionFull" == *"DISTRIB_DESCRIPTION"* ]] ; then
-        OsVersion="$(echo "$OsVersionFull" | grep 'DISTRIB_DESCRIPTION' | cut -f2 -d'"')"
+        Release="${Release}.$PatchLevel"
+    elif [[ "$Release" == "openSUSE"* ]] ; then
+        Release="$(< /etc/os-release sed -n 4p | sed 's/PRETTY_NAME="//' | sed 's/ (.*//')"
+    elif [[ "$Release" == *"Raspbian"* ]] ; then
+        Release="$(echo "$ReleaseFull" | head -n 1 | sed 's/.*"\(.*\)"[^"]*$/\1/')"
+    elif [[ "$ReleaseFull" == *"PRETTY_NAME"* ]] ; then
+        Release="$(echo "$ReleaseFull" | grep 'PRETTY_NAME' | cut -f2 -d'"')"
+    elif [[ "$ReleaseFull" == *"DISTRIB_DESCRIPTION"* ]] ; then
+        Release="$(echo "$ReleaseFull" | grep 'DISTRIB_DESCRIPTION' | cut -f2 -d'"')"
     fi
+    WriteLog Verbose Info "Info - Release: $Release"
     Kernel="$(uname -rs)"
     UptimeDays=$(awk '{print int($1/86400)}' /proc/uptime)
     UptimeHours=$(awk '{print int($1%86400/3600)}' /proc/uptime)
@@ -602,7 +604,7 @@ GenerateOriginal256Color () {
 $BlueScheme \e[38;5;93m $HostName $BlueScheme $Space\e[38;5;98m$SVC$shownVersion
 $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 \e[0;38;5;17m$Fto          \e[38;5;39mIp \e[38;5;93m= \e[38;5;33m$HostIp
-\e[0;38;5;17m$Fto     \e[38;5;39mRelease \e[38;5;93m= \e[38;5;27m$OsVersion
+\e[0;38;5;17m$Fto     \e[38;5;39mRelease \e[38;5;93m= \e[38;5;27m$Release
 \e[0;38;5;17m$Fto      \e[38;5;39mKernel \e[38;5;93m= \e[38;5;27m$Kernel
 \e[0;38;5;17m$Fto    \e[38;5;39mPlatform \e[38;5;93m= \e[38;5;27m$Platform
 \e[0;38;5;17m$Fto      \e[38;5;39mUptime \e[38;5;93m= \e[38;5;33m${UptimeDays} \e[38;5;27mday(s). \e[38;5;33m${UptimeHours}\e[38;5;27m:\e[38;5;33m${UptimeMinutes}\e[38;5;27m:\e[38;5;33m${UptimeSeconds}"
@@ -648,7 +650,7 @@ GenerateBasic16Color () {
 $CP1$CP1$CP22$CP23 $HC$HostName $CP23$C2R$SVC$shownVersion
 $CP1$CP1$CP12$CP1H$C1R$CP1$CP1
 $CP1        ${KS}Ip $ES ${VCL}$HostIp
-$CP1   ${KS}Release $ES ${VC}$OsVersion
+$CP1   ${KS}Release $ES ${VC}$Release
 $CP1    ${KS}Kernel $ES ${VC}$Kernel
 $CP1  ${KS}Platform $ES ${VC}$Platform
 $CP1    ${KS}Uptime $ES ${VCL}${UptimeDays} ${VC}day(s). ${VCL}${UptimeHours}${VC}:${VCL}${UptimeMinutes}${VC}:${VCL}${UptimeSeconds}"
@@ -831,7 +833,7 @@ read -d '' HtmlCode <<EOF
             </tr>
             <tr>
                 <td>Operating System</td>
-                <td>$OsVersion</td>
+                <td>$Release</td>
             </tr>
             <tr>
                 <td>Kernel</td>
@@ -930,7 +932,7 @@ cat << EOF
  $f1▀ ▀▄▄ ▄▄▀ ▀   $f2 ▀█▄ ▀▀ ▄█▀    $f3▀▄    ▄▀   $f4▀ ▀▄▄ ▄▄▀ ▀   $f5 ▀█▄ ▀▀ ▄█▀    $f6▀▄    ▄▀$rst
  $f2 Hostname: $HostName  
  $f3 Ip: $HostIp 
- $f4 Os: $OsVersion
+ $f4 Os: $Release
  $f5 Kernel: $Kernel 
  $f6 Platform: $Platform  
  $bld$f1▄ ▀▄   ▄▀ ▄   $f2 ▄▄▄████▄▄▄    $f3  ▄██▄     $f4▄ ▀▄   ▄▀ ▄   $f5 ▄▄▄████▄▄▄    $f6  ▄██▄  $rst
