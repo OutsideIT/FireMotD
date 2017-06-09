@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v7.10.170522
+# Version:      v7.11.170608
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -72,7 +72,8 @@ WriteLog () {
 
 CountUpdates () {
     if [[ -x "/usr/bin/yum" ]] ; then
-        UpdateCount=$(($(sudo /usr/bin/yum -d 0 check-update 2>/dev/null | wc -l)-1))
+        YumExec=$(which yum 2>/dev/null)
+        UpdateCount=$(($($YumExec -d 0 check-update 2>/dev/null | wc -l)-1))
         if [ $UpdateCount == -1 ]; then
             UpdateCount=0
         fi
