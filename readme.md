@@ -125,17 +125,17 @@ If you don't have root access, just install everything on your user's folder and
 This is an example on how to record the system update package count daily.  
 This will update the file `/var/tmp/updatecount.txt` for later access.  
 Root privilege is required for this operation. 
-Only /etc/crontab and the files in /etc/cron.d/ have a username field.
+Only `/etc/crontab` and the files in `/etc/cron.d/` have a username field.
  
-##### So there you can do this:
+The recommended way to generate updatecount.txt is by creating a separate cron file for firemotd like this:
 
 ```bash
-sudo vim /etc/crontab
+sudo vim /etc/cron.d/firemotd
 # FireMotD system updates check (randomly execute between 0:00:00 and 5:59:59)
 0 0 * * * root perl -e 'sleep int(rand(21600))' && /usr/local/bin/FireMotD -S &>/dev/null
 ```
 
-##### From root's crontab you can use:
+But you can also put it in root's crontab (without the user field):
 
 ```bash
 sudo crontab -e
