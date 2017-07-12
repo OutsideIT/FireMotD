@@ -178,40 +178,18 @@ GetSessions () {
     fi
 }
 
-ExportData () {
-    if [[ ! -s "$ExportFile" ]] ; then
-        echo '{
-  "version": {
-    "Generated": "@logon",
-    "Value": "Unknown",
-    "LastRun": "Never"
-  },
-  "hostname": {
-    "Generated": "@logon",
-    "Value": "Unknown",
-    "LastRun": "Never"
-  },
-  "hostip": {
-    "Generated": "@logon",
-    "Value": "Unknown",
-    "LastRun": "Never"
-  }
-}' > $ExportFile
-    fi
+ExploreHostName () {
+    WriteLog Verbose Info "Exploring HostName"
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
-    WriteLog Verbose Info "Info - Exporting data to json"
     HostName="$(hostname)"
-    WriteLog Verbose Info "Info - Showing original ExportFile"
-    cat "$ExportFile"
-    WriteLog Verbose Info "Info - Writing ScriptVersion to ExportFile"
-    jq ".version.Value = \"$ScriptVersion\"" $ExportFile | sponge $ExportFile
-    jq ".version.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
-    WriteLog Verbose Info "Info - Writing HostName to ExportFile"
-    jq ".hostname.Value = \"$HostName\"" $ExportFile | sponge $ExportFile
-    jq ".hostname.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
-    WriteLog Verbose Info "Info - HostIp"
+    jq ".HostName.Value = \"$HostName\"" $ExportFile | sponge $ExportFile
+    jq ".HostName.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
+ExploreHostIp () {
+    WriteLog Verbose Info "Exploring HostIp"
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     IpPath="$(which ip 2>/dev/null)"
-    WriteLog Debug Info "IpPath: $IpPath"
     if [ -z "$IpPath" ] ; then
         if [ -f /usr/sbin/ip ] ; then
             IpPath="/usr/sbin/ip"
@@ -232,11 +210,339 @@ ExportData () {
     else
         HostIp="Unable to use ip route. Please debug."
     fi
-    jq ".hostip.Value = \"$HostIp\"" $ExportFile | sponge $ExportFile
-    jq ".hostip.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
-    WriteLog Verbose Info "Info - Showing updated ExportFile"
-    cat $ExportFile
+    if [ -f /sys/hypervisor/uuid ] && [ "$(head -c 3 /sys/hypervisor/uuid)" == ec2 ]; then
+        CurlExec=$(which curl 2>/dev/null)
+        WgetExec=$(which wget 2>/dev/null)
+        if [[ (-f $CurlExec) && (-x $CurlExec) ]]; then
+            HostIp=$($CurlExec -s http://instance-data/latest/meta-data/public-ipv4)
+        elif [[ (-f $WgetExec) && (-x $WgetExec) ]]; then
+            HostIp=$($WgetExec -qO- http://instance-data/latest/meta-data/public-ipv4)
+        fi
+    fi
+    jq ".HostIp.Value = \"$HostIp\"" $ExportFile | sponge $ExportFile
+    jq ".HostIp.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
 
+ExploreRelease () {
+    WriteLog Verbose Info "Exploring Release"
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    ReleaseFull="$(cat /etc/*release)"
+    Release="$(echo "$ReleaseFull" | head -n 1)"
+    if [[ "$Release" == "SUSE"* ]] ; then
+        Release=${Release%% \(*}
+        PatchLevel="$(cat /etc/*release | sed -n 3p | sed 's/.*= //')"
+        Release="${Release}.$PatchLevel"
+    elif [[ "$Release" == "openSUSE"* ]] ; then
+        Release="$(< /etc/os-release sed -n 4p | sed 's/PRETTY_NAME="//' | sed 's/ (.*//')"
+    elif [[ "$Release" == *"Raspbian"* ]] ; then
+        Release="$(echo "$ReleaseFull" | head -n 1 | sed 's/.*"\(.*\)"[^"]*$/\1/')"
+    elif [[ "$ReleaseFull" == *"PRETTY_NAME"* ]] ; then
+        Release="$(echo "$ReleaseFull" | grep 'PRETTY_NAME' | cut -f2 -d'"')"
+    elif [[ "$ReleaseFull" == *"DISTRIB_DESCRIPTION"* ]] ; then
+        Release="$(echo "$ReleaseFull" | grep 'DISTRIB_DESCRIPTION' | cut -f2 -d'"')"
+    fi
+    jq ".Release.Value = \"$Release\"" $ExportFile | sponge $ExportFile
+    jq ".Release.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
+ExploreKernel () {
+    WriteLog Verbose Info "Exploring Kernel"
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    Kernel="$(uname -rs)"
+    jq ".Kernel.Value = \"$Kernel\"" $ExportFile | sponge $ExportFile
+    jq ".Kernel.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
+ExplorePlatform () {
+    WriteLog Verbose Info "Exploring Platform"
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    Dmesg="$(dmesg 2>/dev/null)"
+    Dmi="$(echo "$Dmesg" | grep "DMI:")"
+    Rasp="$(echo "$Dmesg" | grep "Raspberry")"
+    Xen="$(echo "$Dmesg" | grep -i 'xen version')"
+    [[ -f "/proc/1/comm" ]] && InitSystem="$(cat /proc/1/comm)"
+    if [[ "$Dmi" = *"QEMU"* ]] ; then
+        Platform="$(echo "$Dmi" | sed 's/^.*QEMU/QEMU/' | sed 's/, B.*//')"
+    elif [[ "$Dmi" = *"VMware"* ]] ; then
+        Platform="$(echo "$Dmi" | sed 's/^.*VMware/VMware/' | sed 's/, B.*//')"
+    elif [[ "$Dmi" = *"FUJITSU PRIMERGY"* ]] ; then
+        Platform="$(echo "$Dmi" | sed 's/^.*FUJITSU PRIMERGY/Fujitsu Primergy/' | sed 's/, B.*//')"
+    elif [[ "$Dmi" = *"VirtualBox"* ]] ; then
+        Platform="$(echo "$Dmi" | sed 's/^.*VirtualBox/VirtualBox/' | sed 's/ .*//')"
+    elif [[ "$Dmi" = *"DMI:"* ]] ; then
+            Platform="$(echo "$Dmi" | sed -n -e 's/^.*DMI: //p')"
+    elif [[ "$Dmi" = *"klogctl"* ]] ; then
+            Platform="Windows Subsytem for Linux"
+    elif [[ "$Xen" = *"Xen version"* ]] ; then
+            Platform="Xen Hypervisor v""$(echo "$Xen" | sed -n -e 's/^.*Xen version: //p')"
+    elif [[ "$Rasp" = *"Rasp"* ]] ; then
+            Platform=${Rasp//*: /}
+    elif [[ $(uname -r) =~ "pine64-longsleep" ]] ; then
+            Platform="Pine A64"
+            _mem="$(< /proc/meminfo grep MemTotal | awk '{print $2}')"
+            if [ $_mem -gt  500000 ] && [ $_mem -gt  503000 ]; then Platform="Pine A64 512MB Rev B Board"; fi
+            if [ $_mem -gt 1000000 ] && [ $_mem -gt 1006000 ]; then Platform="Pine A64+ 1GB Rev B Board"; fi
+            if [ $_mem -gt 2000000 ] && [ $_mem -gt 2012000 ]; then Platform="Pine A64+ 2GB Rev C Board"; fi
+    elif [[ $(uname -r) =~ "Microsoft" ]] ; then
+        Platform="Windows Subsystem for Linux"
+    elif [[ "$InitSystem" == "systemd" ]] ; then
+        Custom="$(systemd-detect-virt)"
+        if [[ ! -z $Custom ]] ; then
+            if [[ "$Custom" = *"openvz"* ]] ; then
+                Platform="OpenVZ"
+            elif [[ "$Custom" = *"vmware"* ]] ; then
+                Platform="VMware Virtual Platform"
+            else
+                Platform=$Custom
+            fi
+        else
+            Platform="Unknown"
+        fi
+    else
+        Platform="Unknown"
+    fi
+    jq ".Platform.Value = \"$Platform\"" $ExportFile | sponge $ExportFile
+    jq ".Platform.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
+ExploreUptime () {
+    WriteLog Verbose Info "Exploring Uptime"
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    UptimeDays=$(awk '{print int($1/86400)}' /proc/uptime)
+    UptimeHours=$(awk '{print int($1%86400/3600)}' /proc/uptime)
+    UptimeMinutes=$(awk '{print int(($1%3600)/60)}' /proc/uptime)
+    UptimeSeconds=$(awk '{print int($1%60)}' /proc/uptime)
+    jq ".Uptime.Days = \"$UptimeDays\"" $ExportFile | sponge $ExportFile
+    jq ".Uptime.Hours = \"$UptimeHours\"" $ExportFile | sponge $ExportFile
+    jq ".Uptime.Minutes = \"$UptimeMinutes\"" $ExportFile | sponge $ExportFile
+    jq ".Uptime.Seconds = \"$UptimeSeconds\"" $ExportFile | sponge $ExportFile
+    jq ".Uptime.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
+ExploreCpuUsage () {
+    WriteLog Verbose Info "Exploring CpuUsage"
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    CpuUsageAverage="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
+    CpuUsageCpuCount="$(< /proc/cpuinfo grep -c processor)"
+    if [[ "$Platform" == "OpenVZ" ]] ; then
+        CpuUsageCoreCount="$(cat /proc/cpuinfo | grep "processor" | sort -u | wc -l)"
+    else
+        CpuUsageCoreCount="$(lscpu | grep 'Core(s) per socket:' | head -1 | awk -F " " '{print $4}')"
+    fi
+    if [[ "$(jq ".Platform.Value" $ExportFile)" == "OpenVZ" ]] ; then
+        CpuUsageSocketCount="$(cat /proc/cpuinfo | grep "physical id" | sort -u | wc -l)"
+    else
+        CpuUsageSocketCount="$(lscpu | grep 'Socket(s):' | head -1 | awk -F " " '{print $2}')"
+    fi
+    jq ".CpuUsage.Average = \"$CpuUsageAverage\"" $ExportFile | sponge $ExportFile
+    jq ".CpuUsage.CpuCount = \"$CpuUsageCpuCount\"" $ExportFile | sponge $ExportFile
+    jq ".CpuUsage.CoreCount = \"$CpuUsageCoreCount\"" $ExportFile | sponge $ExportFile
+    jq ".CpuUsage.SocketCount = \"$CpuUsageSocketCount\"" $ExportFile | sponge $ExportFile
+    jq ".CpuUsage.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
+ExploreCpuLoad () {
+    WriteLog Verbose Info "Exploring CpuLoad"
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    CpuLoad="$(uptime | grep -ohe '[s:][: ].*' | awk '{print "1m: "$2 " 5m: "$3 " 15m: " $4}')"
+    jq ".CpuLoad.Value = \"$CpuLoad\"" $ExportFile | sponge $ExportFile
+    jq ".CpuLoad.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
+ExploreMemory () {
+    WriteLog Verbose Info "Exploring Memory"
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    MemTotalB="$(< /proc/meminfo grep MemTotal | awk '{print $2}')"
+    MemTotalGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$MemTotalB"/1024/1024)")"
+    MemFreeB="$(< /proc/meminfo grep MemFree | awk '{print $2}')"
+    MemFreeGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$MemFreeB"/1024/1024)")"
+    MemUsedB="$((MemTotalB - MemFreeB))"
+    MemUsedGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$MemUsedB"/1024/1024)")"
+    MemFreePerc=$(echo "scale=2; $MemFree*100/$MemTotal" | bc)
+    MemFreePerc="$(LC_NUMERIC=C printf "%.0f" "$MemFreePerc")"
+    MemUsedPerc=$(echo "100-$MemFreePerc" | bc)
+    jq ".Memory.TotalGB = \"$MemTotalGB\"" $ExportFile | sponge $ExportFile
+    jq ".Memory.FreeGB = \"$MemFreeGB\"" $ExportFile | sponge $ExportFile
+    jq ".Memory.UsedGB = \"$MemUsedGB\"" $ExportFile | sponge $ExportFile
+    jq ".Memory.FreePerc = \"$MemFreePerc\"" $ExportFile | sponge $ExportFile
+    jq ".Memory.UsedPerc = \"$MemUsedPerc\"" $ExportFile | sponge $ExportFile
+    jq ".Memory.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
+ExploreSwap () {
+    WriteLog Verbose Info "Exploring Swap"
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    SwapTotalB="$(< /proc/meminfo grep SwapTotal | awk '{print $2}')"
+    SwapTotalGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$SwapTotalB"/1024/1024)")"
+    SwapFreeB="$(< /proc/meminfo grep SwapFree | awk '{print $2}')"
+    SwapFreeGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$SwapFreeB"/1024/1024)")"
+    SwapUsedB="$((SwapTotalB - SwapFreeB))"
+    SwapUsedGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;$SwapUsedB/1024/1024)")"
+    SwapFreePerc=$(echo "scale=2; $SwapFreeB*100/$SwapTotalB" | bc  2> /dev/null)
+    SwapFreePerc="$(LC_NUMERIC=C printf "%.0f" "$SwapFreePerc")"
+    SwapUsedPerc=$(echo "100-$SwapFreePerc" | bc)
+    jq ".Swap.TotalGB = \"$SwapTotalGB\"" $ExportFile | sponge $ExportFile
+    jq ".Swap.FreeGB = \"$SwapFreeGB\"" $ExportFile | sponge $ExportFile
+    jq ".Swap.UsedGB = \"$SwapUsedGB\"" $ExportFile | sponge $ExportFile
+    jq ".Swap.FreePerc = \"$SwapFreePerc\"" $ExportFile | sponge $ExportFile
+    jq ".Swap.UsedPerc = \"$SwapUsedPerc\"" $ExportFile | sponge $ExportFile
+    jq ".Swap.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
+ExploreDiskRoot () {
+    WriteLog Verbose Info "Exploring DiskRoot"
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    DikRootTotalB="$(df -kP / | tail -1 | awk '{print $2}')"
+    DiskRootTotalGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$RootTotalB"/1024/1024)")"
+    DiskRootFreeB="$(df -kP / | tail -1 | awk '{print $4}')"
+    DiskRootFreeGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$RootFreeB"/1024/1024)")"
+    DiskRootUsedB="$(df -kP / | tail -1 | awk '{print $3}')"
+    DiskRootUsedGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$RootUsedB"/1024/1024)")"
+    DiskRootUsedPerc="$(df -kP / | tail -1 | awk '{print $5}'| sed s'/%$//')"
+    DiskRootFreePerc="$((100 - RootUsedPerc))"
+    jq ".DiskRoot.TotalGB = \"$DiskRootTotalGB\"" $ExportFile | sponge $ExportFile
+    jq ".DiskRoot.FreeGB = \"$DiskRootFreeGB\"" $ExportFile | sponge $ExportFile
+    jq ".DiskRoot.UsedGB = \"$DiskRootUsedGB\"" $ExportFile | sponge $ExportFile
+    jq ".DiskRoot.FreePerc = \"$DiskRootFreePerc\"" $ExportFile | sponge $ExportFile
+    jq ".DiskRoot.UsedPerc = \"$DiskRootUsedPerc\"" $ExportFile | sponge $ExportFile
+    jq ".DiskRoot.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
+ExploreUpdates () {
+    WriteLog Verbose Info "Exploring Updates"
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    if [[ -x "/usr/bin/yum" ]] ; then
+        UpdateType="yum"
+        YumExec=$(which yum 2>/dev/null)
+        UpdateCount=$(($($YumExec -d 0 check-update 2>/dev/null | wc -l)-1))
+        if [ $UpdateCount == -1 ]; then
+            UpdateCount=0
+        fi
+    elif [[ -x "/usr/bin/zypper" ]] ; then
+        UpdateType="zypper"
+        UpdateCount=$(zypper list-updates | wc -l)
+        UpdateCount=$((UpdateCount-4))
+        if ((UpdateCount<=0)) ; then
+            UpdateCount=0
+        fi
+    elif [[ -x "/usr/bin/apt-get" ]] ; then
+        UpdateType="apt"
+        UpdateCount=$(apt-get update > /dev/null; apt-get upgrade -u -s | grep -c -P "^Inst")
+    fi
+    jq ".Updates.Type = \"$UpdateType\"" $ExportFile | sponge $ExportFile
+    jq ".Updates.Count = \"$UpdateCount\"" $ExportFile | sponge $ExportFile
+    jq ".Updates.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
+ExportData () {
+    if [[ ! -s "$ExportFile" ]] ; then
+        echo '{
+  "ApacheVersion": {
+    "Generated": "@never",
+    "Value": "Unknown",
+    "LastRun": "Never"
+  },
+  "HostName": {
+    "Generated": "@logon",
+    "Value": "Unknown",
+    "LastRun": "Never"
+  },
+  "HostIp": {
+    "Generated": "@cron",
+    "Value": "Unknown",
+    "LastRun": "Never"
+  },
+  "Release": {
+    "Generated": "@cron",
+    "Value": "Unknown",
+    "LastRun": "Never"
+  },
+  "Kernel": {
+    "Generated": "@cron",
+    "Value": "Unknown",
+    "LastRun": "Never"
+  },
+  "Platform": {
+    "Generated": "@cron",
+    "Value": "Unknown",
+    "LastRun": "Never"
+  },
+  "Uptime": {
+    "Generated": "@logon",
+    "Days": "Unknown",
+    "Hours": "Unknown",
+    "Minutes": "Unknown",
+    "Seconds": "Unknown",
+    "LastRun": "Never"
+  },
+  "CpuUsage": {
+    "Generated": "@logon",
+    "Average": "Unknown",
+    "CpuCount": "Unknown",
+    "CoreCount": "Unknown",
+    "SocketCount": "Unknown",
+    "LastRun": "Never"
+  },
+  "CpuLoad": {
+    "Generated": "@logon",
+    "Value": "Unknown",
+    "LastRun": "Never"
+  },
+  "Memory": {
+    "Generated": "@logon",
+    "TotalGB": "Unknown",
+    "FreeGB": "Unknown",
+    "UsedGB": "Unknown",
+    "FreePerc": "Unknown",
+    "UsedPerc": "Unknown",
+    "LastRun": "Never"
+  },
+  "Swap": {
+    "Generated": "@logon",
+    "TotalGB": "Unknown",
+    "FreeGB": "Unknown",
+    "UsedGB": "Unknown",
+    "FreePerc": "Unknown",
+    "UsedPerc": "Unknown",
+    "LastRun": "Never"
+  },
+  "DiskRoot": {
+    "Generated": "@logon",
+    "TotalGB": "Unknown",
+    "FreeGB": "Unknown",
+    "UsedGB": "Unknown",
+    "FreePerc": "Unknown",
+    "UsedPerc": "Unknown",
+    "LastRun": "Never"
+  },
+  "Updates": {
+    "Generated": "@cron",
+    "Type": "Unknown",
+    "Count": "Unknown",
+    "LastRun": "Never"
+  }
+}' > $ExportFile
+        chmod 766 $ExportFile
+    fi
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    WriteLog Verbose Info "Original ExportFile: $ExportFile"
+    while read -r val ; do
+        echo "$(Explore${val})"
+    done < <(jq -r 'to_entries[] | select(.value.Generated == "@cron") | .key' $ExportFile)
+    WriteLog Verbose Info "Updated ExportFile: $ExportFile"
+}
+
+LoadData () { 
+    WriteLog Verbose Info "Loading logon data"
+    if [[ -s "$ExportFile" ]] ; then
+        while read -r val ; do
+           echo "$(Explore${val})"
+        done < <(jq -r 'to_entries[] | select(.value.Generated == "@logon") | .key' $ExportFile)
+    else
+        WriteLog Output Info "No FireMotD ExportFile detected. Please generate with .\\FireMotD -L"
+        exit 2
+    fi
+    WriteLog Verbose Info "Info - Data Loaded successfully"
 }
 
 GatherInfo () {
@@ -251,29 +557,8 @@ GatherInfo () {
     LeftoverChars=$((MaxLeftOverChars - HostChars -10))
     (( $LeftoverChars <= 0 )) && LeftoverChars=0
     WriteLog Verbose Info "Info - HostName: $HostName"
-    WriteLog Verbose Info "Info - HostIp"
-    IpPath="$(which ip 2>/dev/null)"
-    WriteLog Debug Info "IpPath: $IpPath"
-    if [ -z "$IpPath" ] ; then
-        if [ -f /usr/sbin/ip ] ; then
-            IpPath="/usr/sbin/ip"
-        elif [ -f /sbin/ip ] ; then
-            IpPath="/sbin/ip"
-        else
-            WriteLog Verbose Warning "Path doesn't contain ip tool"
-        fi
-    fi
-    if [ ! -z $IpPath ] ; then
-        HostIp="$(${IpPath} route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
-        if [[ ! $HostIp =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            HostIp="$(${IpPath} route get 8.8.8.8 | head -1 | awk -F' ' '{print $(NF)}')"
-        fi
-        if [[ ! $HostIp =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            HostIp="Unable to parse ip. Please debug."
-        fi
-    else
-        HostIp="Unable to use ip route. Please debug."
-    fi
+    WriteLog Verbose Info "Exploring network" 
+    ExploreNetwork
     if [ -f /sys/hypervisor/uuid ] && [ "$(head -c 3 /sys/hypervisor/uuid)" == ec2 ]; then
         CurlExec=$(which curl 2>/dev/null)
         WgetExec=$(which wget 2>/dev/null)
@@ -655,33 +940,87 @@ GenerateOriginal256Color () {
     else
         Fto="##"
     fi
-
-    shownVersion=""
+    ShownVersion=""
     if [[ "$HideVersion" -eq 1 ]]; then
-        shownVersion="$CP1$CP1$CP1$CP1$CP1$CP1"
+        ShownVersion="$CP1$CP1$CP1$CP1$CP1$CP1"
     else
-        shownVersion="$ScriptVersion"
+        ShownVersion="$ScriptVersion"
     fi
-
-    echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
-$BlueScheme \e[38;5;93m $HostName $BlueScheme $Space\e[38;5;98m$SVC$shownVersion
-$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
-\e[0;38;5;17m$Fto          \e[38;5;39mIp \e[38;5;93m= \e[38;5;33m$HostIp
-\e[0;38;5;17m$Fto     \e[38;5;39mRelease \e[38;5;93m= \e[38;5;27m$Release
-\e[0;38;5;17m$Fto      \e[38;5;39mKernel \e[38;5;93m= \e[38;5;27m$Kernel
-\e[0;38;5;17m$Fto    \e[38;5;39mPlatform \e[38;5;93m= \e[38;5;27m$Platform
-\e[0;38;5;17m$Fto      \e[38;5;39mUptime \e[38;5;93m= \e[38;5;33m${UptimeDays} \e[38;5;27mday(s). \e[38;5;33m${UptimeHours}\e[38;5;27m:\e[38;5;33m${UptimeMinutes}\e[38;5;27m:\e[38;5;33m${UptimeSeconds}"
-    if [[ ! -z $InstallDate ]] ; then
+    HostName=$(jq ".HostName.Value" $ExportFile)
+    if [[ "$HostName" != "null" ]] && [[ "$HostName" != "" ]] ; then
+        echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
+$BlueScheme \e[38;5;93m $HostName $BlueScheme $Space\e[38;5;98m$SVC$ShownVersion
+$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme"
+    fi
+    HostIp=$(jq ".HostIp.Value" $ExportFile)
+    if [[ ! -z $HostIp ]] && [[ "$HostIp" != "null" ]] ; then
+        echo -e "\e[0;38;5;17m$Fto          \e[38;5;39mIp \e[38;5;93m= \e[38;5;33m$HostIp"
+    fi
+    Release=$(jq ".Release.Value" $ExportFile)
+    if [[ ! -z $Release ]] && [[ "$Release" != "null" ]] ; then
+        echo -e "\e[0;38;5;17m$Fto     \e[38;5;39mRelease \e[38;5;93m= \e[38;5;27m$Release"
+    fi
+    Kernel=$(jq ".Kernel.Value" $ExportFile)
+    if [[ ! -z $Kernel ]] && [[ "$Kernel" != "null" ]] ; then
+        echo -e "\e[0;38;5;17m$Fto      \e[38;5;39mKernel \e[38;5;93m= \e[38;5;27m$Kernel"
+    fi
+    Platform=$(jq ".Platform.Value" $ExportFile)
+    if [[ ! -z $Platform ]] && [[ "$Platform" != "null" ]] ; then
+        echo -e "\e[0;38;5;17m$Fto    \e[38;5;39mPlatform \e[38;5;93m= \e[38;5;27m$Platform"
+    fi
+    UptimeDays=$(jq ".Uptime.Days" $ExportFile)
+    UptimeHours=$(jq ".Uptime.Hours" $ExportFile)
+    UptimeMinutes=$(jq ".Uptime.Minutes" $ExportFile)
+    UptimeSeconds=$(jq ".Uptime.Seconds" $ExportFile)
+    if [[ ! -z $UptimeDays ]] && [[ "$UptimeDays" != "null" ]] ; then
+        echo -e "\e[0;38;5;17m$Fto      \e[38;5;39mUptime \e[38;5;93m= \e[38;5;33m${UptimeDays} \e[38;5;27mday(s). \e[38;5;33m${UptimeHours}\e[38;5;27m:\e[38;5;33m${UptimeMinutes}\e[38;5;27m:\e[38;5;33m${UptimeSeconds}"
+    fi
+    InstallDate=$(jq ".InstallDate.Value" $ExportFile)
+    if [[ ! -z $InstallDate ]] && [[ "$InstallDate" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto   \e[38;5;39mInstalled \e[38;5;93m= \e[38;5;27m$InstallDate"
     fi
-echo -e "\e[0;38;5;17m$Fto   \e[38;5;39mCPU Usage \e[38;5;93m= \e[38;5;33m${CpuUtil}\e[38;5;27m% avg over \e[38;5;33m$CpuProc \e[38;5;27mcpu(s) ($CoreCount core(s) x $SocketCount socket(s))
-\e[0;38;5;17m$Fto    \e[38;5;39mCPU Load \e[38;5;93m= \e[38;5;27m$CpuLoad
-\e[0;38;5;17m$Fto      \e[38;5;39mMemory \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${MemFree}\e[38;5;27mGB (\e[38;5;33m$MemFreePerc\e[38;5;27m%), Used: \e[38;5;33m${MemUsed}\e[38;5;27mGB (\e[38;5;33m$MemUsedPerc\e[38;5;27m%), Total: \e[38;5;33m${MemTotal}\e[38;5;27mGB
-\e[0;38;5;17m$Fto        \e[38;5;39mSwap \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${SwapFree}\e[38;5;27mGB (\e[38;5;33m$SwapFreePerc\e[38;5;27m%), Used: \e[38;5;33m${SwapUsed}\e[38;5;27mGB (\e[38;5;33m$SwapUsedPerc\e[38;5;27m%), Total: \e[38;5;33m${SwapTotal}\e[38;5;27mGB
-\e[0;38;5;17m$Fto        \e[38;5;39mRoot \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${RootFree}\e[38;5;27mGB (\e[38;5;33m$RootFreePerc\e[38;5;27m%), Used: \e[38;5;33m${RootUsed}\e[38;5;27mGB (\e[38;5;33m$RootUsedPerc\e[38;5;27m%), Total: \e[38;5;33m${RootTotal}\e[38;5;27mGB
-\e[0;38;5;17m$Fto     \e[38;5;39mUpdates \e[38;5;93m= \e[38;5;33m$UpdateCount\e[38;5;27m ${UpdateType} updates available
-\e[0;38;5;17m$Fto    \e[38;5;39mSessions \e[38;5;93m= \e[38;5;33m$SessionCount\e[38;5;27m
-\e[0;38;5;17m$Fto   \e[38;5;39mProcesses \e[38;5;93m= \e[38;5;33m$ProcessCount\e[38;5;27m running processes of \e[38;5;33m$ProcessMax\e[38;5;27m maximum processes"
+    CpuUsageAverage=$(jq ".CpuUsage.Average" $ExportFile)
+    CpuUsageCpuCount=$(jq ".CpuUsage.CpuCount" $ExportFile)
+    CpuUsageCoreCount=$(jq ".CpuUsage.CoreCount" $ExportFile)
+    CpuUsageSocketCount=$(jq ".CpuUsage.SocketCount" $ExportFile)
+    if [[ ! -z $CpuUsageAverage ]] && [[ "$CpuUsageAverage" != "null" ]] ; then
+        echo -e "\e[0;38;5;17m$Fto   \e[38;5;39mCPU Usage \e[38;5;93m= \e[38;5;33m${CpuUsageAverage}\e[38;5;27m% avg over \e[38;5;33m$CpuUsageCpuCount \e[38;5;27mcpu(s) ($CpuUsageCoreCount core(s) x $CpuUsageSocketCount socket(s))"
+    fi
+    CpuLoad=$(jq ".CpuLoad.Value" $ExportFile)
+    if [[ ! -z $CpuLoad ]] && [[ "$CpuLoad" != "null" ]] ; then
+        echo -e "\e[0;38;5;17m$Fto    \e[38;5;39mCPU Load \e[38;5;93m= \e[38;5;27m$CpuLoad"
+    fi
+    MemTotalGB=$(jq ".Memory.TotalGB" $ExportFile)
+    MemFreeGB=$(jq ".Memory.FreeGB" $ExportFile)
+    MemUsedGB=$(jq ".Memory.UsedGB" $ExportFile)
+    MemFreePerc=$(jq ".Memory.FreePerc" $ExportFile)
+    MemUsedPerc=$(jq ".Memory.UsedPerc" $ExportFile)
+    if [[ ! -z $MemTotalGB ]] && [[ "$MemTotalGB" != "null" ]] ; then
+        echo -e "\e[0;38;5;17m$Fto      \e[38;5;39mMemory \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${MemFreeGB}\e[38;5;27mGB (\e[38;5;33m${MemFreePerc}\e[38;5;27m%), Used: \e[38;5;33m${MemUsedGB}\e[38;5;27mGB (\e[38;5;33m${MemUsedPerc}\e[38;5;27m%), Total: \e[38;5;33m${MemTotalGB}\e[38;5;27mGB"
+    fi
+    SwapTotalGB=$(jq ".Swap.TotalGB" $ExportFile)
+    SwapFreeGB=$(jq ".Swap.FreeGB" $ExportFile)
+    SwapUsedGB=$(jq ".Swap.UsedGB" $ExportFile)
+    SwapFreePerc=$(jq ".Swap.FreePerc" $ExportFile)
+    SwapUsedPerc=$(jq ".Swap.UsedPerc" $ExportFile)
+    if [[ ! -z $SwapTotalGB ]] && [[ "$SwapTotalGB" != "null" ]] ; then
+        echo -e "\e[0;38;5;17m$Fto        \e[38;5;39mSwap \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${SwapFreeGB}\e[38;5;27mGB (\e[38;5;33m$SwapFreePerc\e[38;5;27m%), Used: \e[38;5;33m${SwapUsedGB}\e[38;5;27mGB (\e[38;5;33m$SwapUsedPerc\e[38;5;27m%), Total: \e[38;5;33m${SwapTotalGB}\e[38;5;27mGB"
+    fi
+    DiskRootTotalGB=$(jq ".DiskRoot.TotalGB" $ExportFile)
+    DiskRootFreeGB=$(jq ".DiskRoot.FreeGB" $ExportFile)
+    DiskRootUsedGB=$(jq ".DiskRoot.UsedGB" $ExportFile)
+    DiskRootFreePerc=$(jq ".DiskRoot.FreePerc" $ExportFile)
+    DiskRootUsedPerc=$(jq ".DiskRoot.UsedPerc" $ExportFile)
+    if [[ ! -z $DiskRootTotalGB ]] && [[ "$DiskRootTotalGB" != "null" ]] ; then
+        echo -e "\e[0;38;5;17m$Fto        \e[38;5;39mRoot \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${DiskRootFreeGB}\e[38;5;27mGB (\e[38;5;33m$DiskRootFreePerc\e[38;5;27m%), Used: \e[38;5;33m${DiskRootUsedGB}\e[38;5;27mGB (\e[38;5;33m$DiskRootUsedPerc\e[38;5;27m%), Total: \e[38;5;33m${DiskRootTotalGB}\e[38;5;27mGB"
+    fi
+    UpdateCount=$(jq ".Updates.Count" $ExportFile)
+    UpdateType=$(jq ".Updates.Type" $ExportFile)
+    if [[ ! -z $UpdateCount ]] && [[ "$UpdateCount" != "null" ]] ; then
+        echo -e "\e[0;38;5;17m$Fto     \e[38;5;39mUpdates \e[38;5;93m= \e[38;5;33m$UpdateCount\e[38;5;27m ${UpdateType} updates available"
+    fi
+    echo -e "\e[0;38;5;17m$Fto    \e[38;5;39mSessions \e[38;5;93m= \e[38;5;33m$SessionCount\e[38;5;27m"
+    echo -e "\e[0;38;5;17m$Fto   \e[38;5;39mProcesses \e[38;5;93m= \e[38;5;33m$ProcessCount\e[38;5;27m running processes of \e[38;5;33m$ProcessMax\e[38;5;27m maximum processes"
     if [[ $HttpdVersion =~ ^[0-9.]+$ ]] ; then
         echo -e "\e[0;38;5;17m$Fto      \e[38;5;39mApache \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$HttpdVersion"
     fi
@@ -1091,19 +1430,16 @@ while :; do
             PrintVersion ; exit 0 ;;
         -h|--help|--Help)
             PrintHelp ; exit 0 ;;
-        yum|YUM|Yum|Zypper|zypper|-U|--Updates|--updates|-Y)
-            CheckSudo "$@" ; CountUpdates ; exit $? ;;
         -s|-S|--saveupdates|--SaveUpdates|--saveUpdates)
-            CheckSudo "$@" ; CountUpdates > "$UpdateFile" && chmod 644 "$UpdateFile" ; exit $? ;;
-        -E|--export|--Export)
             CheckSudo "$@" ; ExportData ; exit $? ;;
         -HV|--hideversion|--HideVersion)
             HideVersion=1 ; shift ;;
         -t|-T|--Theme|--theme)
-            shift ; Theme=$1 
+            shift ; Theme=$1
+            LoadData
             case "$Theme" in
                 original|Original) GatherInfo ; StartOriginalBlue ; GenerateOriginal256Color ;;
-                modern|Modern) GatherInfo ; GenerateOriginal256Color ;;
+                modern|Modern) GenerateOriginal256Color ;;
                 red|Red) GatherInfo ; StartRedTheme ; GenerateBasic16Color ;;
                 blue|Blue) GatherInfo ; StartBlueTheme ; GenerateBasic16Color ;;
                 gray|Gray) GatherInfo ; StartGrayTheme ; GenerateBasic16Color ;;
