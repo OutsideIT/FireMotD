@@ -23,8 +23,7 @@ Debug=1
 Verbose=1
 HideVersion=0
 LogLocal=''
-UpdateFile='/var/tmp/updatecount.txt'
-ExportFile='/var/tmp/FireJson.json'
+ExportFile='/var/tmp/FireMotD.json'
 ScriptPath="$(readlink -f "$0")"
 ScriptName="$(basename "$ScriptPath")"
 ScriptVersion=" $(< "$ScriptPath" grep "# Version: " | head -n1 | awk '{print $3}' | tr -cd '[:digit:.-]' | sed 's/.\{0\}$//') "
@@ -179,7 +178,6 @@ GetSessions () {
 }
 
 ExploreHostName () {
-    WriteLog Verbose Info "Exploring HostName"
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     HostName="$(hostname)"
     jq ".HostName.Value = \"$HostName\"" $ExportFile | sponge $ExportFile
@@ -187,7 +185,6 @@ ExploreHostName () {
 }
 
 ExploreHostIp () {
-    WriteLog Verbose Info "Exploring HostIp"
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     IpPath="$(which ip 2>/dev/null)"
     if [ -z "$IpPath" ] ; then
@@ -224,7 +221,6 @@ ExploreHostIp () {
 }
 
 ExploreRelease () {
-    WriteLog Verbose Info "Exploring Release"
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     ReleaseFull="$(cat /etc/*release)"
     Release="$(echo "$ReleaseFull" | head -n 1)"
@@ -246,7 +242,6 @@ ExploreRelease () {
 }
 
 ExploreKernel () {
-    WriteLog Verbose Info "Exploring Kernel"
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     Kernel="$(uname -rs)"
     jq ".Kernel.Value = \"$Kernel\"" $ExportFile | sponge $ExportFile
@@ -254,7 +249,6 @@ ExploreKernel () {
 }
 
 ExplorePlatform () {
-    WriteLog Verbose Info "Exploring Platform"
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     Dmesg="$(dmesg 2>/dev/null)"
     Dmi="$(echo "$Dmesg" | grep "DMI:")"
@@ -306,7 +300,6 @@ ExplorePlatform () {
 }
 
 ExploreUptime () {
-    WriteLog Verbose Info "Exploring Uptime"
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     UptimeDays=$(awk '{print int($1/86400)}' /proc/uptime)
     UptimeHours=$(awk '{print int($1%86400/3600)}' /proc/uptime)
@@ -320,7 +313,6 @@ ExploreUptime () {
 }
 
 ExploreCpuUsage () {
-    WriteLog Verbose Info "Exploring CpuUsage"
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     CpuUsageAverage="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
     CpuUsageCpuCount="$(< /proc/cpuinfo grep -c processor)"
@@ -342,7 +334,6 @@ ExploreCpuUsage () {
 }
 
 ExploreCpuLoad () {
-    WriteLog Verbose Info "Exploring CpuLoad"
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     CpuLoad="$(uptime | grep -ohe '[s:][: ].*' | awk '{print "1m: "$2 " 5m: "$3 " 15m: " $4}')"
     jq ".CpuLoad.Value = \"$CpuLoad\"" $ExportFile | sponge $ExportFile
@@ -350,7 +341,6 @@ ExploreCpuLoad () {
 }
 
 ExploreMemory () {
-    WriteLog Verbose Info "Exploring Memory"
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     MemTotalB="$(< /proc/meminfo grep MemTotal | awk '{print $2}')"
     MemTotalGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$MemTotalB"/1024/1024)")"
@@ -358,7 +348,7 @@ ExploreMemory () {
     MemFreeGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$MemFreeB"/1024/1024)")"
     MemUsedB="$((MemTotalB - MemFreeB))"
     MemUsedGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$MemUsedB"/1024/1024)")"
-    MemFreePerc=$(echo "scale=2; $MemFree*100/$MemTotal" | bc)
+    MemFreePerc=$(echo "scale=2; $MemFreeB*100/$MemTotalB" | bc)
     MemFreePerc="$(LC_NUMERIC=C printf "%.0f" "$MemFreePerc")"
     MemUsedPerc=$(echo "100-$MemFreePerc" | bc)
     jq ".Memory.TotalGB = \"$MemTotalGB\"" $ExportFile | sponge $ExportFile
@@ -370,7 +360,6 @@ ExploreMemory () {
 }
 
 ExploreSwap () {
-    WriteLog Verbose Info "Exploring Swap"
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     SwapTotalB="$(< /proc/meminfo grep SwapTotal | awk '{print $2}')"
     SwapTotalGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$SwapTotalB"/1024/1024)")"
@@ -390,16 +379,15 @@ ExploreSwap () {
 }
 
 ExploreDiskRoot () {
-    WriteLog Verbose Info "Exploring DiskRoot"
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
-    DikRootTotalB="$(df -kP / | tail -1 | awk '{print $2}')"
-    DiskRootTotalGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$RootTotalB"/1024/1024)")"
+    DiskRootTotalB="$(df -kP / | tail -1 | awk '{print $2}')"
+    DiskRootTotalGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$DiskRootTotalB"/1024/1024)")"
     DiskRootFreeB="$(df -kP / | tail -1 | awk '{print $4}')"
-    DiskRootFreeGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$RootFreeB"/1024/1024)")"
+    DiskRootFreeGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$DiskRootFreeB"/1024/1024)")"
     DiskRootUsedB="$(df -kP / | tail -1 | awk '{print $3}')"
-    DiskRootUsedGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$RootUsedB"/1024/1024)")"
+    DiskRootUsedGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$DiskRootUsedB"/1024/1024)")"
     DiskRootUsedPerc="$(df -kP / | tail -1 | awk '{print $5}'| sed s'/%$//')"
-    DiskRootFreePerc="$((100 - RootUsedPerc))"
+    DiskRootFreePerc="$((100 - DiskRootUsedPerc))"
     jq ".DiskRoot.TotalGB = \"$DiskRootTotalGB\"" $ExportFile | sponge $ExportFile
     jq ".DiskRoot.FreeGB = \"$DiskRootFreeGB\"" $ExportFile | sponge $ExportFile
     jq ".DiskRoot.UsedGB = \"$DiskRootUsedGB\"" $ExportFile | sponge $ExportFile
@@ -409,7 +397,6 @@ ExploreDiskRoot () {
 }
 
 ExploreUpdates () {
-    WriteLog Verbose Info "Exploring Updates"
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     if [[ -x "/usr/bin/yum" ]] ; then
         UpdateType="yum"
@@ -434,14 +421,105 @@ ExploreUpdates () {
     jq ".Updates.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
 }
 
+ExploreProcesses () {
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    SessionCount="$(who | grep -c "$USER") sessions"
+    jq ".Sessions.Count = \"$SessionCount\"" $ExportFile | sponge $ExportFile
+    jq ".Sessions.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
+ExploreSessions () {
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    ProcessCount="$(ps -A --no-headers | wc -l)"
+    SysctlPath="$(which sysctl 2>/dev/null)"
+    if [ -z "$SysctlPath" ] ; then
+        if [ -f /usr/sbin/sysctl ] ; then
+            SysctlPath="/usr/sbin/sysctl"
+        elif [ -f /sbin/sysctl ] ; then
+            SysctlPath="/sbin/sysctl"
+        else
+            WriteLog Verbose Warning "Path doesn't contain sysctl tool"
+        fi
+    fi
+    ProcessMax="$($SysctlPath -n kernel.pid_max)"
+    jq ".Processes.Count = \"$ProcessCount\"" $ExportFile | sponge $ExportFile
+    jq ".Processes.Max = \"$ProcessMax\"" $ExportFile | sponge $ExportFile
+    jq ".Processes.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
+ExploreHttpd () {
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    HttpdPath="$(which httpd 2>/dev/null)"
+    [[ ! -f $HttpdPath ]] && HttpdPath="/usr/sbin/apache2ctl"
+    [[ ! -f $HttpdPath ]] && HttpdPath="/usr/sbin/apache2"
+    if [[ (-f $HttpdPath) && (-x $HttpdPath) ]] ; then
+        HttpdVersion="$(${HttpdPath} -v 2>/dev/null | grep "Server version" | sed -e 's/.*[^0-9]\([0-9].[0-9]\+.[0-9]\+\)[^0-9]*$/\1/')"
+    fi
+    jq ".Httpd.Version = \"$HttpdVersion\"" $ExportFile | sponge $ExportFile
+    jq ".Httpd.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
+ExploreNginx () {
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    NginxVersion=""
+    NginxPath="$(which nginx 2>/dev/null)"
+    if [[ (-f $NginxPath) && (-x $NginxPath) ]] ; then
+        NginxString="$(${NginxPath} -v 2>&1)"
+        NginxVersion="$(echo "$NginxString" | awk -F"/" '{print $2}')"
+    fi
+    jq ".Nginx.Version = \"$NginxVersion\"" $ExportFile | sponge $ExportFile
+    jq ".Nginx.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
+ExploreMysql () {
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    MySqlVersion=""
+    MySqlDistribution=""
+    MySqlPath="$(which mysql 2>/dev/null)"
+    if [[ (-f $MySqlPath) && (-x $MySqlPath) ]] ; then
+        MySqlString="$(${MySqlPath} --version 2>/dev/null)"
+        MySqlVersion="$(echo "$MySqlString" | awk '{print $3}')"
+        MySqlDistribution="$(echo "$MySqlString" | awk '{print $5}' | tr -d ',')"
+    fi
+    jq ".Mysql.Version = \"$MySqlVersion\"" $ExportFile | sponge $ExportFile
+    jq ".Mysql.Distribution = \"MySqlDistribution\"" $ExportFile | sponge $ExportFile
+    jq ".Mysql.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
+ExplorePostgres () {
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    PostgresVersion=""
+    PostgresPath="$(which psql 2>/dev/null)"
+    if [[ (-f $PostgresPath) && (-x $PostgresPath) ]] ; then
+        PostgresString="$(${PostgresPath} --version 2>/dev/null)"
+        PostgresVersion="$(echo "$PostgresString"  | head -n1 | awk '{print $3}')"
+    fi
+    jq ".Postgres.Version = \"$NginxVersion\"" $ExportFile | sponge $ExportFile
+    jq ".Postgres.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
+ExplorePhp () {
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    PhpVersion="$(/usr/bin/php -v 2>/dev/null | grep -oE '^PHP\s[0-9]+\.[0-9]+\.[0-9]+' | awk '{ print $2}')"
+    if [ -f /etc/php.ini ] ; then
+        PhpIniPath="/etc/php.ini"
+    elif [ -f /etc/php5/fpm/php.ini ] ; then
+        PhpIniPath="/etc/php5/fpm/php.ini"
+    fi
+    if [ -n "$PhpIniPath" ] ; then
+        PhpMaxMemory=$(tac $PhpIniPath | grep -F -m 1 memory_limit | sed -n 's/.* = \([0-9]*\)/\1/p' | sed 's/; .*//g')
+        if [[ "$PhpMaxMemory" == "-1" ]]; then
+            PhpMaxMemory="Unlimited"
+        fi
+    fi
+    jq ".Php.Version = \"$PhpVersion\"" $ExportFile | sponge $ExportFile
+    jq ".Php.MaxMemory = \"$PhpMaxMemory\"" $ExportFile | sponge $ExportFile
+    jq ".Php.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
 ExportData () {
     if [[ ! -s "$ExportFile" ]] ; then
         echo '{
-  "ApacheVersion": {
-    "Generated": "@never",
-    "Value": "Unknown",
-    "LastRun": "Never"
-  },
   "HostName": {
     "Generated": "@logon",
     "Value": "Unknown",
@@ -520,6 +598,44 @@ ExportData () {
     "Type": "Unknown",
     "Count": "Unknown",
     "LastRun": "Never"
+  },
+  "Sessions": {
+    "Generated": "@logon",
+    "Count": "Unknown",
+    "LastRun": "Never"
+  },
+  "Processes": {
+    "Generated": "@logon",
+    "Count": "Unknown",
+    "Max": "Unknown",
+    "LastRun": "Never"
+  },
+  "Httpd": {
+    "Generated": "@cron",
+    "Version": "Unknown",
+    "LastRun": "Never"
+  },
+  "Nginx": {
+    "Generated": "@cron",
+    "Version": "Unknown",
+    "LastRun": "Never"
+  },
+  "Mysql": {
+    "Generated": "@cron",
+    "Version": "Unknown",
+    "Distribution": "Unknown",
+    "LastRun": "Never"
+  },
+  "Postgres": {
+    "Generated": "@cron",
+    "Version": "Unknown",
+    "LastRun": "Never"
+  },
+  "Php": {
+    "Generated": "@cron",
+    "Version": "Unknown",
+    "MaxMemory": "Unknown",
+    "LastRun": "Never"
   }
 }' > $ExportFile
         chmod 766 $ExportFile
@@ -527,7 +643,8 @@ ExportData () {
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     WriteLog Verbose Info "Original ExportFile: $ExportFile"
     while read -r val ; do
-        echo "$(Explore${val})"
+        WriteLog Verbose Info "Exploring ${val}"
+        $(Explore${val})
     done < <(jq -r 'to_entries[] | select(.value.Generated == "@cron") | .key' $ExportFile)
     WriteLog Verbose Info "Updated ExportFile: $ExportFile"
 }
@@ -536,234 +653,24 @@ LoadData () {
     WriteLog Verbose Info "Loading logon data"
     if [[ -s "$ExportFile" ]] ; then
         while read -r val ; do
-           echo "$(Explore${val})"
+           WriteLog Verbose Info "Exploring ${val}"
+           $(Explore${val})
         done < <(jq -r 'to_entries[] | select(.value.Generated == "@logon") | .key' $ExportFile)
     else
-        WriteLog Output Info "No FireMotD ExportFile detected. Please generate with .\\FireMotD -L"
+        WriteLog Output Info "No FireMotD ExportFile detected. Please generate with .\\FireMotD -S"
         exit 2
     fi
-    WriteLog Verbose Info "Info - Data Loaded successfully"
+    WriteLog Verbose Info "Logon Data Loaded successfully"
 }
 
-GatherInfo () {
-    WriteLog Verbose Info "Info - HostName"
-    MaxLeftOverChars=35
+StartOrangeTheme () {
+    WriteLog Verbose Info "Function StartOrangeTheme started. "
     HostName="$(hostname)"
     HostChars=$((${#HostName} + 8))
     if (( HostChars > 47 )); then
         HostName=${HostName:0:39}
         HostChars=47
     fi
-    LeftoverChars=$((MaxLeftOverChars - HostChars -10))
-    (( $LeftoverChars <= 0 )) && LeftoverChars=0
-    WriteLog Verbose Info "Info - HostName: $HostName"
-    WriteLog Verbose Info "Exploring network" 
-    ExploreNetwork
-    if [ -f /sys/hypervisor/uuid ] && [ "$(head -c 3 /sys/hypervisor/uuid)" == ec2 ]; then
-        CurlExec=$(which curl 2>/dev/null)
-        WgetExec=$(which wget 2>/dev/null)
-        if [[ (-f $CurlExec) && (-x $CurlExec) ]]; then
-            HostIp=$($CurlExec -s http://instance-data/latest/meta-data/public-ipv4)
-        elif [[ (-f $WgetExec) && (-x $WgetExec) ]]; then
-            HostIp=$($WgetExec -qO- http://instance-data/latest/meta-data/public-ipv4)
-        fi
-    fi
-    WriteLog Verbose Info "Info - HostIp: $HostIp"
-    WriteLog Verbose Info "Info - Release"
-    ReleaseFull="$(cat /etc/*release)"
-    Release="$(echo "$ReleaseFull" | head -n 1)"
-    if [[ "$Release" == "SUSE"* ]] ; then
-        Release=${Release%% \(*}
-        PatchLevel="$(cat /etc/*release | sed -n 3p | sed 's/.*= //')"
-        Release="${Release}.$PatchLevel"
-    elif [[ "$Release" == "openSUSE"* ]] ; then
-        Release="$(< /etc/os-release sed -n 4p | sed 's/PRETTY_NAME="//' | sed 's/ (.*//')"
-    elif [[ "$Release" == *"Raspbian"* ]] ; then
-        Release="$(echo "$ReleaseFull" | head -n 1 | sed 's/.*"\(.*\)"[^"]*$/\1/')"
-    elif [[ "$ReleaseFull" == *"PRETTY_NAME"* ]] ; then
-        Release="$(echo "$ReleaseFull" | grep 'PRETTY_NAME' | cut -f2 -d'"')"
-    elif [[ "$ReleaseFull" == *"DISTRIB_DESCRIPTION"* ]] ; then
-        Release="$(echo "$ReleaseFull" | grep 'DISTRIB_DESCRIPTION' | cut -f2 -d'"')"
-    fi
-    WriteLog Verbose Info "Info - Release: $Release"
-    Kernel="$(uname -rs)"
-    UptimeDays=$(awk '{print int($1/86400)}' /proc/uptime)
-    UptimeHours=$(awk '{print int($1%86400/3600)}' /proc/uptime)
-    UptimeMinutes=$(awk '{print int(($1%3600)/60)}' /proc/uptime)
-    UptimeSeconds=$(awk '{print int($1%60)}' /proc/uptime)
-    RpmPath="$(which rpm 2>/dev/null)"
-    if [[ (-f $RpmPath) && (-x $RpmPath) ]] ; then    
-        InstallDate=$(rpm -qi basesystem | grep "Install Date" | sed 's/Install Date: //g' | sed 's/Build Host: .*//g')
-    fi
-    Dmesg="$(dmesg 2>/dev/null)"
-    Dmi="$(echo "$Dmesg" | grep "DMI:")"
-    Rasp="$(echo "$Dmesg" | grep "Raspberry")"
-    Xen="$(echo "$Dmesg" | grep -i 'xen version')"
-    [[ -f "/proc/1/comm" ]] && InitSystem="$(cat /proc/1/comm)"
-    if [[ "$Dmi" = *"QEMU"* ]] ; then
-        Platform="$(echo "$Dmi" | sed 's/^.*QEMU/QEMU/' | sed 's/, B.*//')"
-    elif [[ "$Dmi" = *"VMware"* ]] ; then
-        Platform="$(echo "$Dmi" | sed 's/^.*VMware/VMware/' | sed 's/, B.*//')"
-    elif [[ "$Dmi" = *"FUJITSU PRIMERGY"* ]] ; then
-        Platform="$(echo "$Dmi" | sed 's/^.*FUJITSU PRIMERGY/Fujitsu Primergy/' | sed 's/, B.*//')"
-    elif [[ "$Dmi" = *"VirtualBox"* ]] ; then
-        Platform="$(echo "$Dmi" | sed 's/^.*VirtualBox/VirtualBox/' | sed 's/ .*//')"
-    elif [[ "$Dmi" = *"DMI:"* ]] ; then
-            Platform="$(echo "$Dmi" | sed -n -e 's/^.*DMI: //p')"
-    elif [[ "$Dmi" = *"klogctl"* ]] ; then
-            Platform="Windows Subsytem for Linux"
-    elif [[ "$Xen" = *"Xen version"* ]] ; then
-            Platform="Xen Hypervisor v""$(echo "$Xen" | sed -n -e 's/^.*Xen version: //p')"
-    elif [[ "$Rasp" = *"Rasp"* ]] ; then
-            Platform=${Rasp//*: /}
-    elif [[ $(uname -r) =~ "pine64-longsleep" ]] ; then
-            Platform="Pine A64"
-            _mem="$(< /proc/meminfo grep MemTotal | awk '{print $2}')"
-            if [ $_mem -gt  500000 ] && [ $_mem -gt  503000 ]; then Platform="Pine A64 512MB Rev B Board"; fi
-            if [ $_mem -gt 1000000 ] && [ $_mem -gt 1006000 ]; then Platform="Pine A64+ 1GB Rev B Board"; fi
-            if [ $_mem -gt 2000000 ] && [ $_mem -gt 2012000 ]; then Platform="Pine A64+ 2GB Rev C Board"; fi
-    elif [[ $(uname -r) =~ "Microsoft" ]] ; then
-        Platform="Windows Subsystem for Linux"
-    elif [[ "$InitSystem" == "systemd" ]] ; then
-        Custom="$(systemd-detect-virt)"
-        if [[ ! -z $Custom ]] ; then
-            if [[ "$Custom" = *"openvz"* ]] ; then
-                Platform="OpenVZ"
-            elif [[ "$Custom" = *"vmware"* ]] ; then
-                Platform="VMware Virtual Platform"
-            else
-                Platform=$Custom
-            fi
-        else
-            Platform="Unknown"
-        fi
-    else
-        Platform="Unknown"
-    fi
-    CpuUtil="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
-    CpuProc="$(< /proc/cpuinfo grep -c processor)"
-    WriteLog Verbose Info "CpuProc: $CpuProc"
-    if [[ "$Platform" == "OpenVZ" ]] ; then
-        CoreCount="$(cat /proc/cpuinfo | grep "processor" | sort -u | wc -l)"
-    else
-        CoreCount="$(lscpu | grep 'Core(s) per socket:' | head -1 | awk -F " " '{print $4}')"
-    fi
-    WriteLog Verbose Info "CoreCount: $CoreCount"
-
-    if [[ "$Platform" == "OpenVZ" ]] ; then
-        SocketCount="$(cat /proc/cpuinfo | grep "physical id" | sort -u | wc -l)"
-    else
-        SocketCount="$(lscpu | grep 'Socket(s):' | head -1 | awk -F " " '{print $2}')"
-    fi
- 
-    WriteLog Verbose Info "SocketCount: $SocketCount"
-    CpuLoad="$(uptime | grep -ohe '[s:][: ].*' | awk '{print "1m: "$2 " 5m: "$3 " 15m: " $4}')"
-    MemFreeB="$(< /proc/meminfo grep MemFree | awk '{print $2}')"
-    MemTotalB="$(< /proc/meminfo grep MemTotal | awk '{print $2}')"
-    MemUsedB="$((MemTotalB - MemFreeB))"
-    MemFree="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$MemFreeB"/1024/1024)")"
-    WriteLog Verbose Info "MemFree: $MemFree"
-    MemUsed="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$MemUsedB"/1024/1024)")"
-    WriteLog Verbose Info "MemUsed: $MemUsed"
-    MemTotal="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$MemTotalB"/1024/1024)")"
-    WriteLog Verbose Info "MemTotal: $MemTotal"
-    MemFreePerc=$(echo "scale=2; $MemFree*100/$MemTotal" | bc)
-    MemFreePerc="$(LC_NUMERIC=C printf "%.0f" "$MemFreePerc")"
-    WriteLog Verbose Info "MemFreePerc: $MemFreePerc"
-    MemUsedPerc=$(echo "100-$MemFreePerc" | bc)
-    WriteLog Verbose Info "MemUsedPerc: $MemUsedPerc"
-    SwapFreeB="$(< /proc/meminfo grep SwapFree | awk '{print $2}')"
-    SwapTotalB="$(< /proc/meminfo grep SwapTotal | awk '{print $2}')"
-    SwapUsedB="$((SwapTotalB - SwapFreeB))"
-    SwapFree="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$SwapFreeB"/1024/1024)")"
-    SwapFreePerc=$(echo "scale=2; $SwapFreeB*100/$SwapTotalB" | bc  2> /dev/null)
-    SwapFreePerc="$(LC_NUMERIC=C printf "%.0f" "$SwapFreePerc")"
-    SwapUsed="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;$SwapUsedB/1024/1024)")"
-    SwapUsedPerc=$(echo "100-$SwapFreePerc" | bc)
-    SwapTotal="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$SwapTotalB"/1024/1024)")"
-    RootFreeB="$(df -kP / | tail -1 | awk '{print $4}')"
-    RootUsedB="$(df -kP / | tail -1 | awk '{print $3}')"
-    RootTotalB="$(df -kP / | tail -1 | awk '{print $2}')"
-    RootFree="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$RootFreeB"/1024/1024)")"
-    RootUsed="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$RootUsedB"/1024/1024)")"
-    RootTotal="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$RootTotalB"/1024/1024)")"
-    RootUsedPerc="$(df -kP / | tail -1 | awk '{print $5}'| sed s'/%$//')"
-    RootFreePerc="$((100 - RootUsedPerc))" 
-    UpdateCount="Unknown"
-    [[ -f $UpdateFile ]] && UpdateCount="$(cat $UpdateFile)"
-    SessionCount="$(who | grep -c "$USER") sessions"
-    ProcessCount="$(ps -A --no-headers | wc -l)"
-    SysctlPath="$(which sysctl 2>/dev/null)"
-    if [ -z "$SysctlPath" ] ; then
-        if [ -f /usr/sbin/sysctl ] ; then
-            SysctlPath="/usr/sbin/sysctl"
-        elif [ -f /sbin/sysctl ] ; then
-            SysctlPath="/sbin/sysctl"
-        else
-            WriteLog Verbose Warning "Path doesn't contain sysctl tool"
-        fi
-    fi
-    WriteLog Verbose Info "SysctlPath: $SysctlPath"
-    ProcessMax="$($SysctlPath -n kernel.pid_max)"
-    PhpVersion="$(/usr/bin/php -v 2>/dev/null | grep -oE '^PHP\s[0-9]+\.[0-9]+\.[0-9]+' | awk '{ print $2}')"
-    if [ -f /etc/php.ini ] ; then
-        PhpIniPath="/etc/php.ini"
-    elif [ -f /etc/php5/fpm/php.ini ] ; then
-        PhpIniPath="/etc/php5/fpm/php.ini"
-    fi
-    if [ -n "$PhpIniPath" ] ; then
-        PhpMaxMemory=$(tac $PhpIniPath | grep -F -m 1 memory_limit | sed -n 's/.* = \([0-9]*\)/\1/p' | sed 's/; .*//g')
-        if [[ "$PhpMaxMemory" == "-1" ]]; then
-            PhpMaxMemory="Unlimited"
-        fi
-    fi
-    if [[ -x "/usr/bin/yum" ]] ; then
-        UpdateType="yum"
-    elif [[ -x "/usr/bin/zypper" ]] ; then
-        UpdateType="zypper"
-    elif [[ -x "/usr/bin/apt-get" ]] ; then
-        UpdateType="apt-get"
-    fi   
-    WriteLog Verbose Info "UpdateType: $UpdateType"
-    HttpdPath="$(which httpd 2>/dev/null)"
-    [[ ! -f $HttpdPath ]] && HttpdPath="/usr/sbin/apache2ctl"
-    [[ ! -f $HttpdPath ]] && HttpdPath="/usr/sbin/apache2"
-    WriteLog Verbose Info "HttpdPath: $HttpdPath"
-    if [[ (-f $HttpdPath) && (-x $HttpdPath) ]] ; then
-        HttpdVersion="$(${HttpdPath} -v 2>/dev/null | grep "Server version" | sed -e 's/.*[^0-9]\([0-9].[0-9]\+.[0-9]\+\)[^0-9]*$/\1/')"
-        WriteLog Verbose Info "HttpdVersion: $HttpdVersion"
-    fi
-    nginxVersion=""
-    nginxPath="$(which nginx 2>/dev/null)"
-    WriteLog Verbose Info "nginxPath: $nginxPath"
-    if [[ (-f $nginxPath) && (-x $nginxPath) ]] ; then
-        nginxString="$(${nginxPath} -v 2>&1)"
-        nginxVersion="$(echo "$nginxString" | awk -F"/" '{print $2}')"
-        WriteLog Verbose Info "nginxVersion: $nginxVersion"
-    fi    
-    MySqlVersion=""
-    MySqlDistribution=""
-    MySqlPath="$(which mysql 2>/dev/null)"
-    WriteLog Verbose Info "MySqlPath: $MySqlPath"
-    if [[ (-f $MySqlPath) && (-x $MySqlPath) ]] ; then
-        MySqlString="$(${MySqlPath} --version 2>/dev/null)"
-        MySqlVersion="$(echo "$MySqlString" | awk '{print $3}')"
-        MySqlDistribution="$(echo "$MySqlString" | awk '{print $5}' | tr -d ',')"
-        WriteLog Verbose Info "MySqlVersion: $MySqlVersion Distr: $MySqlDistribution"
-    fi
-    PostgreSqlVersion=""
-    PostgreSqlPath="$(which psql 2>/dev/null)"
-    WriteLog Verbose Info "PostgreSqlPath: $PostgreSqlPath"
-    if [[ (-f $PostgreSqlPath) && (-x $PostgreSqlPath) ]] ; then
-        PostgreSqlString="$(${PostgreSqlPath} --version 2>/dev/null)"
-        PostgreSqlVersion="$(echo "$PostgreSqlString"  | head -n1 | awk '{print $3}')"
-        WriteLog Verbose Info "PostgreSqlVersion: $PostgreSqlVersion"
-    fi
-    WriteLog Verbose Info "All information gathered successfully. " 
-}
-
-StartOrangeTheme () {
-    WriteLog Verbose Info "Function StartOrangeTheme started. "                                 
     C1C=$(( 79 - 4 - 10 - HostChars - 4 ))                                                    
     WriteLog Verbose Info "Row 1 Rest Chars: $C1C"                                            
     C2C=$(( 79 - 4 - 4 - 9 - HostChars - 9 - 6 ))                                             
@@ -805,6 +712,12 @@ StartOrangeTheme () {
 
 StartGrayTheme () {
     WriteLog Verbose Info "Function StartGrayTheme started. "
+    HostName="$(hostname)"
+    HostChars=$((${#HostName} + 8))
+    if (( HostChars > 47 )); then
+        HostName=${HostName:0:39}
+        HostChars=47
+    fi
     C1C=$(( 79 - 4 - 10 - HostChars - 4 ))
     WriteLog Verbose Info "Row 1 Rest Chars: $C1C"
     C2C=$(( 79 - 4 - 4 - 9 - HostChars - 9 - 6 ))
@@ -846,6 +759,12 @@ StartGrayTheme () {
 
 StartBlueTheme () {
     WriteLog Verbose Info "Function StartBlueTheme started. "
+    HostName="$(hostname)"
+    HostChars=$((${#HostName} + 8))
+    if (( HostChars > 47 )); then
+        HostName=${HostName:0:39}
+        HostChars=47
+    fi
     C1C=$(( 79 - 4 - 10 - HostChars - 4 ))
     WriteLog Verbose Info "Row 1 Rest Chars: $C1C"
     C2C=$(( 79 - 4 - 4 - 9 - HostChars - 9 - 6 ))
@@ -887,6 +806,15 @@ StartBlueTheme () {
 
 StartRedTheme () {
     WriteLog Verbose Info "Function StartRedTheme started. "
+    HostName="$(hostname)"
+    HostChars=$((${#HostName} + 8))
+    if (( HostChars > 47 )); then
+        HostName=${HostName:0:39}
+        HostChars=47
+    fi
+    LeftoverChars=$((MaxLeftOverChars - HostChars -10))
+    (( $LeftoverChars <= 0 )) && LeftoverChars=0
+    WriteLog Verbose Info "Function StartRedTheme started. HostChars: $HostChars"
     C1C=$(( 79 - 4 - 10 - HostChars - 4 ))
     WriteLog Verbose Info "Row 1 Rest Chars: $C1C"
     C2C=$(( 79 - 4 - 4 - 9 - HostChars - 9 - 6 ))
@@ -933,6 +861,7 @@ StartOriginalBlue () {
 }
 
 GenerateOriginal256Color () {
+    WriteLog Verbose Info "Generating 256 color $Theme FireMotD"
     Space=""
     if [[ "$Theme" == "Modern" ]] ; then
         Space="                              "
@@ -946,140 +875,223 @@ GenerateOriginal256Color () {
     else
         ShownVersion="$ScriptVersion"
     fi
-    HostName=$(jq ".HostName.Value" $ExportFile)
+    HostName=$(jq -r ".HostName.Value" $ExportFile)
     if [[ "$HostName" != "null" ]] && [[ "$HostName" != "" ]] ; then
         echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme
 $BlueScheme \e[38;5;93m $HostName $BlueScheme $Space\e[38;5;98m$SVC$ShownVersion
 $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme"
     fi
-    HostIp=$(jq ".HostIp.Value" $ExportFile)
+    HostIp=$(jq -r ".HostIp.Value" $ExportFile)
     if [[ ! -z $HostIp ]] && [[ "$HostIp" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto          \e[38;5;39mIp \e[38;5;93m= \e[38;5;33m$HostIp"
     fi
-    Release=$(jq ".Release.Value" $ExportFile)
+    Release=$(jq -r ".Release.Value" $ExportFile)
     if [[ ! -z $Release ]] && [[ "$Release" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto     \e[38;5;39mRelease \e[38;5;93m= \e[38;5;27m$Release"
     fi
-    Kernel=$(jq ".Kernel.Value" $ExportFile)
+    Kernel=$(jq -r ".Kernel.Value" $ExportFile)
     if [[ ! -z $Kernel ]] && [[ "$Kernel" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto      \e[38;5;39mKernel \e[38;5;93m= \e[38;5;27m$Kernel"
     fi
-    Platform=$(jq ".Platform.Value" $ExportFile)
+    Platform=$(jq -r ".Platform.Value" $ExportFile)
     if [[ ! -z $Platform ]] && [[ "$Platform" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto    \e[38;5;39mPlatform \e[38;5;93m= \e[38;5;27m$Platform"
     fi
-    UptimeDays=$(jq ".Uptime.Days" $ExportFile)
-    UptimeHours=$(jq ".Uptime.Hours" $ExportFile)
-    UptimeMinutes=$(jq ".Uptime.Minutes" $ExportFile)
-    UptimeSeconds=$(jq ".Uptime.Seconds" $ExportFile)
+    UptimeDays=$(jq -r ".Uptime.Days" $ExportFile)
+    UptimeHours=$(jq -r ".Uptime.Hours" $ExportFile)
+    UptimeMinutes=$(jq -r ".Uptime.Minutes" $ExportFile)
+    UptimeSeconds=$(jq -r ".Uptime.Seconds" $ExportFile)
     if [[ ! -z $UptimeDays ]] && [[ "$UptimeDays" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto      \e[38;5;39mUptime \e[38;5;93m= \e[38;5;33m${UptimeDays} \e[38;5;27mday(s). \e[38;5;33m${UptimeHours}\e[38;5;27m:\e[38;5;33m${UptimeMinutes}\e[38;5;27m:\e[38;5;33m${UptimeSeconds}"
     fi
-    InstallDate=$(jq ".InstallDate.Value" $ExportFile)
+    InstallDate=$(jq -r ".InstallDate.Value" $ExportFile)
     if [[ ! -z $InstallDate ]] && [[ "$InstallDate" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto   \e[38;5;39mInstalled \e[38;5;93m= \e[38;5;27m$InstallDate"
     fi
-    CpuUsageAverage=$(jq ".CpuUsage.Average" $ExportFile)
-    CpuUsageCpuCount=$(jq ".CpuUsage.CpuCount" $ExportFile)
-    CpuUsageCoreCount=$(jq ".CpuUsage.CoreCount" $ExportFile)
-    CpuUsageSocketCount=$(jq ".CpuUsage.SocketCount" $ExportFile)
+    CpuUsageAverage=$(jq -r ".CpuUsage.Average" $ExportFile)
+    CpuUsageCpuCount=$(jq -r ".CpuUsage.CpuCount" $ExportFile)
+    CpuUsageCoreCount=$(jq -r ".CpuUsage.CoreCount" $ExportFile)
+    CpuUsageSocketCount=$(jq -r ".CpuUsage.SocketCount" $ExportFile)
     if [[ ! -z $CpuUsageAverage ]] && [[ "$CpuUsageAverage" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto   \e[38;5;39mCPU Usage \e[38;5;93m= \e[38;5;33m${CpuUsageAverage}\e[38;5;27m% avg over \e[38;5;33m$CpuUsageCpuCount \e[38;5;27mcpu(s) ($CpuUsageCoreCount core(s) x $CpuUsageSocketCount socket(s))"
     fi
-    CpuLoad=$(jq ".CpuLoad.Value" $ExportFile)
+    CpuLoad=$(jq -r ".CpuLoad.Value" $ExportFile)
     if [[ ! -z $CpuLoad ]] && [[ "$CpuLoad" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto    \e[38;5;39mCPU Load \e[38;5;93m= \e[38;5;27m$CpuLoad"
     fi
-    MemTotalGB=$(jq ".Memory.TotalGB" $ExportFile)
-    MemFreeGB=$(jq ".Memory.FreeGB" $ExportFile)
-    MemUsedGB=$(jq ".Memory.UsedGB" $ExportFile)
-    MemFreePerc=$(jq ".Memory.FreePerc" $ExportFile)
-    MemUsedPerc=$(jq ".Memory.UsedPerc" $ExportFile)
+    MemTotalGB=$(jq -r ".Memory.TotalGB" $ExportFile)
+    MemFreeGB=$(jq -r ".Memory.FreeGB" $ExportFile)
+    MemUsedGB=$(jq -r ".Memory.UsedGB" $ExportFile)
+    MemFreePerc=$(jq -r ".Memory.FreePerc" $ExportFile)
+    MemUsedPerc=$(jq -r ".Memory.UsedPerc" $ExportFile)
     if [[ ! -z $MemTotalGB ]] && [[ "$MemTotalGB" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto      \e[38;5;39mMemory \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${MemFreeGB}\e[38;5;27mGB (\e[38;5;33m${MemFreePerc}\e[38;5;27m%), Used: \e[38;5;33m${MemUsedGB}\e[38;5;27mGB (\e[38;5;33m${MemUsedPerc}\e[38;5;27m%), Total: \e[38;5;33m${MemTotalGB}\e[38;5;27mGB"
     fi
-    SwapTotalGB=$(jq ".Swap.TotalGB" $ExportFile)
-    SwapFreeGB=$(jq ".Swap.FreeGB" $ExportFile)
-    SwapUsedGB=$(jq ".Swap.UsedGB" $ExportFile)
-    SwapFreePerc=$(jq ".Swap.FreePerc" $ExportFile)
-    SwapUsedPerc=$(jq ".Swap.UsedPerc" $ExportFile)
+    SwapTotalGB=$(jq -r ".Swap.TotalGB" $ExportFile)
+    SwapFreeGB=$(jq -r ".Swap.FreeGB" $ExportFile)
+    SwapUsedGB=$(jq -r ".Swap.UsedGB" $ExportFile)
+    SwapFreePerc=$(jq -r ".Swap.FreePerc" $ExportFile)
+    SwapUsedPerc=$(jq -r ".Swap.UsedPerc" $ExportFile)
     if [[ ! -z $SwapTotalGB ]] && [[ "$SwapTotalGB" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto        \e[38;5;39mSwap \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${SwapFreeGB}\e[38;5;27mGB (\e[38;5;33m$SwapFreePerc\e[38;5;27m%), Used: \e[38;5;33m${SwapUsedGB}\e[38;5;27mGB (\e[38;5;33m$SwapUsedPerc\e[38;5;27m%), Total: \e[38;5;33m${SwapTotalGB}\e[38;5;27mGB"
     fi
-    DiskRootTotalGB=$(jq ".DiskRoot.TotalGB" $ExportFile)
-    DiskRootFreeGB=$(jq ".DiskRoot.FreeGB" $ExportFile)
-    DiskRootUsedGB=$(jq ".DiskRoot.UsedGB" $ExportFile)
-    DiskRootFreePerc=$(jq ".DiskRoot.FreePerc" $ExportFile)
-    DiskRootUsedPerc=$(jq ".DiskRoot.UsedPerc" $ExportFile)
+    DiskRootTotalGB=$(jq -r ".DiskRoot.TotalGB" $ExportFile)
+    DiskRootFreeGB=$(jq -r ".DiskRoot.FreeGB" $ExportFile)
+    DiskRootUsedGB=$(jq -r ".DiskRoot.UsedGB" $ExportFile)
+    DiskRootFreePerc=$(jq -r ".DiskRoot.FreePerc" $ExportFile)
+    DiskRootUsedPerc=$(jq -r ".DiskRoot.UsedPerc" $ExportFile)
     if [[ ! -z $DiskRootTotalGB ]] && [[ "$DiskRootTotalGB" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto        \e[38;5;39mRoot \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${DiskRootFreeGB}\e[38;5;27mGB (\e[38;5;33m$DiskRootFreePerc\e[38;5;27m%), Used: \e[38;5;33m${DiskRootUsedGB}\e[38;5;27mGB (\e[38;5;33m$DiskRootUsedPerc\e[38;5;27m%), Total: \e[38;5;33m${DiskRootTotalGB}\e[38;5;27mGB"
     fi
-    UpdateCount=$(jq ".Updates.Count" $ExportFile)
-    UpdateType=$(jq ".Updates.Type" $ExportFile)
+    UpdateCount=$(jq -r ".Updates.Count" $ExportFile)
+    UpdateType=$(jq -r ".Updates.Type" $ExportFile)
     if [[ ! -z $UpdateCount ]] && [[ "$UpdateCount" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto     \e[38;5;39mUpdates \e[38;5;93m= \e[38;5;33m$UpdateCount\e[38;5;27m ${UpdateType} updates available"
     fi
-    echo -e "\e[0;38;5;17m$Fto    \e[38;5;39mSessions \e[38;5;93m= \e[38;5;33m$SessionCount\e[38;5;27m"
-    echo -e "\e[0;38;5;17m$Fto   \e[38;5;39mProcesses \e[38;5;93m= \e[38;5;33m$ProcessCount\e[38;5;27m running processes of \e[38;5;33m$ProcessMax\e[38;5;27m maximum processes"
-    if [[ $HttpdVersion =~ ^[0-9.]+$ ]] ; then
+    SessionCount=$(jq -r ".Sessions.Count" $ExportFile)
+    if [[ ! -z $SessionCount ]] && [[ "$SessionCount" != "null" ]] ; then
+        echo -e "\e[0;38;5;17m$Fto    \e[38;5;39mSessions \e[38;5;93m= \e[38;5;33m$SessionCount\e[38;5;27m"
+    fi
+    ProcessCount=$(jq -r ".Processes.Count" $ExportFile)
+    ProcessMax=$(jq -r ".Processes.Max" $ExportFile)
+    if [[ ! -z $ProcessCount ]] && [[ "$ProcessCount" != "null" ]] ; then
+        echo -e "\e[0;38;5;17m$Fto   \e[38;5;39mProcesses \e[38;5;93m= \e[38;5;33m$ProcessCount\e[38;5;27m running processes of \e[38;5;33m$ProcessMax\e[38;5;27m maximum processes"
+    fi
+    HttpdVersion=$(jq -r ".Httpd.Version" $ExportFile)
+    if [[ ! -z $HttpdVersion ]] && [[ "$HttpdVersion" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto      \e[38;5;39mApache \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$HttpdVersion"
     fi
-    if [[ ! -z $nginxVersion ]] ; then
-        echo -e "\e[0;38;5;17m$Fto       \e[38;5;39mnginx \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$nginxVersion"
+    NginxVersion=$(jq -r ".Nginx.Version" $ExportFile)
+    if [[ ! -z $NginxVersion ]] && [[ "$NginxVersion" != "null" ]] ; then
+        echo -e "\e[0;38;5;17m$Fto       \e[38;5;39mnginx \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$NginxVersion"
     fi
-    if [[ ! -z $MySqlVersion ]] ; then
-        echo -e "\e[0;38;5;17m$Fto       \e[38;5;39mMySQL \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$MySqlVersion \e[38;5;27mDistribution: \e[38;5;33m$MySqlDistribution"
+    MysqlVersion=$(jq -r ".Mysql.Version" $ExportFile)
+    MysqlDistribution=$(jq ".Mysql.Distribution" $ExportFile)
+    if [[ ! -z $MysqlVersion ]] && [[ "$MysqlVersion" != "null" ]] ; then
+        echo -e "\e[0;38;5;17m$Fto       \e[38;5;39mMySQL \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$MysqlVersion \e[38;5;27mDistribution: \e[38;5;33m$MysqlDistribution"
     fi
-    if [[ ! -z $PostgreSqlVersion ]] ; then
-        echo -e "\e[0;38;5;17m$Fto  \e[38;5;39mPostgreSQL \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PostgreSqlVersion"
+    PostgresVersion=$(jq -r ".Postgres.Version" $ExportFile)
+    if [[ ! -z $PostgresVersion ]] && [[ "$PostgresVersion" != "null" ]] ; then
+        echo -e "\e[0;38;5;17m$Fto  \e[38;5;39mPostgreSQL \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PostgresVersion"
     fi
-    if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
+    PhpVersion=$(jq -r ".Php.Version" $ExportFile)
+    PhpMaxMemory=$(jq -r ".Php.MaxMemory" $ExportFile)
+    if [[ ! -z $PhpVersion ]] && [[ "$PhpVersion" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto         \e[38;5;39mPHP \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PhpVersion, \e[38;5;27mMemory Limit: \e[38;5;33m$PhpMaxMemory"
     fi    
     echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme\e[0;37m"
 }
 
 GenerateBasic16Color () {
-    WriteLog Verbose Info "Generating 16 color MotD"
-    shownVersion=""
+    WriteLog Verbose Info "Generating 16 color $Theme FireMotD"
+    ShownVersion=""
     if [[ "$HideVersion" -eq 1 ]]; then
-        shownVersion="$CP1$CP1$CP1$CP1$CP1$CP1"
+        ShownVersion="$CP1$CP1$CP1$CP1$CP1$CP1"
     else
-        shownVersion="$ScriptVersion"
+        ShownVersion="$ScriptVersion"
     fi
-
-    echo -e "$CP1$CP1$CP12$CP1H$C1R$CP1$CP1
-$CP1$CP1$CP22$CP23 $HC$HostName $CP23$C2R$SVC$shownVersion
-$CP1$CP1$CP12$CP1H$C1R$CP1$CP1
-$CP1        ${KS}Ip $ES ${VCL}$HostIp
-$CP1   ${KS}Release $ES ${VC}$Release
-$CP1    ${KS}Kernel $ES ${VC}$Kernel
-$CP1  ${KS}Platform $ES ${VC}$Platform
-$CP1    ${KS}Uptime $ES ${VCL}${UptimeDays} ${VC}day(s). ${VCL}${UptimeHours}${VC}:${VCL}${UptimeMinutes}${VC}:${VCL}${UptimeSeconds}"
-    if [[ ! -z $InstallDate ]] ; then
+    HostName=$(jq -r ".HostName.Value" $ExportFile)
+    if [[ "$HostName" != "null" ]] && [[ "$HostName" != "" ]] ; then
+        echo -e "$CP1$CP1$CP12$CP1H$C1R$CP1$CP1
+$CP1$CP1$CP22$CP23 $HC$HostName $CP23$C2R$SVC$ShownVersion
+$CP1$CP1$CP12$CP1H$C1R$CP1$CP1"
+    fi
+    HostIp=$(jq -r ".HostIp.Value" $ExportFile)
+    if [[ ! -z $HostIp ]] && [[ "$HostIp" != "null" ]] ; then
+        echo -e "$CP1        ${KS}Ip $ES ${VCL}$HostIp"
+    fi
+    Release=$(jq -r ".Release.Value" $ExportFile)
+    if [[ ! -z $Release ]] && [[ "$Release" != "null" ]] ; then
+        echo -e "$CP1   ${KS}Release $ES ${VC}$Release"
+    fi
+    Kernel=$(jq -r ".Kernel.Value" $ExportFile)
+    if [[ ! -z $Kernel ]] && [[ "$Kernel" != "null" ]] ; then
+        echo -e "$CP1    ${KS}Kernel $ES ${VC}$Kernel"
+    fi
+    Platform=$(jq -r ".Platform.Value" $ExportFile)
+    if [[ ! -z $Platform ]] && [[ "$Platform" != "null" ]] ; then
+        echo -e "$CP1  ${KS}Platform $ES ${VC}$Platform"
+    fi
+    UptimeDays=$(jq -r ".Uptime.Days" $ExportFile)
+    UptimeHours=$(jq -r ".Uptime.Hours" $ExportFile)
+    UptimeMinutes=$(jq -r ".Uptime.Minutes" $ExportFile)
+    UptimeSeconds=$(jq -r ".Uptime.Seconds" $ExportFile)
+    if [[ ! -z $UptimeDays ]] && [[ "$UptimeDays" != "null" ]] ; then
+        echo -e "$CP1    ${KS}Uptime $ES ${VCL}${UptimeDays} ${VC}day(s). ${VCL}${UptimeHours}${VC}:${VCL}${UptimeMinutes}${VC}:${VCL}${UptimeSeconds}"
+    fi
+    InstallDate=$(jq -r ".InstallDate.Value" $ExportFile)
+    if [[ ! -z $InstallDate ]] && [[ "$InstallDate" != "null" ]] ; then
         echo -e "$CP1 ${KS}Installed $ES ${VC}$InstallDate"
     fi
-echo -e "$CP1 ${KS}CPU Usage $ES ${VCL}$CpuUtil ${VC}% avg over ${VCL}${CpuProc}${VC} cpu(s)  ($CoreCount core(s) x $SocketCount socket(s))
-$CP1  ${KS}CPU Load $ES ${VC}$CpuLoad
-$CP1    ${KS}Memory $ES ${VC}Free: ${VCL}${MemFree}${VC}GB (${VCL}$MemFreePerc${VC}%), Used: ${VCL}${MemUsed}${VC}GB (${VCL}$MemUsedPerc${VC}%), Total: ${VCL}${MemTotal}${VC}GB
-$CP1      ${KS}Swap $ES ${VC}Free: ${VCL}${SwapFree}${VC}GB (${VCL}$SwapFreePerc${VC}%), Used: ${VCL}${SwapUsed}${VC}GB (${VCL}$SwapUsedPerc${VC}%), Total: ${VCL}${SwapTotal}${VC}GB
-$CP1      ${KS}Root $ES ${VC}Free: ${VCL}${RootFree}${VC}GB (${VCL}$RootFreePerc${VC}%), Used: ${VCL}${RootUsed}${VC}GB (${VCL}$RootUsedPerc${VC}%), Total: ${VCL}${RootTotal}${VC}GB
-$CP1   ${KS}Updates $ES ${VCL}$UpdateCount${VC} ${UpdateType} updates available.
-$CP1  ${KS}Sessions $ES ${VCL}$SessionCount
-$CP1 ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$ProcessMax ${VC}maximum processes"
-    if [[ $HttpdVersion =~ ^[0-9.]+$ ]] ; then
+    CpuUsageAverage=$(jq -r ".CpuUsage.Average" $ExportFile)
+    CpuUsageCpuCount=$(jq -r ".CpuUsage.CpuCount" $ExportFile)
+    CpuUsageCoreCount=$(jq -r ".CpuUsage.CoreCount" $ExportFile)
+    CpuUsageSocketCount=$(jq -r ".CpuUsage.SocketCount" $ExportFile)
+    if [[ ! -z $CpuUsageAverage ]] && [[ "$CpuUsageAverage" != "null" ]] ; then
+        echo -e "$CP1 ${KS}CPU Usage $ES ${VCL}$CpuUsageAverage ${VC}% avg over ${VCL}${CpuUsageCpuCount}${VC} cpu(s)  ($CpuUsageCoreCount core(s) x $CpuUsageSocketCount socket(s))"
+    fi
+    CpuLoad=$(jq -r ".CpuLoad.Value" $ExportFile)
+    if [[ ! -z $CpuLoad ]] && [[ "$CpuLoad" != "null" ]] ; then
+        echo -e "$CP1  ${KS}CPU Load $ES ${VC}$CpuLoad"
+    fi
+    MemTotalGB=$(jq -r ".Memory.TotalGB" $ExportFile)
+    MemFreeGB=$(jq -r ".Memory.FreeGB" $ExportFile)
+    MemUsedGB=$(jq -r ".Memory.UsedGB" $ExportFile)
+    MemFreePerc=$(jq -r ".Memory.FreePerc" $ExportFile)
+    MemUsedPerc=$(jq -r ".Memory.UsedPerc" $ExportFile)
+    if [[ ! -z $MemTotalGB ]] && [[ "$MemTotalGB" != "null" ]] ; then
+        echo -e "$CP1    ${KS}Memory $ES ${VC}Free: ${VCL}${MemFreeGB}${VC}GB (${VCL}$MemFreePerc${VC}%), Used: ${VCL}${MemUsedGB}${VC}GB (${VCL}$MemUsedPerc${VC}%), Total: ${VCL}${MemTotalGB}${VC}GB"
+    fi
+    SwapTotalGB=$(jq -r ".Swap.TotalGB" $ExportFile)
+    SwapFreeGB=$(jq -r ".Swap.FreeGB" $ExportFile)
+    SwapUsedGB=$(jq -r ".Swap.UsedGB" $ExportFile)
+    SwapFreePerc=$(jq -r ".Swap.FreePerc" $ExportFile)
+    SwapUsedPerc=$(jq -r ".Swap.UsedPerc" $ExportFile)
+    if [[ ! -z $SwapTotalGB ]] && [[ "$SwapTotalGB" != "null" ]] ; then
+        echo -e "$CP1      ${KS}Swap $ES ${VC}Free: ${VCL}${SwapFreeGB}${VC}GB (${VCL}$SwapFreePerc${VC}%), Used: ${VCL}${SwapUsedGB}${VC}GB (${VCL}$SwapUsedPerc${VC}%), Total: ${VCL}${SwapTotalGB}${VC}GB"
+    fi
+    DiskRootTotalGB=$(jq -r ".DiskRoot.TotalGB" $ExportFile)
+    DiskRootFreeGB=$(jq -r ".DiskRoot.FreeGB" $ExportFile)
+    DiskRootUsedGB=$(jq -r ".DiskRoot.UsedGB" $ExportFile)
+    DiskRootFreePerc=$(jq -r ".DiskRoot.FreePerc" $ExportFile)
+    DiskRootUsedPerc=$(jq -r ".DiskRoot.UsedPerc" $ExportFile)
+    if [[ ! -z $DiskRootTotalGB ]] && [[ "$DiskRootTotalGB" != "null" ]] ; then
+        echo -e "$CP1      ${KS}Root $ES ${VC}Free: ${VCL}${RootFreeGB}${VC}GB (${VCL}$RootFreePerc${VC}%), Used: ${VCL}${RootUsedGB}${VC}GB (${VCL}$RootUsedPerc${VC}%), Total: ${VCL}${RootTotalGB}${VC}GB"
+    fi
+    UpdateCount=$(jq -r ".Updates.Count" $ExportFile)
+    UpdateType=$(jq -r ".Updates.Type" $ExportFile)
+    if [[ ! -z $UpdateCount ]] && [[ "$UpdateCount" != "null" ]] ; then
+        echo -e "$CP1   ${KS}Updates $ES ${VCL}$UpdateCount${VC} ${UpdateType} updates available."
+    fi
+    SessionCount=$(jq -r ".Sessions.Count" $ExportFile)
+    if [[ ! -z $SessionCount ]] && [[ "$SessionCount" != "null" ]] ; then
+        echo -e "$CP1  ${KS}Sessions $ES ${VCL}$SessionCount"
+    fi
+    ProcessCount=$(jq -r ".Processes.Count" $ExportFile)
+    ProcessMax=$(jq -r ".Processes.Max" $ExportFile)
+    if [[ ! -z $ProcessCount ]] && [[ "$ProcessCount" != "null" ]] ; then
+        echo -e "$CP1 ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$ProcessMax ${VC}maximum processes"
+    fi
+    HttpdVersion=$(jq -r ".Httpd.Version" $ExportFile)
+    if [[ ! -z $HttpdVersion ]] && [[ "$HttpdVersion" != "null" ]] ; then
         echo -e "$CP1    ${KS}Apache $ES ${VC}Version: ${VCL}$HttpdVersion"
     fi
-    if [[ ! -z $nginxVersion ]] ; then
+    NginxVersion=$(jq -r ".Nginx.Version" $ExportFile)
+    if [[ ! -z $NginxVersion ]] && [[ "$NginxVersion" != "null" ]] ; then
         echo -e "$CP1     ${KS}Nginx $ES ${VC}Version: ${VCL}$nginxVersion"
     fi
-    if [[ ! -z $MySqlVersion ]] ; then
-        echo -e "$CP1     ${KS}MySQL $ES ${VC}Version: ${VCL}$MySqlVersion ${VC}Distribution: ${VCL}$MySqlDistribution"
+    MysqlVersion=$(jq -r ".Mysql.Version" $ExportFile)
+    MysqlDistribution=$(jq ".Mysql.Distribution" $ExportFile)
+    if [[ ! -z $MysqlVersion ]] && [[ "$MysqlVersion" != "null" ]] ; then
+        echo -e "$CP1     ${KS}MySQL $ES ${VC}Version: ${VCL}$MysqlVersion ${VC}Distribution: ${VCL}$MysqlDistribution"
     fi
-    if [[ ! -z $PostgreSqlVersion ]] ; then
+    PostgresVersion=$(jq -r ".Postgres.Version" $ExportFile)
+    if [[ ! -z $PostgresVersion ]] && [[ "$PostgresVersion" != "null" ]] ; then
         echo -e "$CP1  ${KS}Postgres $ES ${VC}Version: ${VCL}$PostgreSqlVersion"
     fi
-    if [[ $PhpVersion =~ ^[0-9.]+$ ]] ; then
+    PhpVersion=$(jq -r ".Php.Version" $ExportFile)
+    PhpMaxMemory=$(jq -r ".Php.MaxMemory" $ExportFile)
+    if [[ ! -z $PhpVersion ]] && [[ "$PhpVersion" != "null" ]] ; then
         echo -e "$CP1       ${KS}PHP $ES ${VC}Version: ${VCL}$PhpVersion, ${VC}Memory Limit: ${VCL}$PhpMaxMemory"
     fi
     echo -e "$CP1$CP1$CZR$CP1$CP1\e[0;37m"
@@ -1364,7 +1376,7 @@ Options:
   -C | --colortest          Prints color test to screen
   -M | --colormap           Prints color test to screen, with color numbers in it
   -U | --updates            Checks for system updates and prints count to stdout
-  -S | --saveupdates        Checks for system updates and saves count to disk
+  -S | --Save               Saves data to /var/tmp/FireMotD.json
                             same as [ $ScriptName -U > $UpdateFile ]
  -HV | --hideversion        Hides version number
 
@@ -1440,7 +1452,7 @@ while :; do
             case "$Theme" in
                 original|Original) GatherInfo ; StartOriginalBlue ; GenerateOriginal256Color ;;
                 modern|Modern) GenerateOriginal256Color ;;
-                red|Red) GatherInfo ; StartRedTheme ; GenerateBasic16Color ;;
+                red|Red) StartRedTheme ; GenerateBasic16Color ;;
                 blue|Blue) GatherInfo ; StartBlueTheme ; GenerateBasic16Color ;;
                 gray|Gray) GatherInfo ; StartGrayTheme ; GenerateBasic16Color ;;
                 orange|Orange) GatherInfo ; StartOrangeTheme ; GenerateBasic16Color ;;
