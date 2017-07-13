@@ -44,12 +44,12 @@ In case you find a bug or have a feature request, please make an issue on GitHub
 
 ##### Using yum
 ```
-sudo yum install openssh-clients bc sysstat
+sudo yum install openssh-clients bc sysstat jq moreutils
 ```
 
 ##### Using apt-get
 ```
-sudo apt-get install bc sysstat
+sudo apt-get install bc sysstat jq moreutils
 ```
 ### Usage Help
 
@@ -63,15 +63,14 @@ Usage:
  FireMotD [-vUhVs]
 
 Options:
- -h | --help               Shows this help and exits
- -v | --verbose            Verbose mode (shows messages)
- -V | --version            Shows version information and exits
- -t | --theme <Theme Name> Shows Motd info on screen, based on the chosen theme
- -C | --colortest          Prints color test to screen
- -M | --colormap           Prints color test to screen, with color numbers in it
- -U | --updates            Checks for system updates and prints count to stdout
- -S | --saveupdates        Checks for system updates and saves count to disk
-                           same as [ FireMotD -U > /var/tmp/updatecount.txt ]
+  -h | --help               Shows this help and exits
+  -v | --verbose            Verbose mode (shows messages)
+  -V | --version            Shows version information and exits
+  -t | --theme <Theme Name> Shows Motd info on screen, based on the chosen theme
+  -C | --colortest          Prints color test to screen
+  -M | --colormap           Prints color test to screen, with color numbers in it
+  -S | --save               Saves data to /var/tmp/FireMotD.json
+ -HV | --hideversion        Hides version number
 
 256-color themes:
  original
@@ -96,9 +95,9 @@ Examples:
  sudo /usr/local/bin/FireMotD --saveupdates
 
 Note:
- Some functionalities may require superuser privileges. Eg. check for updates.
+ Some functionalities may require superuser privileges. For example to check for updates. 
  If you have problems, try something like:
- sudo /home/tavinus/FireMotD/FireMotD -S
+ sudo ./FireMotD -S
 ```
 
 ### System Install
