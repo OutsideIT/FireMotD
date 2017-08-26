@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v8.03.170826
+# Version:      v8.04.170826
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -655,7 +655,7 @@ LoadData () {
         WriteLog Output Info "No FireMotD ExportFile detected. Please generate with \"sudo .\\FireMotD -S\""
         exit 2
     fi
-    WriteLog Verbose Info "Logon Data refresh end"
+    WriteLog Verbose Info "Logon Data refresh for end"
 }
 
 StartOrangeTheme () {
@@ -1328,33 +1328,55 @@ EOF
 
 # shellcheck disable=SC2154,SC2034
 GenerateInvader () {
+    WriteLog Verbose Info "Generating Invader Theme"
     f=3 b=4
     for j in f b; do
         for i in {0..7}; do
             printf -v $j$i %b "\e[${!j}${i}m"
         done
-   done
-   bld=$'\e[1m'
-   rst=$'\e[0m'
+    done
+    bld=$'\e[1m'
+    rst=$'\e[0m'
+    HostName=$(jq -r ".HostName.Value" $ExportFile)
 cat << EOF
  $f1  ▀▄   ▄▀     $f2 ▄▄▄████▄▄▄    $f3  ▄██▄     $f4  ▀▄   ▄▀     $f5 ▄▄▄████▄▄▄    $f6  ▄██▄  $rst
  $f1 ▄█▀███▀█▄    $f2███▀▀██▀▀███   $f3▄█▀██▀█▄   $f4 ▄█▀███▀█▄    $f5███▀▀██▀▀███   $f6▄█▀██▀█▄$rst
  $f1█▀███████▀█   $f2▀▀███▀▀███▀▀   $f3▀█▀██▀█▀   $f4█▀███████▀█   $f5▀▀███▀▀███▀▀   $f6▀█▀██▀█▀$rst
  $f1▀ ▀▄▄ ▄▄▀ ▀   $f2 ▀█▄ ▀▀ ▄█▀    $f3▀▄    ▄▀   $f4▀ ▀▄▄ ▄▄▀ ▀   $f5 ▀█▄ ▀▀ ▄█▀    $f6▀▄    ▄▀$rst
- $f2 Hostname: $HostName  
- $f3 Ip: $HostIp 
- $f4 Os: $Release
- $f5 Kernel: $Kernel 
- $f6 Platform: $Platform  
+EOF
+HostName=$(jq -r ".HostName.Value" $ExportFile)
+echo -e " $f2 Hostname: $HostName"
+HostIp=$(jq -r ".HostIp.Value" $ExportFile)
+echo -e " $f3 Ip: $HostIp"
+Release=$(jq -r ".Release.Value" $ExportFile)
+echo -e " $f4 Os: $Release"
+Kernel=$(jq -r ".Kernel.Value" $ExportFile)
+echo -e " $f5 Kernel: $Kernel"
+Platform=$(jq -r ".Platform.Value" $ExportFile)
+echo -e " $f6 Platform: $Platform"
+cat << EOF
  $bld$f1▄ ▀▄   ▄▀ ▄   $f2 ▄▄▄████▄▄▄    $f3  ▄██▄     $f4▄ ▀▄   ▄▀ ▄   $f5 ▄▄▄████▄▄▄    $f6  ▄██▄  $rst
  $bld$f1█▄█▀███▀█▄█   $f2███▀▀██▀▀███   $f3▄█▀██▀█▄   $f4█▄█▀███▀█▄█   $f5███▀▀██▀▀███   $f6▄█▀██▀█▄$rst
  $bld$f1▀█████████▀   $f2▀▀▀██▀▀██▀▀▀   $f3▀▀█▀▀█▀▀   $f4▀█████████▀   $f5▀▀▀██▀▀██▀▀▀   $f6▀▀█▀▀█▀▀$rst
  $bld$f1 ▄▀     ▀▄    $f2▄▄▀▀ ▀▀ ▀▀▄▄   $f3▄▀▄▀▀▄▀▄   $f4 ▄▀     ▀▄    $f5▄▄▀▀ ▀▀ ▀▀▄▄   $f6▄▀▄▀▀▄▀▄$rst
- $f2 Uptime ${UptimeDays} day(s). ${UptimeHours}:${UptimeMinutes}:${UptimeSeconds}
- $f3 CPU Usage: ${CpuUtil} average CPU usage over $CpuProc core(s) 
- $f4 CPU Load: $CpuLoad                                 
- $f5 Updates: $UpdateCount ${UpdateType} updates available                               $f7▌$rst
 EOF
+UptimeDays=$(jq -r ".Uptime.Days" $ExportFile)
+UptimeHours=$(jq -r ".Uptime.Hours" $ExportFile)
+UptimeMinutes=$(jq -r ".Uptime.Minutes" $ExportFile)
+UptimeSeconds=$(jq -r ".Uptime.Seconds" $ExportFile)
+echo -e " $f2 Uptime ${UptimeDays} day(s). ${UptimeHours}:${UptimeMinutes}:${UptimeSeconds}"
+CpuUsageAverage=$(jq -r ".CpuUsage.Average" $ExportFile)
+CpuUsageCpuCount=$(jq -r ".CpuUsage.CpuCount" $ExportFile)
+CpuUsageCoreCount=$(jq -r ".CpuUsage.CoreCount" $ExportFile)
+CpuUsageSocketCount=$(jq -r ".CpuUsage.SocketCount" $ExportFile)
+echo -e " $f3 CPU Usage: ${CpuUsageAverage} % avg over ${VCL}${CpuUsageCpuCount}${VC} cpu(s)  ($CpuUsageCoreCount core(s) x $CpuUsageSocketCount socket(s))"
+CpuLoad=$(jq -r ".CpuLoad.Value" $ExportFile)
+echo -e " $f4 CPU Load: $CpuLoad"
+UpdateCount=$(jq -r ".Updates.Count" $ExportFile)
+UpdateType=$(jq -r ".Updates.Type" $ExportFile)
+echo -e " $f5 Updates: $UpdateCount ${UpdateType} updates available"
+echo -e "$f7$rst"
+
 }
 
 PrintHelp () {
