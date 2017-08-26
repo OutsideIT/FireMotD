@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v8.02.170711
+# Version:      v8.03.170826
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -19,8 +19,8 @@
 # GNU General Public License along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-Debug=1
-Verbose=1
+Debug=0
+Verbose=0
 HideVersion=0
 LogLocal=''
 ExportFile='/var/tmp/FireMotD.json'
@@ -760,6 +760,8 @@ StartBlueTheme () {
         HostName=${HostName:0:39}
         HostChars=47
     fi
+    LeftoverChars=$((MaxLeftOverChars - HostChars -10))
+    (( $LeftoverChars <= 0 )) && LeftoverChars=0
     C1C=$(( 79 - 4 - 10 - HostChars - 4 ))
     WriteLog Verbose Info "Row 1 Rest Chars: $C1C"
     C2C=$(( 79 - 4 - 4 - 9 - HostChars - 9 - 6 ))
@@ -809,7 +811,6 @@ StartRedTheme () {
     fi
     LeftoverChars=$((MaxLeftOverChars - HostChars -10))
     (( $LeftoverChars <= 0 )) && LeftoverChars=0
-    WriteLog Verbose Info "Function StartRedTheme started. HostChars: $HostChars"
     C1C=$(( 79 - 4 - 10 - HostChars - 4 ))
     WriteLog Verbose Info "Row 1 Rest Chars: $C1C"
     C2C=$(( 79 - 4 - 4 - 9 - HostChars - 9 - 6 ))
@@ -1444,15 +1445,15 @@ while :; do
             shift ; Theme=$1
             LoadData
             case "$Theme" in
-                original|Original) GatherInfo ; StartOriginalBlue ; GenerateOriginal256Color ;;
+                original|Original) StartOriginalBlue ; GenerateOriginal256Color ;;
                 modern|Modern) GenerateOriginal256Color ;;
                 red|Red) StartRedTheme ; GenerateBasic16Color ;;
-                blue|Blue) GatherInfo ; StartBlueTheme ; GenerateBasic16Color ;;
-                gray|Gray) GatherInfo ; StartGrayTheme ; GenerateBasic16Color ;;
-                orange|Orange) GatherInfo ; StartOrangeTheme ; GenerateBasic16Color ;;
-                html|Html) GatherInfo ; GenerateHtmlTheme ;;
-                blank|Blank|blanco|Blanco|Text|Clean|clean) GatherInfo ; GenerateBasic16Color ;;
-                invader|Invader) GatherInfo ; GenerateInvader ;;
+                blue|Blue) StartBlueTheme ; GenerateBasic16Color ;;
+                gray|Gray) StartGrayTheme ; GenerateBasic16Color ;;
+                orange|Orange) StartOrangeTheme ; GenerateBasic16Color ;;
+                html|Html) GenerateHtmlTheme ;;
+                blank|Blank|blanco|Blanco|Text|Clean|clean) GenerateBasic16Color ;;
+                invader|Invader) GenerateInvader ;;
                 *) echo "You specified a non-existant theme: $1" ; exit 2 ;;
             esac
             shift ;;
