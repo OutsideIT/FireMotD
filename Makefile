@@ -12,7 +12,11 @@ BCIFILE=$(BCIDIR)/FireMotD
 BCODIR=/etc/bash_completion.d
 BCOFILE=$(BCODIR)/FireMotD
 
-all: install bash_completion
+CRONSOURCE=cron.d/FireMotD
+CRONDIR=/etc/cron.d
+CRONFILE=$(CRONDIR)/FireMotD
+
+all: install bash_completion cron
 
 install:
 	cp FireMotD $(IFILE)
@@ -20,6 +24,9 @@ install:
 
 bash_completion:
 	cp $(BCIFILE) $(BCOFILE)
+
+cron:
+	cp $(CRONSOURCE) $(CRONFILE)
 
 uninstall:
 	rm -f $(IFILE)
