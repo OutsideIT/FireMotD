@@ -1,0 +1,1 @@
+15 18 * * * root /usr/local/bin/FireMotD -S
