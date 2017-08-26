@@ -55,7 +55,7 @@ sudo apt-get install bc sysstat jq moreutils
 
 ```
 $ FireMotD --help
-FireMotD v5.13.160630
+FireMotD <version>
 
 Usage: 
  FireMotD [-v] -t <Theme Name> 
@@ -77,6 +77,7 @@ Options:
  modern
  gray
  orange
+ invader
 
 16-color themes:
  red
@@ -92,11 +93,10 @@ Examples:
  FireMotD --theme Modern
  FireMotD --colortest
  FireMotD -M
- sudo /usr/local/bin/FireMotD --saveupdates
+ sudo /usr/local/bin/FireMotD -S
 
 Note:
- Some functionalities may require superuser privileges. For example to check for updates. 
- If you have problems, try something like:
+ The first time you use FireMotD, you will need to generate the FireMotD.json file.
  sudo ./FireMotD -S
 ```
 
