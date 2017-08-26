@@ -119,14 +119,11 @@ Does not require the sudo make install above (system install), but requires the 
 
 If you don't have root access, just install everything on your user's folder and source the file from your user's .profile file
 
-### Crontab to get system updates count
+### Crontab to get system information
 
-This is an example on how to record the system update package count daily.  
-This will update the file `/var/tmp/updatecount.txt` for later access.  
-Root privilege is required for this operation. 
-Only `/etc/crontab` and the files in `/etc/cron.d/` have a username field.
+Root privilege is required for this operation. Only `/etc/crontab` and the files in `/etc/cron.d/` have a username field.
  
-The recommended way to generate updatecount.txt is by creating a separate cron file for firemotd like this:
+The recommended way to generate /var/tmp/FireMotD.json is by creating a separate cron file for firemotd like this:
 
 ```bash
 sudo vim /etc/cron.d/firemotd
