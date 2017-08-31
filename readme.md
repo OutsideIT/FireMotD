@@ -9,23 +9,23 @@ memory, disk information, number of updates, ...
 
 Modern:
 
-![FireMotD Modern](/../screenshots/FireMotD-Theme-Modern-v5.12.png?raw=true "FireMotD Modern")
+![FireMotD Modern](/../screenshots/FireMotD-Theme-Modern-v8.04.png?raw=true "FireMotD Modern")
 
 Blue:
 
-![FireMotD Blue](/../screenshots/FireMotD-Theme-Blue-v5.12.png?raw=true "FireMotD Blue")
+![FireMotD Blue](/../screenshots/FireMotD-Theme-Blue-v8.04.png?raw=true "FireMotD Blue")
 
 Red:
 
-![FireMotD Red](/../screenshots/FireMotD-Theme-Red-v5.12.png?raw=true "FireMotD Red")
+![FireMotD Red](/../screenshots/FireMotD-Theme-Red-v8.04.png?raw=true "FireMotD Red")
 
 Gray:
 
-![FireMotD Gray](/../screenshots/FireMotD-Theme-Gray-v5.12.png?raw=true "FireMotD Gray")
+![FireMotD Gray](/../screenshots/FireMotD-Theme-Gray-v8.04.png?raw=true "FireMotD Gray")
 
 Original:
 
-![FireMotD Original](/../screenshots/FireMotD-Theme-Original-v5.12.png?raw=true "FireMotD Original")
+![FireMotD Original](/../screenshots/FireMotD-Theme-Original-v8.04.png?raw=true "FireMotD Original")
 
 
 ### Status
@@ -34,7 +34,7 @@ Production ready.
 
 ### How To
 
-Please check https://outsideit.net/FireMotD for more information on how to use this plugin.
+Please check https://outsideit.net/firemotd for more information on how to use this plugin.
 
 ### Help
 
@@ -51,16 +51,17 @@ sudo yum install openssh-clients bc sysstat jq moreutils
 ```
 sudo apt-get install bc sysstat jq moreutils
 ```
+
 ### Usage Help
 
 ```
-$ FireMotD --help
+$ FireMotD -h
 FireMotD <version>
 
 Usage: 
  FireMotD [-v] -t <Theme Name> 
  FireMotD [-v] -C ['String']
- FireMotD [-vUhVs]
+ FireMotD [-HV] ---theme <Theme Name>
 
 Options:
   -h | --help               Shows this help and exits
