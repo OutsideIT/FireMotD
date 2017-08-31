@@ -44,18 +44,18 @@ In case you find a bug or have a feature request, please make an issue on GitHub
 
 ##### Using yum
 ```
-sudo yum install openssh-clients bc sysstat
+sudo yum install openssh-clients bc sysstat jq moreutils
 ```
 
 ##### Using apt-get
 ```
-sudo apt-get install bc sysstat
+sudo apt-get install bc sysstat jq moreutils
 ```
 ### Usage Help
 
 ```
 $ FireMotD --help
-FireMotD v5.13.160630
+FireMotD <version>
 
 Usage: 
  FireMotD [-v] -t <Theme Name> 
@@ -63,21 +63,21 @@ Usage:
  FireMotD [-vUhVs]
 
 Options:
- -h | --help               Shows this help and exits
- -v | --verbose            Verbose mode (shows messages)
- -V | --version            Shows version information and exits
- -t | --theme <Theme Name> Shows Motd info on screen, based on the chosen theme
- -C | --colortest          Prints color test to screen
- -M | --colormap           Prints color test to screen, with color numbers in it
- -U | --updates            Checks for system updates and prints count to stdout
- -S | --saveupdates        Checks for system updates and saves count to disk
-                           same as [ FireMotD -U > /var/tmp/updatecount.txt ]
+  -h | --help               Shows this help and exits
+  -v | --verbose            Verbose mode (shows messages)
+  -V | --version            Shows version information and exits
+  -t | --theme <Theme Name> Shows Motd info on screen, based on the chosen theme
+  -C | --colortest          Prints color test to screen
+  -M | --colormap           Prints color test to screen, with color numbers in it
+  -S | --save               Saves data to /var/tmp/FireMotD.json
+ -HV | --hideversion        Hides version number
 
 256-color themes:
  original
  modern
  gray
  orange
+ invader
 
 16-color themes:
  red
@@ -93,12 +93,11 @@ Examples:
  FireMotD --theme Modern
  FireMotD --colortest
  FireMotD -M
- sudo /usr/local/bin/FireMotD --saveupdates
+ sudo /usr/local/bin/FireMotD -S
 
 Note:
- Some functionalities may require superuser privileges. Eg. check for updates.
- If you have problems, try something like:
- sudo /home/tavinus/FireMotD/FireMotD -S
+ The first time you use FireMotD, you will need to generate the FireMotD.json file.
+ sudo ./FireMotD -S
 ```
 
 ### System Install
@@ -120,14 +119,11 @@ Does not require the sudo make install above (system install), but requires the 
 
 If you don't have root access, just install everything on your user's folder and source the file from your user's .profile file
 
-### Crontab to get system updates count
+### Crontab to get system information
 
-This is an example on how to record the system update package count daily.  
-This will update the file `/var/tmp/updatecount.txt` for later access.  
-Root privilege is required for this operation. 
-Only `/etc/crontab` and the files in `/etc/cron.d/` have a username field.
+Root privilege is required for this operation. Only `/etc/crontab` and the files in `/etc/cron.d/` have a username field.
  
-The recommended way to generate updatecount.txt is by creating a separate cron file for firemotd like this:
+The recommended way to generate /var/tmp/FireMotD.json is by creating a separate cron file for firemotd like this:
 
 ```bash
 sudo vim /etc/cron.d/firemotd
