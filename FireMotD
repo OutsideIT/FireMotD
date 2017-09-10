@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v8.04.170826
+# Version:      v8.05.170909
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -1052,7 +1052,7 @@ $CP1$CP1$CP12$CP1H$C1R$CP1$CP1"
     DiskRootFreePerc=$(jq -r ".DiskRoot.FreePerc" $ExportFile)
     DiskRootUsedPerc=$(jq -r ".DiskRoot.UsedPerc" $ExportFile)
     if [[ ! -z $DiskRootTotalGB ]] && [[ "$DiskRootTotalGB" != "null" ]] ; then
-        echo -e "$CP1      ${KS}Root $ES ${VC}Free: ${VCL}${RootFreeGB}${VC}GB (${VCL}$RootFreePerc${VC}%), Used: ${VCL}${RootUsedGB}${VC}GB (${VCL}$RootUsedPerc${VC}%), Total: ${VCL}${RootTotalGB}${VC}GB"
+        echo -e "$CP1      ${KS}Root $ES ${VC}Free: ${VCL}${DiskRootFreeGB}${VC}GB (${VCL}$DiskRootFreePerc${VC}%), Used: ${VCL}${DiskRootUsedGB}${VC}GB (${VCL}$DiskRootUsedPerc${VC}%), Total: ${VCL}${DiskRootTotalGB}${VC}GB"
     fi
     UpdateCount=$(jq -r ".Updates.Count" $ExportFile)
     UpdateType=$(jq -r ".Updates.Type" $ExportFile)
