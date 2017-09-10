@@ -970,7 +970,7 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme"
     ProcessCount=$(jq -r ".Processes.Count" $ExportFile)
     ProcessMax=$(jq -r ".Processes.Max" $ExportFile)
     if [[ ! -z $ProcessCount ]] && [[ "$ProcessCount" != "null" ]] ; then
-        echo -e "\e[0;38;5;17m$Fto    \e[38;5;39mProcesses \e[38;5;93m= \e[38;5;33m$ProcessCount\e[38;5;27m running processes of \e[38;5;33m$ProcessMax\e[38;5;27m maximum processes"
+        echo -e "\e[0;38;5;17m$Fto    \e[38;5;39mProcesses  \e[38;5;93m= \e[38;5;33m$ProcessCount\e[38;5;27m running processes of \e[38;5;33m$ProcessMax\e[38;5;27m maximum processes"
     fi
     HttpdVersion=$(jq -r ".Httpd.Version" $ExportFile)
     if [[ ! -z $HttpdVersion ]] && [[ "$HttpdVersion" != "null" ]] ; then
