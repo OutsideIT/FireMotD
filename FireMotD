@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v8.05.170909
+# Version:      v8.06.170909
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -507,6 +507,20 @@ ExplorePhp () {
     jq ".Php.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
 }
 
+ExploreElasticsearch () {
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    if [[ -x "/usr/bin/yum" ]] ; then
+      ElasticsearchVersion=$(/usr/bin/yum info -v elasticsearch &>/dev/null | grep -A12 -B5 -w installed | grep Version | awk '{print $3}')
+    else
+      ElasticsearchVersion="Unknown"
+    fi
+    if [ -z $ElasticsearchVersion ] ; then
+      ElasticsearchVersion="Unknown"
+    fi
+    jq ".Elasticsearch.Version = \"$ElasticsearchVersion\"" $ExportFile | sponge $ExportFile
+    jq ".Elasticsearch.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
 ExportData () {
     if [[ ! -s "$ExportFile" ]] ; then
         echo '{
@@ -630,6 +644,11 @@ ExportData () {
     "Generated": "@cron",
     "Version": "Unknown",
     "MaxMemory": "Unknown",
+    "LastRun": "Never"
+  },
+  "Elasticsearch": {
+    "Generated": "@cron",
+    "Version": "Unknown",
     "LastRun": "Never"
   }
 }' > $ExportFile
@@ -974,7 +993,11 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme"
     PhpMaxMemory=$(jq -r ".Php.MaxMemory" $ExportFile)
     if [[ ! -z $PhpVersion ]] && [[ "$PhpVersion" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto         \e[38;5;39mPHP \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PhpVersion, \e[38;5;27mMemory Limit: \e[38;5;33m$PhpMaxMemory"
-    fi    
+    fi
+    ElasticsearchVersion=$(jq -r ".Elasticsearch.Version" $ExportFile)
+    if [[ ! -z $ElasticsearchVersion ]] && [[ "$ElasticsearchVersion" != "Unknown" ]] ; then
+        echo -e "\e[0;38;5;17m$Fto         \e[38;5;39mElasticsearch \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$ElasticsearchVersion"
+    fi 
     echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme\e[0;37m"
 }
 
