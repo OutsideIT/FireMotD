@@ -510,11 +510,11 @@ ExplorePhp () {
 ExploreElasticsearch () {
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     if [[ -x "/usr/bin/yum" ]] ; then
-      ElasticsearchVersion=$(/usr/bin/yum info -v elasticsearch &>/dev/null | grep -A12 -B5 -w installed | grep Version | awk '{print $3}')
+      ElasticsearchVersion=$(/usr/bin/yum info -v elasticsearch 2>/dev/null | grep -A12 -B5 -w installed | grep Version | awk '{print $3}')
     else
       ElasticsearchVersion="Unknown"
     fi
-    if [ -z $ElasticsearchVersion ] ; then
+    if [ -z $ElasticsearchVersion ] || [[ $ElasticsearchVersion == *"Error: No matching Packages"* ]] ; then
       ElasticsearchVersion="Unknown"
     fi
     jq ".Elasticsearch.Version = \"$ElasticsearchVersion\"" $ExportFile | sponge $ExportFile
@@ -995,7 +995,7 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme"
         echo -e "\e[0;38;5;17m$Fto         \e[38;5;39mPHP \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PhpVersion, \e[38;5;27mMemory Limit: \e[38;5;33m$PhpMaxMemory"
     fi
     ElasticsearchVersion=$(jq -r ".Elasticsearch.Version" $ExportFile)
-    if [[ ! -z $ElasticsearchVersion ]] && [[ "$ElasticsearchVersion" != "Unknown" ]] ; then
+    if [[ ! -z $ElasticsearchVersion ]] && [[ "$ElasticsearchVersion" != "Unknown" ]] && [[ "$ElasticsearchVersion" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto         \e[38;5;39mElasticsearch \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$ElasticsearchVersion"
     fi 
     echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme\e[0;37m"
