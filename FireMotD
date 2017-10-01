@@ -22,7 +22,7 @@
 Debug=0
 Verbose=0
 HideVersion=0
-SkipUpdate=0
+SkipRepoUpdate=0
 LogLocal=''
 ExportFile='/var/tmp/FireMotD.json'
 ScriptPath="$(readlink -f "$0")"
@@ -405,7 +405,7 @@ ExploreUpdates () {
         fi
     elif [[ -x "/usr/bin/apt-get" ]] ; then
         UpdateType="apt"
-        if [[ "$SkipUpdate" -eq 1 ]]; then
+        if [[ "$SkipRepoUpdate" -eq 1 ]]; then
             UpdateCount=$(apt-get upgrade -u -s | grep -c -P "^Inst")
         else
             UpdateCount=$(apt-get update > /dev/null; apt-get upgrade -u -s | grep -c -P "^Inst")
@@ -1424,7 +1424,7 @@ Options:
    -M | --colormap           Prints color test to screen, with color numbers in it
    -S | --save               Saves data to /var/tmp/FireMotD.json
   -HV | --hideversion        Hides version number
- -SUPD| --skipupdate         Skip update for package list
+ -SRU | --skiprepoupdate     Skip update for package list
 
 256-color themes:
  original
@@ -1492,8 +1492,8 @@ while :; do
             CheckSudo "$@" ; ExportData ; exit $? ;;
         -HV|--hideversion|--HideVersion)
             HideVersion=1 ; shift ;;
-        -SUPD|--skipupdate|--SkipUpdate)
-            SkipUpdate=1 ; shift ;;
+        -sru|-SRU|--skiprepoupdate|--SkipRepoUpdate)
+            SkipRepoUpdate=1 ; shift ;;
         -t|-T|--Theme|--theme)
             shift ; Theme=$1
             LoadData
