@@ -306,15 +306,12 @@ ExploreCpuUsage () {
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     CpuUsageAverage="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
     CpuUsageCpuCount="$(< /proc/cpuinfo grep -c processor)"
-    if [[ "$Platform" == "OpenVZ" ]] ; then
+    if [[ "$(jq -r ".Platform.Value" $ExportFile)" == "OpenVZ" ]] ; then
+        CpuUsageSocketCount="$(cat /proc/cpuinfo | grep "physical id" | sort -u | wc -l)"
         CpuUsageCoreCount="$(cat /proc/cpuinfo | grep "processor" | sort -u | wc -l)"
     else
-        CpuUsageCoreCount="$(lscpu | grep 'Core(s) per socket:' | head -1 | awk -F " " '{print $4}')"
-    fi
-    if [[ "$(jq ".Platform.Value" $ExportFile)" == "OpenVZ" ]] ; then
-        CpuUsageSocketCount="$(cat /proc/cpuinfo | grep "physical id" | sort -u | wc -l)"
-    else
         CpuUsageSocketCount="$(lscpu | grep 'Socket(s):' | head -1 | awk -F " " '{print $2}')"
+        CpuUsageCoreCount="$(lscpu | grep 'Core(s) per socket:' | head -1 | awk -F " " '{print $4}')"
     fi
     jq ".CpuUsage.Average = \"$CpuUsageAverage\"" $ExportFile | sponge $ExportFile
     jq ".CpuUsage.CpuCount = \"$CpuUsageCpuCount\"" $ExportFile | sponge $ExportFile
