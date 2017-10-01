@@ -147,7 +147,7 @@ On systems with apt (Debian, Ubuntu, ...) add the following configuration lines 
 Create the apt configuration file `/etc/apt/apt.conf.d/15firemotd` containing:
 ```bash
 DPkg::Post-Invoke {
-  "if [ -x /usr/local/bin/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /usr/local/bin/FireMotD -S; echo ''; fi";
+  "if [ -x /usr/local/bin/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /usr/local/bin/FireMotD -sru -S; echo ''; fi";
 };
 ```
 
