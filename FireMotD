@@ -22,6 +22,7 @@
 Debug=0
 Verbose=0
 HideVersion=0
+SkipUpdate=0
 LogLocal=''
 ExportFile='/var/tmp/FireMotD.json'
 ScriptPath="$(readlink -f "$0")"
@@ -404,7 +405,11 @@ ExploreUpdates () {
         fi
     elif [[ -x "/usr/bin/apt-get" ]] ; then
         UpdateType="apt"
-        UpdateCount=$(apt-get update > /dev/null; apt-get upgrade -u -s | grep -c -P "^Inst")
+        if [[ "$SkipUpdate" -eq 1 ]]; then
+            UpdateCount=$(apt-get upgrade -u -s | grep -c -P "^Inst")
+        else
+            UpdateCount=$(apt-get update > /dev/null; apt-get upgrade -u -s | grep -c -P "^Inst")
+        fi
     fi
     jq ".Updates.Type = \"$UpdateType\"" $ExportFile | sponge $ExportFile
     jq ".Updates.Count = \"$UpdateCount\"" $ExportFile | sponge $ExportFile
@@ -1411,14 +1416,15 @@ Usage:
  $ScriptName [-vhVs]
 
 Options:
-  -h | --help               Shows this help and exits
-  -v | --verbose            Verbose mode (shows messages)
-  -V | --version            Shows version information and exits
-  -t | --theme <Theme Name> Shows Motd info on screen, based on the chosen theme
-  -C | --colortest          Prints color test to screen
-  -M | --colormap           Prints color test to screen, with color numbers in it
-  -S | --save               Saves data to /var/tmp/FireMotD.json
- -HV | --hideversion        Hides version number
+   -h | --help               Shows this help and exits
+   -v | --verbose            Verbose mode (shows messages)
+   -V | --version            Shows version information and exits
+   -t | --theme <Theme Name> Shows Motd info on screen, based on the chosen theme
+   -C | --colortest          Prints color test to screen
+   -M | --colormap           Prints color test to screen, with color numbers in it
+   -S | --save               Saves data to /var/tmp/FireMotD.json
+  -HV | --hideversion        Hides version number
+ -SUPD| --skipupdate         Skip update for package list
 
 256-color themes:
  original
@@ -1486,6 +1492,8 @@ while :; do
             CheckSudo "$@" ; ExportData ; exit $? ;;
         -HV|--hideversion|--HideVersion)
             HideVersion=1 ; shift ;;
+        -SUPD|--skipupdate|--SkipUpdate)
+            SkipUpdate=1 ; shift ;;
         -t|-T|--Theme|--theme)
             shift ; Theme=$1
             LoadData
