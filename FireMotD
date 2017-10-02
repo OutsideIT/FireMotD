@@ -1424,7 +1424,7 @@ Options:
    -M | --colormap           Prints color test to screen, with color numbers in it
    -S | --save               Saves data to /var/tmp/FireMotD.json
   -HV | --hideversion        Hides version number
- -SRU | --skiprepoupdate     Skip update for package list
+ -sru | --skiprepoupdate     Skip the repository package update during update count calculation (apt only)
 
 256-color themes:
  original
