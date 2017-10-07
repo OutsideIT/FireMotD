@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v8.06.171007
+# Version:      v8.08.171007
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -365,8 +365,7 @@ ExploreMemory () {
     MemTotalB="$(< /proc/meminfo grep MemTotal | awk '{print $2}')"
     MemTotalGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$MemTotalB"/1024/1024)")"
     ProcpsVersion="$(free --version | awk '{ print $4 }')"
-    VersionComparison 3.3.9 "$ProcpsVersion"
-    
+    VersionComparison 3.3.9 "$ProcpsVersion"    
     if [ $? -lt 2 ] ; then
         MemFreeB="$(free | grep buffers/cache | awk '{print $4}')"
         MemUsedB="$(free | grep buffers/cache | awk '{print $3}')"
@@ -376,7 +375,6 @@ ExploreMemory () {
         MemUsedB=$(echo "$MemBuffCacheB+$MemFreeUsedB" | bc)
         MemFreeB="$(free | awk '/Mem:/ { print $4 }')"
     fi
-
     MemFreeGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$MemFreeB"/1024/1024)")"
     MemUsedGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$MemUsedB"/1024/1024)")"
     MemFreePerc=$(echo "scale=2; $MemFreeB*100/$MemTotalB" | bc)
@@ -730,6 +728,8 @@ StartOrangeTheme () {
         HostName=${HostName:0:39}
         HostChars=47
     fi
+    LeftoverChars=$((MaxLeftOverChars - HostChars -10))
+    (( $LeftoverChars <= 0 )) && LeftoverChars=0
     C1C=$(( 79 - 4 - 10 - HostChars - 4 ))                                                    
     WriteLog Verbose Info "Row 1 Rest Chars: $C1C"                                            
     C2C=$(( 79 - 4 - 4 - 9 - HostChars - 9 - 6 ))                                             
@@ -777,6 +777,8 @@ StartGrayTheme () {
         HostName=${HostName:0:39}
         HostChars=47
     fi
+    LeftoverChars=$((MaxLeftOverChars - HostChars -10))
+    (( $LeftoverChars <= 0 )) && LeftoverChars=0
     C1C=$(( 79 - 4 - 10 - HostChars - 4 ))
     WriteLog Verbose Info "Row 1 Rest Chars: $C1C"
     C2C=$(( 79 - 4 - 4 - 9 - HostChars - 9 - 6 ))
@@ -1015,7 +1017,7 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme"
     ProcessCount=$(jq -r ".Processes.Count" $ExportFile)
     ProcessMax=$(jq -r ".Processes.Max" $ExportFile)
     if [[ ! -z $ProcessCount ]] && [[ "$ProcessCount" != "null" ]] ; then
-        echo -e "\e[0;38;5;17m$Fto    \e[38;5;39mProcesses  \e[38;5;93m= \e[38;5;33m$ProcessCount\e[38;5;27m running processes of \e[38;5;33m$ProcessMax\e[38;5;27m maximum processes"
+        echo -e "\e[0;38;5;17m$Fto     \e[38;5;39mProcesses \e[38;5;93m= \e[38;5;33m$ProcessCount\e[38;5;27m running processes of \e[38;5;33m$ProcessMax\e[38;5;27m maximum processes"
     fi
     HttpdVersion=$(jq -r ".Httpd.Version" $ExportFile)
     if [[ ! -z $HttpdVersion ]] && [[ "$HttpdVersion" != "null" ]] ; then
@@ -1157,6 +1159,10 @@ $CP1$CP1$CP12$CP1H$C1R$CP1$CP1"
     PhpMaxMemory=$(jq -r ".Php.MaxMemory" $ExportFile)
     if [[ ! -z $PhpVersion ]] && [[ "$PhpVersion" != "null" ]] ; then
         echo -e "$CP1       ${KS}PHP $ES ${VC}Version: ${VCL}$PhpVersion, ${VC}Memory Limit: ${VCL}$PhpMaxMemory"
+    fi
+    ElasticsearchVersion=$(jq -r ".Elasticsearch.Version" $ExportFile)
+    if [[ ! -z $ElasticsearchVersion ]] && [[ "$ElasticsearchVersion" != "Unknown" ]] && [[ "$ElasticsearchVersion" != "null" ]] ; then
+      echo -e "$CP1  ${KS}Elasticsearch $ES ${VCL}$ElasticsearchVersion"
     fi
     echo -e "$CP1$CP1$CZR$CP1$CP1\e[0;37m"
 }
