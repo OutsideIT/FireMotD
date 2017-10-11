@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v8.08.171007
+# Version:      v8.09.171011
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -131,37 +131,33 @@ ContainsValidIp () {
     return $stat
 }
 
-# Taken from https://stackoverflow.com/a/4025065/1667179
 VersionComparison () {
-    if [[ $1 == $2 ]]
-    then
-        return 0
-    fi
-    local IFS=.
-    local i ver1=($1) ver2=($2)
-    # fill empty fields in ver1 with zeros
-    for ((i=${#ver1[@]}; i<${#ver2[@]}; i++))
-    do
-        ver1[i]=0
-    done
-    for ((i=0; i<${#ver1[@]}; i++))
-    do
-        if [[ -z ${ver2[i]} ]]
-        then
-            # fill empty fields in ver2 with zeros
-            ver2[i]=0
-        fi
-        if ((10#${ver1[i]} > 10#${ver2[i]}))
-        then
-            return 1
-        fi
-        if ((10#${ver1[i]} < 10#${ver2[i]}))
-        then
-            return 2
-        fi
-    done
+  if [[ $1 == $2 ]] ; then
+    echo "equal"
     return 0
+  fi
+  local IFS=.
+  local i ver1=($1) ver2=($2)
+  for ((i=${#ver1[@]}; i<${#ver2[@]}; i++)) ; do
+    ver1[i]=0
+  done
+  for ((i=0; i<${#ver1[@]}; i++)) ; do
+    if [[ -z ${ver2[i]} ]] ; then
+      ver2[i]=0
+    fi
+    if ((10#${ver1[i]} > 10#${ver2[i]})) ; then
+      echo "older"
+      return 1
+    fi
+    if ((10#${ver1[i]} < 10#${ver2[i]})) ; then
+      echo "newer"
+      return 2
+    fi
+  done
+  echo "unknown"
+  return 3
 }
+
 
 GetSessions () {
     WriteLog Verbose Info "Output who: $(who)"
@@ -364,9 +360,9 @@ ExploreMemory () {
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     MemTotalB="$(< /proc/meminfo grep MemTotal | awk '{print $2}')"
     MemTotalGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$MemTotalB"/1024/1024)")"
-    ProcpsVersion="$(free --version | awk '{ print $4 }')"
-    VersionComparison 3.3.9 "$ProcpsVersion"    
-    if [ $? -lt 2 ] ; then
+    ProcpsVersion="$(free -V | awk '{ print $4 }')"
+    Result=$(VersionComparison 3.3.9 "$ProcpsVersion")
+    if [[ $Result =~ (older|equal) ]] ; then
         MemFreeB="$(free | grep buffers/cache | awk '{print $4}')"
         MemUsedB="$(free | grep buffers/cache | awk '{print $3}')"
     else
