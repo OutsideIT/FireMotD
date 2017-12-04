@@ -1140,7 +1140,7 @@ $CP1$CP1$CP12$CP1H$C1R$CP1$CP1"
     fi
     NginxVersion=$(jq -r ".Nginx.Version" $ExportFile)
     if [[ ! -z $NginxVersion ]] && [[ "$NginxVersion" != "null" ]] ; then
-        echo -e "$CP1          ${KS}Nginx $ES ${VC}Version: ${VCL}$nginxVersion"
+        echo -e "$CP1          ${KS}Nginx $ES ${VC}Version: ${VCL}$NginxVersion"
     fi
     MysqlVersion=$(jq -r ".Mysql.Version" $ExportFile)
     MysqlDistribution=$(jq ".Mysql.Distribution" $ExportFile)
