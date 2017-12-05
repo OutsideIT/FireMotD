@@ -31,6 +31,7 @@ ScriptVersion=" $(< "$ScriptPath" grep "# Version: " | head -n1 | awk '{print $3
 LC_ALL="C"
 LC_CTYPE="C"
 LC_NUMERIC="C"
+LANG="C"
 
 WriteLog () {
     if [ ! -z "$ScriptName" ] ; then
