@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v8.09.171011
+# Version:      v8.10.171208
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -159,6 +159,22 @@ VersionComparison () {
   return 3
 }
 
+function IsInstalled {
+  if [[ -x "/usr/bin/yum" ]] ; then
+    YumExec=$(which yum 2>/dev/null)
+    if yum list installed "$@" >/dev/null 2>&1; then
+     true
+    else
+      false
+    fi
+  elif [[ -x "/usr/bin/zypper" ]] ; then
+    WriteLog Verbose Info "No $@ check for zypper available."
+    true
+  elif [[ -x "/usr/bin/apt-get" ]] ; then
+    WriteLog Verbose Info "No $@ check for apt available."
+    true
+  fi
+}
 
 GetSessions () {
     WriteLog Verbose Info "Output who: $(who)"
@@ -1516,11 +1532,19 @@ CheckSudo () {
     return 0
 }
 
+CheckDependencies () {
+  if IsInstalled openssh-clients ; then WriteLog Verbose Info "Detected openssh-clients" ; else WriteLog Output Error "Unable to detect openssh-clients. Please install." ; exit 1 ; fi
+  if IsInstalled bc ; then WriteLog Verbose Info "Detected bc" ; else WriteLog Output Error "Unable to detect bc. Please install." ; exit 1 ; fi
+  if IsInstalled sysstat ; then WriteLog Verbose Info "Detected sysstat" ; else WriteLog Output Error "Unable to detect sysstat. Please install." ; exit 1 ; fi
+  if IsInstalled jq ; then WriteLog Verbose Info "Detected jq" ; else WriteLog Output Error "Unable to detect jq. Please install." ; exit 1 ; fi
+  if IsInstalled moreutils ; then WriteLog Verbose Info "Detected moreutils" ; else WriteLog Output Error "Unable to detect moreutils. Please install." ; exit 1 ; fi
+}
+
 if [[ -z $1 ]]; then
-        echo "Error! You should provide an option / parameter."
-        echo "Try:"
-        echo "    $0 --help"
-        exit 2
+  echo "Error! You should provide an option / parameter."
+  echo "Try:"
+  echo "    $0 --help"
+  exit 2
 fi
 
 while :; do
@@ -1532,13 +1556,14 @@ while :; do
         -h|--help|--Help)
             PrintHelp ; exit 0 ;;
         -s|-S|--save|--Save|--saveupdates|--SaveUpdates|--saveUpdates)
-            CheckSudo "$@" ; ExportData ; exit $? ;;
+            CheckSudo "$@" ; CheckDependencies "$@" ; ExportData ; exit $? ;;
         -HV|--hideversion|--HideVersion)
             HideVersion=1 ; shift ;;
         -sru|-SRU|--skiprepoupdate|--SkipRepoUpdate)
             SkipRepoUpdate=1 ; shift ;;
         -t|-T|--Theme|--theme)
             shift ; Theme=$1
+            CheckDependencies
             LoadData
             case "$Theme" in
                 original|Original) StartOriginalBlue ; GenerateOriginal256Color ;;
