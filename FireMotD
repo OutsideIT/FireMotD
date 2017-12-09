@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v8.10.171208
+# Version:      v8.10.171209
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -1530,8 +1530,8 @@ CheckSudo () {
 CheckDependencies () {
   command -v bc >/dev/null 2>&1 || { WriteLog Output Error "Unable to detect bc. Please install." >&2 ; exit 1 ; }
   command -v jq >/dev/null 2>&1 || { WriteLog Output Error "Unable to detect jq. Please install." >&2 ; exit 1 ; }
-  if IsInstalled sysstat ; then WriteLog Verbose Info "Detected sysstat" ; else WriteLog Output Error "Unable to detect sysstat. Please install." ; exit 1 ; fi
-  if IsInstalled moreutils ; then WriteLog Verbose Info "Detected moreutils" ; else WriteLog Output Error "Unable to detect moreutils. Please install." ; exit 1 ; fi
+  command -v mpstat >/dev/null 2>&1 || { WriteLog Output Error "Unable to detect mpstat. Please install sysstat package." >&2 ; exit 1 ; }
+  command -v sponge >/dev/null 2>&1 || { WriteLog Output Error "Unable to detect sponge. Please install moreutils package." >&2 ; exit 1 ; }
 }
 
 if [[ -z $1 ]]; then
@@ -1550,7 +1550,7 @@ while :; do
         -h|--help|--Help)
             PrintHelp ; exit 0 ;;
         -s|-S|--save|--Save|--saveupdates|--SaveUpdates|--saveUpdates)
-            CheckSudo "$@" ; CheckDependencies "$@" ; ExportData ; exit $? ;;
+            CheckSudo "$@" ; CheckDependencies ; ExportData ; exit $? ;;
         -HV|--hideversion|--HideVersion)
             HideVersion=1 ; shift ;;
         -sru|-SRU|--skiprepoupdate|--SkipRepoUpdate)
