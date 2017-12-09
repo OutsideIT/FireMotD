@@ -162,17 +162,12 @@ VersionComparison () {
 function IsInstalled {
   if [[ -x "/usr/bin/yum" ]] ; then
     YumExec=$(which yum 2>/dev/null)
-    if yum list installed "$@" >/dev/null 2>&1; then
-     true
-    else
-      false
-    fi
+    if YumExec list installed "$@" >/dev/null 2>&1; then true ; else false ; fi
   elif [[ -x "/usr/bin/zypper" ]] ; then
     WriteLog Verbose Info "No $@ check for zypper available."
     true
   elif [[ -x "/usr/bin/apt-get" ]] ; then
-    WriteLog Verbose Info "No $@ check for apt available."
-    true
+    if dpkg-query -l "$@" >/dev/null 2>&1 ; then true ; else ; false ; fi
   fi
 }
 
@@ -1537,7 +1532,6 @@ CheckDependencies () {
   command -v jq >/dev/null 2>&1 || { WriteLog Output Error "Unable to detect jq. Please install." >&2 ; exit 1 ; }
   if IsInstalled sysstat ; then WriteLog Verbose Info "Detected sysstat" ; else WriteLog Output Error "Unable to detect sysstat. Please install." ; exit 1 ; fi
   if IsInstalled moreutils ; then WriteLog Verbose Info "Detected moreutils" ; else WriteLog Output Error "Unable to detect moreutils. Please install." ; exit 1 ; fi
-  if IsInstalled openssh-clients ; then WriteLog Verbose Info "Detected openssh-clients" ; else WriteLog Output Error "Unable to detect openssh-clients. Please install." ; exit 1 ; fi
 }
 
 if [[ -z $1 ]]; then
