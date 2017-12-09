@@ -162,12 +162,12 @@ VersionComparison () {
 function IsInstalled {
   if [[ -x "/usr/bin/yum" ]] ; then
     YumExec=$(which yum 2>/dev/null)
-    if YumExec list installed "$@" >/dev/null 2>&1; then true ; else false ; fi
+    if $YumExec list installed "$@" >/dev/null 2>&1; then true ; else false ; fi
   elif [[ -x "/usr/bin/zypper" ]] ; then
     WriteLog Verbose Info "No $@ check for zypper available."
     true
   elif [[ -x "/usr/bin/apt-get" ]] ; then
-    if dpkg-query -l "$@" >/dev/null 2>&1 ; then true ; else ; false ; fi
+    if dpkg-query -l "$@" >/dev/null 2>&1 ; then true ; else false ; fi
   fi
 }
 
