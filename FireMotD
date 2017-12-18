@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v8.11.171218
+# Version:      v8.12.171218
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -572,6 +572,20 @@ ExploreElasticsearch () {
     jq ".Elasticsearch.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
 }
 
+ExploreLogstash () {
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    if [[ -x "/usr/bin/yum" ]] ; then
+      LogstashVersion=$(/usr/bin/yum info -v logstash 2>/dev/null | grep -A12 -B5 -w installed | grep Version | awk '{print $3}')
+    else
+      LogstashVersion="Unknown"
+    fi
+    if [ -z $LogstashVersion ] || [[ $LogstashVersion == *"Error: No matching Packages"* ]] ; then
+      LogstashVersion="Unknown"
+    fi
+    jq ".Logstash.Version = \"$LogstashVersion\"" $ExportFile | sponge $ExportFile
+    jq ".Logstash.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
 ExportData () {
     if [[ ! -s "$ExportFile" ]] ; then
         echo '{
@@ -698,6 +712,11 @@ ExportData () {
     "LastRun": "Never"
   },
   "Elasticsearch": {
+    "Generated": "@cron",
+    "Version": "Unknown",
+    "LastRun": "Never"
+  },
+  "Logstash": {
     "Generated": "@cron",
     "Version": "Unknown",
     "LastRun": "Never"
@@ -1052,6 +1071,10 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme"
     ElasticsearchVersion=$(jq -r ".Elasticsearch.Version" $ExportFile)
     if [[ ! -z $ElasticsearchVersion ]] && [[ "$ElasticsearchVersion" != "Unknown" ]] && [[ "$ElasticsearchVersion" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto \e[38;5;39mElasticsearch \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$ElasticsearchVersion"
+    fi
+    LogstashVersion=$(jq -r ".Logstash.Version" $ExportFile)
+    if [[ ! -z $LogstashVersion ]] && [[ "$LogstashVersion" != "Unknown" ]] && [[ "$LogstashVersion" != "null" ]] ; then
+        echo -e "\e[0;38;5;17m$Fto      \e[38;5;39mLogstash \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$LogstashVersion"
     fi 
     echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme\e[0;37m"
 }
@@ -1171,6 +1194,10 @@ $CP1$CP1$CP12$CP1H$C1R$CP1$CP1"
     ElasticsearchVersion=$(jq -r ".Elasticsearch.Version" $ExportFile)
     if [[ ! -z $ElasticsearchVersion ]] && [[ "$ElasticsearchVersion" != "Unknown" ]] && [[ "$ElasticsearchVersion" != "null" ]] ; then
       echo -e "$CP1  ${KS}Elasticsearch $ES ${VC}Version: ${VCL}$ElasticsearchVersion"
+    fi
+    LogstashVersion=$(jq -r ".Logstash.Version" $ExportFile)
+    if [[ ! -z $LogstashVersion ]] && [[ "$LogstashVersion" != "Unknown" ]] && [[ "$LogstashVersion" != "null" ]] ; then
+      echo -e "$CP1       ${KS}Logstash $ES ${VC}Version: ${VCL}$LogstashVersion"
     fi
     echo -e "$CP1$CP1$CZR$CP1$CP1\e[0;37m"
 }
