@@ -572,6 +572,20 @@ ExploreElasticsearch () {
     jq ".Elasticsearch.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
 }
 
+ExploreLogstash () {
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    if [[ -x "/usr/bin/yum" ]] ; then
+      LogstashVersion=$(/usr/bin/yum info -v logstash 2>/dev/null | grep -A12 -B5 -w installed | grep Version | awk '{print $3}')
+    else
+      LogstashVersion="Unknown"
+    fi
+    if [ -z $LogstashVersion ] || [[ $LogstashVersion == *"Error: No matching Packages"* ]] ; then
+      LogstashVersion="Unknown"
+    fi
+    jq ".Logstash.Version = \"$LogstashVersion\"" $ExportFile | sponge $ExportFile
+    jq ".Logstash.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
 ExportData () {
     if [[ ! -s "$ExportFile" ]] ; then
         echo '{
@@ -698,6 +712,11 @@ ExportData () {
     "LastRun": "Never"
   },
   "Elasticsearch": {
+    "Generated": "@cron",
+    "Version": "Unknown",
+    "LastRun": "Never"
+  },
+  "Logstash": {
     "Generated": "@cron",
     "Version": "Unknown",
     "LastRun": "Never"
