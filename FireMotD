@@ -1583,28 +1583,32 @@ while :; do
         -sru|-SRU|--skiprepoupdate|--SkipRepoUpdate)
             SkipRepoUpdate=1 ; shift ;;
         -t|-T|--Theme|--theme)
-            shift ; Theme=$1
-            LoadData
-            case "$Theme" in
-                original|Original) StartOriginalBlue ; GenerateOriginal256Color ;;
-                modern|Modern) GenerateOriginal256Color ;;
-                red|Red) StartRedTheme ; GenerateBasic16Color ;;
-                blue|Blue) StartBlueTheme ; GenerateBasic16Color ;;
-                gray|Gray) StartGrayTheme ; GenerateBasic16Color ;;
-                orange|Orange) StartOrangeTheme ; GenerateBasic16Color ;;
-                html|Html) GenerateHtmlTheme ;;
-                blank|Blank|blanco|Blanco|Text|Clean|clean) GenerateBasic16Color ;;
-                invader|Invader) GenerateInvader ;;
-                *) echo "You specified a non-existant theme: $1" ; exit 2 ;;
-            esac
-            shift ;;
+            shift ; Theme=$1 ; shift ;;
         -C|--Colortest|--colortest|--ColorTest|--colorTest) 
             ColorTest ; shift ;;
         -M|--Colormap|--colormap|--ColorMap|--colorMap) 
             ColorTest 0 ; shift ;;
+        -E|--ExportFile)
+            shift ; ExportFile=$1 ; shift ;;
         -*) echo "You specified a non-existant option: $1" ; exit 2 ;;
         *) break ;;
     esac
 done
+
+if [ "$Theme" ] ; then
+  LoadData
+  case "$Theme" in
+    original|Original) StartOriginalBlue ; GenerateOriginal256Color ;;
+    modern|Modern) GenerateOriginal256Color ;;
+    red|Red) StartRedTheme ; GenerateBasic16Color ;;
+    blue|Blue) StartBlueTheme ; GenerateBasic16Color ;;
+    gray|Gray) StartGrayTheme ; GenerateBasic16Color ;;
+    orange|Orange) StartOrangeTheme ; GenerateBasic16Color ;;
+    html|Html) GenerateHtmlTheme ;;
+    blank|Blank|blanco|Blanco|Text|Clean|clean) GenerateBasic16Color ;;
+    invader|Invader) GenerateInvader ;;
+    *) echo "You specified a non-existant theme: $1" ; exit 2 ;;
+  esac
+fi
 
 exit 0
