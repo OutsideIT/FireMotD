@@ -1074,7 +1074,7 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme"
     fi
     LogstashVersion=$(jq -r ".Logstash.Version" $ExportFile)
     if [[ ! -z $LogstashVersion ]] && [[ "$LogstashVersion" != "Unknown" ]] && [[ "$LogstashVersion" != "null" ]] ; then
-        echo -e "\e[0;38;5;17m$Fto \e[38;5;39mLogstash \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$LogstashVersion"
+        echo -e "\e[0;38;5;17m$Fto      \e[38;5;39mLogstash \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$LogstashVersion"
     fi 
     echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme\e[0;37m"
 }
@@ -1197,7 +1197,7 @@ $CP1$CP1$CP12$CP1H$C1R$CP1$CP1"
     fi
     LogstashVersion=$(jq -r ".Logstash.Version" $ExportFile)
     if [[ ! -z $LogstashVersion ]] && [[ "$LogstashVersion" != "Unknown" ]] && [[ "$LogstashVersion" != "null" ]] ; then
-      echo -e "$CP1  ${KS}Logstash $ES ${VC}Version: ${VCL}$LogstashVersion"
+      echo -e "$CP1       ${KS}Logstash $ES ${VC}Version: ${VCL}$LogstashVersion"
     fi
     echo -e "$CP1$CP1$CZR$CP1$CP1\e[0;37m"
 }
