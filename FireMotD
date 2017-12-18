@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v8.10.171209
+# Version:      v8.11.171218
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -245,7 +245,9 @@ ExploreRelease () {
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     ReleaseFull="$(cat /etc/*release)"
     Release="$(echo "$ReleaseFull" | head -n 1)"
-    if [[ "$Release" == "SUSE"* ]] ; then
+    if echo "$ReleaseFull" | egrep '(^CentOS*|^Red Hat*)' >/dev/null ; then
+       Release="$(echo "$ReleaseFull" | tail -1)"
+    elif [[ "$Release" == "SUSE"* ]] ; then
         Release=${Release%% \(*}
         PatchLevel="$(cat /etc/*release | sed -n 3p | sed 's/.*= //')"
         Release="${Release}.$PatchLevel"
@@ -253,8 +255,6 @@ ExploreRelease () {
         Release="$(< /etc/os-release sed -n 4p | sed 's/PRETTY_NAME="//' | sed 's/ (.*//')"
     elif [[ "$Release" == *"Raspbian"* ]] ; then
         Release="$(echo "$ReleaseFull" | head -n 1 | sed 's/.*"\(.*\)"[^"]*$/\1/')"
-    elif [[ "$ReleaseFull" == *"PRETTY_NAME"* ]] ; then
-        Release="$(echo "$ReleaseFull" | grep 'PRETTY_NAME' | cut -f2 -d'"')"
     elif [[ "$ReleaseFull" == *"DISTRIB_DESCRIPTION"* ]] ; then
         Release="$(echo "$ReleaseFull" | grep 'DISTRIB_DESCRIPTION' | cut -f2 -d'"')"
     fi
