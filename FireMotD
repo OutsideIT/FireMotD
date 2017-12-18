@@ -246,7 +246,7 @@ ExploreRelease () {
     ReleaseFull="$(cat /etc/*release)"
     Release="$(echo "$ReleaseFull" | head -n 1)"
     if echo "$Release" | egrep '(^CentOS*|^Red Hat*)' >/dev/null ; then
-       Release="$(echo "$ReleaseFull" | | tail -1)"
+       Release="$(echo "$ReleaseFull" | tail -1)"
     elif [[ "$Release" == "SUSE"* ]] ; then
         Release=${Release%% \(*}
         PatchLevel="$(cat /etc/*release | sed -n 3p | sed 's/.*= //')"
