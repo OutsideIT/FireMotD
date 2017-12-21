@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v8.12.171218
+# Version:      v8.13.171221
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -52,8 +52,8 @@ WriteLog () {
         fi
     fi
     Now=$(date '+%Y-%m-%d %H:%M:%S,%3N')
-    if [ "$1" = "Debug" ] && [ "$Debug" = 1 ] ; then
-        echo "$Now: $ScriptName: $2: Debug: $3 "
+    if [[ "$1" =~ (Debug|Verbose) ]] && [ "$Debug" = 1 ] ; then
+        echo "$Now: $ScriptName: $2: $3 "
     elif [ "$1" = "Verbose" ] && [ "$Verbose" = 1 ] ; then
         echo "$Now: $ScriptName: $2: $3"
     elif [ "$1" = "Output" ] ; then
@@ -63,7 +63,7 @@ WriteLog () {
     fi
     if [ ! -z "$LogLocal" ] ; then
         if [ "$1" = "Debug" ] && [ "$Debug" = 1 ] ; then
-            echo "$Now: $ScriptName: $2: Debug: $3 " >> "$LogLocal"
+            echo "$Now: $ScriptName: $2: $3 " >> "$LogLocal"
         elif [ "$1" = "Verbose" ] && [ "$Verbose" = 1 ] ; then
             echo "$Now: $ScriptName: $2: $3" >> "$LogLocal"
         elif [ "$1" = "Output" ] ; then 
@@ -159,7 +159,7 @@ VersionComparison () {
   return 3
 }
 
-function IsInstalled {
+IsInstalled () {
   if [[ -x "/usr/bin/yum" ]] ; then
     YumExec=$(which yum 2>/dev/null)
     if $YumExec list installed "$@" >/dev/null 2>&1; then true ; else false ; fi
@@ -622,11 +622,6 @@ ExportData () {
     "Seconds": "Unknown",
     "LastRun": "Never"
   },
-  "InstallDate": {
-    "Generated": "@cron",
-    "Value": "Unknown",
-    "LastRun": "Never"
-  },
   "CpuUsage": {
     "Generated": "@logon",
     "Average": "Unknown",
@@ -682,43 +677,6 @@ ExportData () {
     "Generated": "@logon",
     "Count": "Unknown",
     "Max": "Unknown",
-    "LastRun": "Never"
-  },
-  "Httpd": {
-    "Generated": "@cron",
-    "Version": "Unknown",
-    "LastRun": "Never"
-  },
-  "Nginx": {
-    "Generated": "@cron",
-    "Version": "Unknown",
-    "LastRun": "Never"
-  },
-  "Mysql": {
-    "Generated": "@cron",
-    "Version": "Unknown",
-    "Distribution": "Unknown",
-    "LastRun": "Never"
-  },
-  "Postgres": {
-    "Generated": "@cron",
-    "Version": "Unknown",
-    "LastRun": "Never"
-  },
-  "Php": {
-    "Generated": "@cron",
-    "Version": "Unknown",
-    "MaxMemory": "Unknown",
-    "LastRun": "Never"
-  },
-  "Elasticsearch": {
-    "Generated": "@cron",
-    "Version": "Unknown",
-    "LastRun": "Never"
-  },
-  "Logstash": {
-    "Generated": "@cron",
-    "Version": "Unknown",
     "LastRun": "Never"
   }
 }' > $ExportFile
@@ -1539,9 +1497,9 @@ Note:
 }
 
 PrintVersion () {
-    cVersion="$(echo -e "${ScriptVersion}" | tr -d '[:space:]')"
-    echo "$(basename "$0") v$cVersion"
-    return 0
+  cVersion="$(echo -e "${ScriptVersion}" | tr -d '[:space:]')"
+  echo "$(basename "$0") v$cVersion"
+  return 0
 }
 
 CheckSudo () {
@@ -1561,41 +1519,40 @@ CheckDependencies () {
   command -v sponge >/dev/null 2>&1 || { WriteLog Output Error "Unable to detect sponge. Please install moreutils package." >&2 ; exit 1 ; }
 }
 
-if [[ -z $1 ]]; then
-  echo "Error! You should provide an option / parameter."
-  echo "Try:"
-  echo "    $0 --help"
-  exit 2
-fi
-
-while :; do
+InitializeArgs () {
+  while :; do
     case "$1" in
-        -v|--verbose|--Verbose)
-            Verbose=1 ; WriteLog Verbose Info "Verbose execution." ; shift ;;
-        -V|--version|--Version)
-            PrintVersion ; exit 0 ;;
-        -h|--help|--Help)
-            PrintHelp ; exit 0 ;;
-        -s|-S|--save|--Save|--saveupdates|--SaveUpdates|--saveUpdates)
-            CheckSudo "$@" ; CheckDependencies ; ExportData ; exit $? ;;
-        -HV|--hideversion|--HideVersion)
-            HideVersion=1 ; shift ;;
-        -sru|-SRU|--skiprepoupdate|--SkipRepoUpdate)
-            SkipRepoUpdate=1 ; shift ;;
-        -t|-T|--Theme|--theme)
-            shift ; Theme=$1 ; shift ;;
-        -C|--Colortest|--colortest|--ColorTest|--colorTest) 
-            ColorTest ; shift ;;
-        -M|--Colormap|--colormap|--ColorMap|--colorMap) 
-            ColorTest 0 ; shift ;;
-        -E|--ExportFile)
-            shift ; ExportFile=$1 ; shift ;;
-        -*) echo "You specified a non-existant option: $1" ; exit 2 ;;
-        *) break ;;
+      -v|--verbose|--Verbose)
+        Verbose=1 ; WriteLog Verbose Info "Verbose mode" ; shift ;;
+      -d|--debug|--Debug)
+        Debug=1  ; WriteLog Debug Info "Debug mode" ; shift ;;
+      -V|--version|--Version)
+        Action="version" ; shift ;;
+      -h|--help|--Help)
+        Action="help" ; shift ;;
+      -s|-S|--save|--Save|--saveupdates|--SaveUpdates|--saveUpdates)
+        Action="save" ; shift ;;
+        #CheckSudo "$@" ; CheckDependencies ; ExportData ; exit $? ;;
+      -HV|--hideversion|--HideVersion)
+        HideVersion=1 ; shift ;;
+      -sru|-SRU|--skiprepoupdate|--SkipRepoUpdate)
+        SkipRepoUpdate=1 ; shift ;;
+      -t|-T|--Theme|--theme)
+        shift ; Action="theme" ; Theme=$1 ; shift ;;
+      -C|--Colortest|--colortest|--ColorTest|--colorTest) 
+        Action="colortest" ; shift ;;
+      -M|--Colormap|--colormap|--ColorMap|--colorMap) 
+        Action="colormap" ; shift ;;
+        # ColorTest 0
+      -E|--ExportFile)
+        shift ; ExportFile=$1 ; shift ;;
+      -*) echo "You specified a non-existant option: $1" ; exit 2 ;;
+      *) break ;;
     esac
-done
+  done
+}
 
-if [ "$Theme" ] ; then
+PrintTheme () {
   LoadData
   case "$Theme" in
     original|Original) StartOriginalBlue ; GenerateOriginal256Color ;;
@@ -1607,8 +1564,34 @@ if [ "$Theme" ] ; then
     html|Html) GenerateHtmlTheme ;;
     blank|Blank|blanco|Blanco|Text|Clean|clean) GenerateBasic16Color ;;
     invader|Invader) GenerateInvader ;;
-    *) echo "You specified a non-existant theme: $1" ; exit 2 ;;
+    *) WriteLog Output Error "You specified a non-existant theme: $1" ; exit 2 ;;
   esac
-fi
+}
 
+CheckAction () {
+  case "$Action" in
+    version)
+      PrintVersion ;;
+    help)
+      PrintHelp ;;
+    save)
+      CheckSudo "$@" 
+      CheckDependencies 
+      ExportData ;;
+    theme)
+      PrintTheme ;;
+    colormap)
+      ColorTest 0 ;;
+    colortest)
+      ColorTest ;;
+    *) break ;;
+  esac
+  return $?
+}
+
+if [[ -z $1 ]] ; then WriteLog Output Error "You should provide an option / parameter. For example try $0 -h" ; exit 2 ; fi
+InitializeArgs "$@"
+WriteLog Verbose Info "FireMotD action $Action started"
+CheckAction
+WriteLog Verbose Info "FireMotD action $Action finished"
 exit 0
