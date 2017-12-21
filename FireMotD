@@ -34,42 +34,42 @@ LC_NUMERIC="C"
 LANG="C"
 
 WriteLog () {
-    if [ ! -z "$ScriptName" ] ; then
-        ScriptName="$(basename "$(readlink -f "$0")")"
-    fi
-    if [ -z "$1" ] ; then
-        echo "WriteLog: Log parameter #1 is zero length. Please debug..."
-        exit 1
+  if [ ! -z "$ScriptName" ] ; then
+    ScriptName="$(basename "$(readlink -f "$0")")"
+  fi
+  if [ -z "$1" ] ; then
+    echo "WriteLog: Log parameter #1 is zero length. Please debug..."
+    exit 1
+  else
+    if [ -z "$2" ] ; then
+      echo "WriteLog: Severity parameter #2 is zero length. Please debug..."
+      exit 1
     else
-        if [ -z "$2" ] ; then
-            echo "WriteLog: Severity parameter #2 is zero length. Please debug..."
-            exit 1
-        else
-            if [ -z "$3" ] ; then
-                echo "WriteLog: Message parameter #3 is zero length. Please debug..."
-                exit 1
-            fi
-        fi
+      if [ -z "$3" ] ; then
+        echo "WriteLog: Message parameter #3 is zero length. Please debug..."
+        exit 1
+      fi
     fi
-    Now=$(date '+%Y-%m-%d %H:%M:%S,%3N')
-    if [[ "$1" =~ (Debug|Verbose) ]] && [ "$Debug" = 1 ] ; then
-        echo "$Now: $ScriptName: $2: $3 "
+  fi
+  Now=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+  if [[ "$1" =~ (Debug|Verbose) ]] && [ "$Debug" = 1 ] ; then
+    echo "$Now: $ScriptName: $2: $3 "
+  elif [ "$1" = "Verbose" ] && [ "$Verbose" = 1 ] ; then
+    echo "$Now: $ScriptName: $2: $3"
+  elif [ "$1" = "Output" ] ; then
+    echo "${Now}: $ScriptName: $2: $3"
+  elif [ -f "$1" ] ; then
+    echo "${Now}: $ScriptName: $2: $3" >> "$1"
+  fi
+  if [ ! -z "$LogLocal" ] ; then
+    if [ "$1" = "Debug" ] && [ "$Debug" = 1 ] ; then
+      echo "$Now: $ScriptName: $2: $3 " >> "$LogLocal"
     elif [ "$1" = "Verbose" ] && [ "$Verbose" = 1 ] ; then
-        echo "$Now: $ScriptName: $2: $3"
-    elif [ "$1" = "Output" ] ; then
-        echo "${Now}: $ScriptName: $2: $3"
-    elif [ -f "$1" ] ; then
-        echo "${Now}: $ScriptName: $2: $3" >> "$1"
+      echo "$Now: $ScriptName: $2: $3" >> "$LogLocal"
+    elif [ "$1" = "Output" ] ; then 
+      echo "${Now}: $ScriptName: $2: $3" >> "$LogLocal"
     fi
-    if [ ! -z "$LogLocal" ] ; then
-        if [ "$1" = "Debug" ] && [ "$Debug" = 1 ] ; then
-            echo "$Now: $ScriptName: $2: $3 " >> "$LogLocal"
-        elif [ "$1" = "Verbose" ] && [ "$Verbose" = 1 ] ; then
-            echo "$Now: $ScriptName: $2: $3" >> "$LogLocal"
-        elif [ "$1" = "Output" ] ; then 
-            echo "${Now}: $ScriptName: $2: $3" >> "$LogLocal"
-        fi
-    fi
+  fi
 }
 
 ColorTest () {
