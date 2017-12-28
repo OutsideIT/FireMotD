@@ -247,7 +247,7 @@ ExploreRelease () {
   Release="$(echo "$ReleaseFull" | head -n 1)"
   if echo "$ReleaseFull" | egrep '(^CentOS*|^Red Hat*)' >/dev/null ; then
     Release="$(echo "$ReleaseFull" | tail -1)"
-  elif echo "$ReleaseFull" | egrep '(^Debian*)' >/dev/null ; then
+  elif echo "$ReleaseFull" | egrep '(Debian)' >/dev/null ; then
     Release="$(echo "$ReleaseFull" | grep 'PRETTY_NAME' | cut -f2 -d'"')"
   elif [[ "$Release" == "SUSE"* ]] ; then
     Release=${Release%% \(*}
