@@ -1,9 +1,9 @@
-# Bash tool to display system information after logging into a Linux system
+# MotD Generator for displaying custom system information
 
 ### Idea
 
-This tool displays useful system information after logging into a Linux system, such as version, CPU information, 
-memory, disk information, number of updates, ...
+This tool displays useful system information after logging into a Linux system (or Windows with FireMotD.ps1, such as version, CPU information, 
+memory, disk information, number of updates, and many more useful things.
 
 ### Screenshots
 
@@ -27,6 +27,9 @@ Original:
 
 ![FireMotD Original](/../screenshots/FireMotD-Theme-Original-v8.04.png?raw=true "FireMotD Original")
 
+Powershell:
+
+![FireMotD Powershell](/../screenshots/FireMotD-Powershell.png?raw=true "FireMotD Powershell")
 
 ### Status
 
@@ -44,7 +47,7 @@ In case you find a bug or have a feature request, please make an issue on GitHub
 
 ##### Using yum
 ```
-sudo yum install openssh-clients bc sysstat jq moreutils
+sudo yum install bc sysstat jq moreutils
 ```
 
 ##### Using apt-get
@@ -55,23 +58,21 @@ sudo apt-get install bc sysstat jq moreutils
 ### Usage Help
 
 ```
-$ FireMotD -h
-FireMotD <version>
-
-Usage: 
- FireMotD [-v] -t <Theme Name> 
+Usage:
+ FireMotD [-v] -t <Theme Name>
  FireMotD [-v] -C ['String']
- FireMotD [-HV] ---theme <Theme Name>
+ FireMotD [-vhVs]
 
 Options:
-  -h | --help               Shows this help and exits
-  -v | --verbose            Verbose mode (shows messages)
-  -V | --version            Shows version information and exits
-  -t | --theme <Theme Name> Shows Motd info on screen, based on the chosen theme
-  -C | --colortest          Prints color test to screen
-  -M | --colormap           Prints color test to screen, with color numbers in it
-  -S | --save               Saves data to /var/tmp/FireMotD.json
- -HV | --hideversion        Hides version number
+   -h | --help               Shows this help and exits
+   -v | --verbose            Verbose mode (shows messages)
+   -V | --version            Shows version information and exits
+   -t | --theme <Theme Name> Shows Motd info on screen, based on the chosen theme
+   -C | --colortest          Prints color test to screen
+   -M | --colormap           Prints color test to screen, with color numbers in it
+   -S | --save               Saves data to /var/tmp/FireMotD.json
+  -HV | --hideversion        Hides version number
+ -sru | --skiprepoupdate     Skip the repository package update during update count calculation (apt only)
 
 256-color themes:
  original
@@ -94,11 +95,12 @@ Examples:
  FireMotD --theme Modern
  FireMotD --colortest
  FireMotD -M
- sudo /usr/local/bin/FireMotD -S
+ sudo FireMotD --saveupdates
 
 Note:
- The first time you use FireMotD, you will need to generate the FireMotD.json file.
- sudo ./FireMotD -S
+ Some functionalities may require superuser privileges. Eg. check for updates.
+ If you have problems, try something like:
+ sudo FireMotD -S
 ```
 
 ### System Install
