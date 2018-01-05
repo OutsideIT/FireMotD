@@ -1556,29 +1556,50 @@ InitializeArgs () {
   done
 }
 
-printf_new() {
+PrintChar() {
   str=$1
   num=$2
   col=$3
-  v=$(printf "%-${num}s" "$str")
-  echo -e "$col${v// /$str}\e[0;37m"
-#  head -c $num /dev/zero | tr '\0' '$str'
+#  v=$(printf "%-${num}s" "$str")
+#  echo -e "$col${v// /$str}\e[0;37m"
+#  echo -e "$col${v}\e[0;37m"
+#  head -c $num /dev/zero | tr '\0' "$str"
+  for (( i = 1; i <= $num; i++ )) ; do 
+    echo -en $col$str
+  done    
 }
 
 GenerateLine () {
   WriteLog Debug Info "Generating $Type"
-  printf_new "$Char" $Length $Color
-
+  PrintChar "$Char" $Length $Color
+  PrintChar "\n" 1 $Color
+  echo -en "\e[0;37m"
 }
 
 GenerateHeader () {
   WriteLog Debug Info "Generating $Type"
-
+  HostNameHeader="$(hostname)"
+  HostChars=$((${#HostNameHeader} + 9))
+  if (( HostChars > 47 )); then
+    HostNameHeader=${HostNameHeader:0:39}
+    HostChars=47
+  fi
+  LeftoverChars=$((Length - HostChars -10))
+  (( $LeftoverChars <= 0 )) && LeftoverChars=0
+  PrintChar "$Char" 15 $Color
+  echo -en "  "
+  PrintChar "$HostNameHeader" 1 $Color
+  echo -en "  "
+  PrintChar "$Char" $LeftoverChars $Color
+  PrintChar "\n" 1 $Color
+  echo -en "\e[0;37m"
 }
 
 GenerateInfo () {
   WriteLog Debug Info "Generating $Type"
-
+  PrintChar "$Char" 2 $Color
+  PrintChar "\n" 1 $Color
+  echo -en "\e[0;37m"  
 }
 
 PrintTemplate () {
