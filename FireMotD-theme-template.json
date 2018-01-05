@@ -1,141 +1,41 @@
 {
-  "Line": {
+  "Line001": {
+    "Type" : "Line",
     "Color": "\\e[0;34m",
     "Character": "#",
     "Length": "79"
   },
-  "Header": {
-    "Generated": "\\e[0;34m",
+  "Line002": {
+    "Type" : "Header",
+    "Color": "\\e[0;34m",
     "Character": "#",
     "Value": "$HostName",
     "Length": "79"
   },
-  "Line": {
-    "Color": "\\e[0;34m",
+  "Line003": {
+    "Type" : "Line",
+    "Color": "\\e[0;35m",
     "Character": "#",
     "Length": "79"
   },
-  "Info": {
+  "Line004": {
+    "Type" : "Info",
     "Color": "\\e[0;34m",
     "Character": "#",
     "Value": "$Release",
     "Length": "79"
   },
-  "Kernel": {
-    "Generated": "@cron",
-    "Value": "Unknown",
-    "LastRun": "Never"
+  "Line005": {
+    "Type" : "Info",
+    "Color": "\\e[0;34m",
+    "Character": "#",
+    "Value": "$Kernel",
+    "Length": "79"
   },
-  "Platform": {
-    "Generated": "@cron",
-    "Value": "Unknown",
-    "LastRun": "Never"
-  },
-  "Uptime": {
-    "Generated": "@logon",
-    "Days": "Unknown",
-    "Hours": "Unknown",
-    "Minutes": "Unknown",
-    "Seconds": "Unknown",
-    "LastRun": "Never"
-  },
-  "InstallDate": {
-    "Generated": "@cron",
-    "Value": "Unknown",
-    "LastRun": "Never"
-  },
-  "CpuUsage": {
-    "Generated": "@logon",
-    "Average": "Unknown",
-    "CpuCount": "Unknown",
-    "CoreCount": "Unknown",
-    "SocketCount": "Unknown",
-    "LastRun": "Never"
-  },
-  "CpuLoad": {
-    "Generated": "@logon",
-    "Value": "Unknown",
-    "LastRun": "Never"
-  },
-  "Memory": {
-    "Generated": "@logon",
-    "TotalGB": "Unknown",
-    "FreeGB": "Unknown",
-    "UsedGB": "Unknown",
-    "FreePerc": "Unknown",
-    "UsedPerc": "Unknown",
-    "LastRun": "Never"
-  },
-  "Swap": {
-    "Generated": "@logon",
-    "TotalGB": "Unknown",
-    "FreeGB": "Unknown",
-    "UsedGB": "Unknown",
-    "FreePerc": "Unknown",
-    "UsedPerc": "Unknown",
-    "LastRun": "Never"
-  },
-  "DiskRoot": {
-    "Generated": "@logon",
-    "TotalGB": "Unknown",
-    "FreeGB": "Unknown",
-    "UsedGB": "Unknown",
-    "FreePerc": "Unknown",
-    "UsedPerc": "Unknown",
-    "LastRun": "Never"
-  },
-  "Updates": {
-    "Generated": "@cron",
-    "Type": "Unknown",
-    "Count": "Unknown",
-    "LastRun": "Never"
-  },
-  "Sessions": {
-    "Generated": "@logon",
-    "Count": "Unknown",
-    "LastRun": "Never"
-  },
-  "Processes": {
-    "Generated": "@logon",
-    "Count": "Unknown",
-    "Max": "Unknown",
-    "LastRun": "Never"
-  },
-  "Httpd": {
-    "Generated": "@cron",
-    "Version": "Unknown",
-    "LastRun": "Never"
-  },
-  "Nginx": {
-    "Generated": "@cron",
-    "Version": "Unknown",
-    "LastRun": "Never"
-  },
-  "Mysql": {
-    "Generated": "@cron",
-    "Version": "Unknown",
-    "Distribution": "Unknown",
-    "LastRun": "Never"
-  },
-  "Postgres": {
-    "Generated": "@cron",
-    "Version": "Unknown",
-    "LastRun": "Never"
-  },
-  "Php": {
-    "Generated": "@cron",
-    "Version": "Unknown",
-    "MaxMemory": "Unknown",
-    "LastRun": "Never"
-  },
-  "Elasticsearch": {
-    "Generated": "@cron",
-    "Version": "Unknown",
-    "LastRun": "Never"
-  },
-  "Logstash": {
-    "Generated": "@cron",
-    "Version": "Unknown",
-    "LastRun": "Never"
+  "Line006": {
+    "Type" : "Line",
+    "Color": "\\e[0;34m",
+    "Character": "#",
+    "Length": "79"
   }
 }

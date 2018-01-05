@@ -1548,10 +1548,54 @@ InitializeArgs () {
         # ColorTest 0
       -E|--ExportFile)
         shift ; ExportFile=$1 ; shift ;;
+      -TF|--TemplateFile)
+        shift ; Action="template" ; Template=$1 ; shift ;;
       -*) echo "You specified a non-existant option: $1" ; exit 2 ;;
       *) break ;;
     esac
   done
+}
+
+printf_new() {
+  str=$1
+  num=$2
+  col=$3
+  v=$(printf "%-${num}s" "$str")
+  echo -e "$col${v// /$str}\e[0;37m"
+#  head -c $num /dev/zero | tr '\0' '$str'
+}
+
+GenerateLine () {
+  WriteLog Debug Info "Generating $Type"
+  printf_new "$Char" $Length $Color
+
+}
+
+GenerateHeader () {
+  WriteLog Debug Info "Generating $Type"
+
+}
+
+GenerateInfo () {
+  WriteLog Debug Info "Generating $Type"
+
+}
+
+PrintTemplate () {
+  WriteLog Debug Info "Template: $Template"
+  if jq '.' $Template >/dev/null 2>&1 ; then
+    WriteLog Verbose Info "Parsed json file $Template successfully."
+    while read -r val ; do
+      Type=$(cat $Template | jq -r .$val.Type)
+      Char=$(cat $Template | jq -r .$val.Character)
+      Color=$(cat $Template | jq -r .$val.Color)
+      Length=$(cat $Template | jq -r .$val.Length)
+      WriteLog Verbose Info "Generating ${val} type $Type character $Char color $Color"
+      Generate${Type}
+    done < <(jq -r 'to_entries[] | .key' $Template)
+  else
+    WriteLog Output Error "Failed to parse json file $Template. Please verify with json lint validator"
+  fi
 }
 
 PrintTheme () {
@@ -1580,6 +1624,8 @@ CheckAction () {
       CheckSudo "$@" 
       CheckDependencies 
       ExportData ;;
+    template)
+      PrintTemplate ;;
     theme)
       PrintTheme ;;
     colormap)
