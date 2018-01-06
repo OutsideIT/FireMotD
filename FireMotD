@@ -1560,20 +1560,16 @@ PrintChar() {
   str=$1
   num=$2
   col=$3
-#  v=$(printf "%-${num}s" "$str")
-#  echo -e "$col${v// /$str}\e[0;37m"
-#  echo -e "$col${v}\e[0;37m"
-#  head -c $num /dev/zero | tr '\0' "$str"
   for (( i = 1; i <= $num; i++ )) ; do 
-    echo -en $col$str
+    echo -en "$col$str\e[0m"
   done    
 }
 
 GenerateLine () {
   WriteLog Debug Info "Generating $Type"
-  PrintChar "$Char" $Length $Color
-  PrintChar "\n" 1 $Color
-  echo -en "\e[0;37m"
+  PrintChar "$CharValue" $Length $CharColor
+#  PrintChar "\n" 1 $Color
+  echo -en "\n"
 }
 
 GenerateHeader () {
@@ -1586,13 +1582,12 @@ GenerateHeader () {
   fi
   LeftoverChars=$((Length - HostChars -10))
   (( $LeftoverChars <= 0 )) && LeftoverChars=0
-  PrintChar "$Char" 15 $Color
-  echo -en "  "
-  PrintChar "$HostNameHeader" 1 $Color
-  echo -en "  "
-  PrintChar "$Char" $LeftoverChars $Color
-  PrintChar "\n" 1 $Color
-  echo -en "\e[0;37m"
+  PrintChar "$CharValue" 15 $CharColor
+  PrintChar " " 2 $CharColor
+  PrintChar "$HostNameHeader" 1 $CharColor
+  PrintChar " " 2 $CharColor
+  PrintChar "$CharValue" $LeftoverChars $CharColor
+  echo -en "\n"
 }
 
 GenerateInfo () {
@@ -1600,13 +1595,12 @@ GenerateInfo () {
   HostIp=$(jq -r ".HostIp.Value" $ExportFile)
   Release=$(jq -r ".Release.Value" $ExportFile)
   Kernel=$(jq -r ".Kernel.Value" $ExportFile)
-  PrintChar "$Char" 2 $Color
+  PrintChar "$CharValue" 2 $CharColor
   Value=$(cat $Template | jq -r .$val.Value)
   Value2=$(echo $(eval echo "\$$Value"))
   WriteLog Debug Info "Value: $Value . Release: $Value2"
-  PrintChar "  $Value = $Value2" 1 $Color
+  PrintChar "  $Value = $Value2" 1 $CharColor
   PrintChar "\n" 1 $Color
-  echo -en "\e[0;37m"  
 }
 
 PrintTemplate () {
@@ -1616,10 +1610,10 @@ PrintTemplate () {
     WriteLog Verbose Info "Parsed json file $Template successfully."
     while read -r val ; do
       Type=$(cat $Template | jq -r .$val.Type)
-      Char=$(cat $Template | jq -r .$val.Character)
-      Color=$(cat $Template | jq -r .$val.Color)
+      CharValue=$(cat $Template | jq -r .$val.CharValue)
+      CharColor=$(cat $Template | jq -r .$val.CharColor)
       Length=$(cat $Template | jq -r .$val.Length)
-      WriteLog Verbose Info "Generating ${val} type $Type character $Char color $Color"
+      WriteLog Verbose Info "Generating ${val} type $Type character $CharValue color $CharColor"
       Generate${Type}
     done < <(jq -r 'to_entries[] | .key' $Template)
   else
