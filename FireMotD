@@ -1566,20 +1566,26 @@ PrintChar () {
 }
 
 RenderHostIp () {
-  HostIp=$(jq -r ".HostIp.Value" $ExportFile)
-  echo $HostIp 
+  HostIp=" ${KeyColor} Ip = ${ValueColor}$(jq -r ".HostIp.Value" $ExportFile)"
+  echo -ne $HostIp 
 }
 
 RenderRelease () {
   WriteLog Debug Info "Rendering Release"
-  Release=$(jq -r ".Release.Value" $ExportFile)
-  echo $Release
+  Release=" ${KeyColor} Release = ${ValueColor}$(jq -r ".Release.Value" $ExportFile)"
+  echo -ne $Release
 }
 
 RenderKernel () {
   WriteLog Debug Info "Rendering Kernel"
-  Kernel=$(jq -r ".Kernel.Value" $ExportFile)
-  echo $Kernel
+  Kernel=" ${KeyColor} Kernel = ${ValueColor}$(jq -r ".Kernel.Value" $ExportFile)"
+  echo -en $Kernel
+}
+
+RenderPlatform () {
+  WriteLog Debug Info "Rendering Platform"
+  Platform=" ${KeyColor} Platform = ${ValueColor}$(jq -r ".Platform.Value" $ExportFile)"
+  echo -en $Platform
 }
 
 RenderUptime () {
@@ -1589,10 +1595,41 @@ RenderUptime () {
   UptimeMinutes=$(jq -r ".Uptime.Minutes" $ExportFile)
   UptimeSeconds=$(jq -r ".Uptime.Seconds" $ExportFile)
   if [[ ! -z $UptimeDays ]] && [[ "$UptimeDays" != "null" ]] ; then
-    Uptime="${KeyColor}Uptime = ${ValueColor}${UptimeDays} day(s). ${ValueColor}${UptimeHours}:${UptimeMinutes}:${UptimeSeconds}"
+    echo -ne "${KeyColor} Uptime = ${ValueColor}${UptimeDays} day(s). ${ValueColor}${UptimeHours}:${UptimeMinutes}:${UptimeSeconds}"
   fi
-  echo -en $Uptime
 }
+
+RenderCpuUsage () {
+  WriteLog Debug Info "Rendering CpuUsage"
+  CpuUsageAverage=$(jq -r ".CpuUsage.Average" $ExportFile)
+  CpuUsageCpuCount=$(jq -r ".CpuUsage.CpuCount" $ExportFile)
+  CpuUsageCoreCount=$(jq -r ".CpuUsage.CoreCount" $ExportFile)
+  CpuUsageSocketCount=$(jq -r ".CpuUsage.SocketCount" $ExportFile)
+  if [[ ! -z $CpuUsageAverage ]] && [[ "$CpuUsageAverage" != "null" ]] ; then
+    echo -ne "${KeyColor} CPU Usage = ${ValueColor}${CpuUsageAverage}% avg over $CpuUsageCpuCount cpu(s) ($CpuUsageCoreCount core(s) x $CpuUsageSocketCount socket(s))"
+  fi
+}
+
+RenderCpuLoad () {
+  WriteLog Debug Info "Rendering CpuLoad"
+  CpuLoad=$(jq -r ".CpuLoad.Value" $ExportFile)
+  if [[ ! -z $CpuLoad ]] && [[ "$CpuLoad" != "null" ]] ; then
+    echo -ne "${KeyColor} CPU Load = ${ValueColor}$CpuLoad"
+  fi
+}
+
+RenderMemory () {
+  WriteLog Debug Info "Rendering Memory"
+  MemTotalGB=$(jq -r ".Memory.TotalGB" $ExportFile)
+  MemFreeGB=$(jq -r ".Memory.FreeGB" $ExportFile)
+  MemUsedGB=$(jq -r ".Memory.UsedGB" $ExportFile)
+  MemFreePerc=$(jq -r ".Memory.FreePerc" $ExportFile)
+  MemUsedPerc=$(jq -r ".Memory.UsedPerc" $ExportFile)
+  if [[ ! -z $MemTotalGB ]] && [[ "$MemTotalGB" != "null" ]] ; then
+    echo -ne "${KeyColor} Memory = ${ValueColor}Free: ${MemFreeGB}GB ($MemFreePerc%), Used: ${MemUsedGB}GB ($MemUsedPerc%), Total: ${MemTotalGB}GB"
+  fi
+}
+
 
 GenerateLine () {
   WriteLog Debug Info "Generating $Type"
