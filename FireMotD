@@ -1556,7 +1556,7 @@ InitializeArgs () {
   done
 }
 
-PrintChar() {
+PrintChar () {
   str=$1
   num=$2
   col=$3
@@ -1565,15 +1565,45 @@ PrintChar() {
   done    
 }
 
+RenderHostIp () {
+  HostIp=$(jq -r ".HostIp.Value" $ExportFile)
+  echo $HostIp 
+}
+
+RenderRelease () {
+  WriteLog Debug Info "Rendering Release"
+  Release=$(jq -r ".Release.Value" $ExportFile)
+  echo $Release
+}
+
+RenderKernel () {
+  WriteLog Debug Info "Rendering Kernel"
+  Kernel=$(jq -r ".Kernel.Value" $ExportFile)
+  echo $Kernel
+}
+
+RenderUptime () {
+  WriteLog Debug Info "Rendering Uptime"
+  UptimeDays=$(jq -r ".Uptime.Days" $ExportFile)
+  UptimeHours=$(jq -r ".Uptime.Hours" $ExportFile)
+  UptimeMinutes=$(jq -r ".Uptime.Minutes" $ExportFile)
+  UptimeSeconds=$(jq -r ".Uptime.Seconds" $ExportFile)
+  if [[ ! -z $UptimeDays ]] && [[ "$UptimeDays" != "null" ]] ; then
+    Uptime="${KeyColor}Uptime = ${ValueColor}${UptimeDays} day(s). ${ValueColor}${UptimeHours}:${UptimeMinutes}:${UptimeSeconds}"
+  fi
+  echo -en $Uptime
+}
+
 GenerateLine () {
   WriteLog Debug Info "Generating $Type"
-  PrintChar "$CharValue" $Length $CharColor
+  PrintChar "$Char" $Length $CharColor
 #  PrintChar "\n" 1 $Color
   echo -en "\n"
 }
 
 GenerateHeader () {
   WriteLog Debug Info "Generating $Type"
+  ValueColor=$(cat $Template | jq -r .$val.ValueColor)
   HostNameHeader="$(hostname)"
   HostChars=$((${#HostNameHeader} + 9))
   if (( HostChars > 47 )); then
@@ -1582,24 +1612,24 @@ GenerateHeader () {
   fi
   LeftoverChars=$((Length - HostChars -10))
   (( $LeftoverChars <= 0 )) && LeftoverChars=0
-  PrintChar "$CharValue" 15 $CharColor
+  PrintChar "$Char" 15 $CharColor
   PrintChar " " 2 $CharColor
-  PrintChar "$HostNameHeader" 1 $CharColor
+  PrintChar "$HostNameHeader" 1 $ValueColor
   PrintChar " " 2 $CharColor
-  PrintChar "$CharValue" $LeftoverChars $CharColor
+  PrintChar "$Char" $LeftoverChars $CharColor
   echo -en "\n"
 }
 
 GenerateInfo () {
   WriteLog Debug Info "Generating $Type"
-  HostIp=$(jq -r ".HostIp.Value" $ExportFile)
-  Release=$(jq -r ".Release.Value" $ExportFile)
-  Kernel=$(jq -r ".Kernel.Value" $ExportFile)
-  PrintChar "$CharValue" 2 $CharColor
   Value=$(cat $Template | jq -r .$val.Value)
-  Value2=$(echo $(eval echo "\$$Value"))
-  WriteLog Debug Info "Value: $Value . Release: $Value2"
-  PrintChar "  $Value = $Value2" 1 $CharColor
+  ValueColor=$(cat $Template | jq -r .$val.ValueColor)
+  KeyColor=$(cat $Template | jq -r .$val.KeyColor)
+  PrintChar "$Char" 2 $CharColor
+  WriteLog Debug Info "Executing Render$Value"
+#  Value2=$(echo $(eval echo "\$$Value"))
+  RenderResult=$(Render${Value})
+  echo -ne $RenderResult
   PrintChar "\n" 1 $Color
 }
 
@@ -1610,10 +1640,10 @@ PrintTemplate () {
     WriteLog Verbose Info "Parsed json file $Template successfully."
     while read -r val ; do
       Type=$(cat $Template | jq -r .$val.Type)
-      CharValue=$(cat $Template | jq -r .$val.CharValue)
+      Char=$(cat $Template | jq -r .$val.Char)
       CharColor=$(cat $Template | jq -r .$val.CharColor)
       Length=$(cat $Template | jq -r .$val.Length)
-      WriteLog Verbose Info "Generating ${val} type $Type character $CharValue color $CharColor"
+      WriteLog Verbose Info "Generating ${val} type $Type character $Char color $CharColor"
       Generate${Type}
     done < <(jq -r 'to_entries[] | .key' $Template)
   else

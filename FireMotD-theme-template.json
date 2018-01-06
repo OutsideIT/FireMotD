@@ -1,87 +1,64 @@
 {
   "Line001": {
     "Type" : "Line",
-    "CharValue": "#",
-    "CharColor": "\\e[0;35m",
+    "Char": "/",
+    "CharColor": "\\e[38;5;54m",
     "Length": "79"
   },
   "Header001": {
     "Type" : "Header",
-    "CharValue": "$",
-    "CharColor": "\\e[38;2;255;0;0m",
+    "Char": "%",
+    "CharColor": "\\e[38;5;90m",
     "Value": "HostName",
-    "Length": "79"
-  },
-  "Header002": {
-    "Type" : "Header",
-    "CharValue": "$",
-    "CharColor": "\\e[1;21;21m",
-    "Value": "HostName",
-    "Length": "79"
-  },
-  "Header003": {
-    "Type" : "Header",
-    "CharValue": "$",
-    "CharColor": "\\e[1;35;42m",
-    "Value": "HostName",
+    "ValueColor": "\\e[38;5;111m",
     "Length": "79"
   },
   "Line002": {
     "Type" : "Line",
-    "CharValue": "#",
-    "CharColor": "\\e[0;35m",
+    "Char": "\\\\",
+    "CharColor": "\\e[38;5;93m",
     "Length": "79"
   },
-  "Line003": {
-    "Type" : "Line",
-    "CharValue": "#",
-    "CharColor": "\\e[0;35m",
-    "Length": "79"
-  },
-  "Line004": {
+  "Info001": {
     "Type" : "Info",
-    "CharValue": "#",
-    "CharColor": "\\e[0;35m",
+    "Char": "\\\\",
+    "CharColor": "\\e[38;5;93m",
     "Value": "HostIp",
+    "KeyColor": "\\e[38;5;109m",
+    "ValueColor": "\\e[38;5;111m",
     "Length": "79"
   },
-  "Line005": {
+  "Info002": {
     "Type" : "Info",
-    "CharValue": "#",
-    "CharColor": "\\e[0;35m",
+    "Char": "/",
+    "CharColor": "\\e[38;5;93m",
     "Value": "Release",
+    "KeyColor": "\\e[38;5;109m",
+    "ValueColor": "\\e[38;5;111m",
     "Length": "79"
   },
-  "Line006": {
+  "Info003": {
     "Type" : "Info",
-    "CharValue": "#",
-    "CharColor": "\\e[0;35m",
+    "Char": "\\\\",
+    "CharColor": "\\e[38;5;93m",
     "Value": "Kernel",
+    "KeyColor": "\\e[38;5;109m",
+    "ValueColor": "\\e[38;5;111m",
     "Length": "79"
   },
-  "Line007": {
-    "Type" : "Line",
-    "CharValue": "#",
-    "CharColor": "\\e[38;5;196m",
-    "Length": "79"
-  },
-  "Line008": {
-    "Type" : "Line",
-    "CharValue": "#",
-    "CharColor": "\\e[38;5;123m",
+  "Info004": {
+    "Type" : "Info",
+    "Char": "\\\\",
+    "CharColor": "\\e[38;5;93m",
+    "Value": "Uptime",
+    "KeyColor": "\\e[38;5;109m",
+    "ValueColor": "\\e[38;5;111m",
     "Length": "79"
   },
   "Line009": {
     "Type" : "Line",
-    "CharValue": "#",
-    "CharColor": "\\e[48;5;50m\\e[38;5;196m",
-    "Length": "79"
-  },
-  "Line010": {
-    "Type" : "Line",
-    "CharValue": "#",
-    "CharColor": "\\e[1;50;196m",
+    "Char": "/",
+    "CharColor": "\\e[38;5;92m",
     "Length": "79"
   }
-
 }
