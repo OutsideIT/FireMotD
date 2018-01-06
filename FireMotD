@@ -1630,6 +1630,111 @@ RenderMemory () {
   fi
 }
 
+RenderSwap () {
+  WriteLog Debug Info "Rendering Swap"
+  SwapTotalGB=$(jq -r ".Swap.TotalGB" $ExportFile)
+  SwapFreeGB=$(jq -r ".Swap.FreeGB" $ExportFile)
+  SwapUsedGB=$(jq -r ".Swap.UsedGB" $ExportFile)
+  SwapFreePerc=$(jq -r ".Swap.FreePerc" $ExportFile)
+  SwapUsedPerc=$(jq -r ".Swap.UsedPerc" $ExportFile)
+  if [[ ! -z $SwapTotalGB ]] && [[ "$SwapTotalGB" != "null" ]] ; then
+    echo -en "${KeyColor} Swap = ${ValueColor}Free: ${SwapFreeGBG}GB ($SwapFreePerc%), Used: ${SwapUsedGB}GB ($SwapUsedPerc%), Total: ${SwapTotalGB}GB"
+  fi
+}
+
+RenderRoot () {
+  WriteLog Debug Info "Rendering Root"
+  DiskRootTotalGB=$(jq -r ".DiskRoot.TotalGB" $ExportFile)
+  DiskRootFreeGB=$(jq -r ".DiskRoot.FreeGB" $ExportFile)
+  DiskRootUsedGB=$(jq -r ".DiskRoot.UsedGB" $ExportFile)
+  DiskRootFreePerc=$(jq -r ".DiskRoot.FreePerc" $ExportFile)
+  DiskRootUsedPerc=$(jq -r ".DiskRoot.UsedPerc" $ExportFile)
+  if [[ ! -z $DiskRootTotalGB ]] && [[ "$DiskRootTotalGB" != "null" ]] ; then
+    echo -en "${KeyColor} Root = ${ValueColor}Free: ${DiskRootFreeGB}GB ($DiskRootFreePerc%), Used: ${DiskRootUsedGB}GB ($DiskRootUsedPerc%), Total: ${DiskRootTotalGB}GB"
+  fi
+}
+
+RenderUpdates () {
+  WriteLog Debug Info "Rendering Updates"
+  UpdateCount=$(jq -r ".Updates.Count" $ExportFile)
+  UpdateType=$(jq -r ".Updates.Type" $ExportFile)
+  if [[ ! -z $UpdateCount ]] && [[ "$UpdateCount" != "null" ]] ; then
+    echo -en "${KeyColor} Updates = ${ValueColor}$UpdateCount ${UpdateType} updates available."
+  fi
+}
+
+RenderSessions () {
+  WriteLog Debug Info "Rendering Sessions"
+  SessionCount=$(jq -r ".Sessions.Count" $ExportFile)
+  if [[ ! -z $SessionCount ]] && [[ "$SessionCount" != "null" ]] ; then
+    echo -en "${KeyColor} Sessions = ${ValueColor}$SessionCount"
+  fi
+}
+
+RenderProcesses () {
+  WriteLog Debug Info "Rendering Processes"
+  ProcessCount=$(jq -r ".Processes.Count" $ExportFile)
+  ProcessMax=$(jq -r ".Processes.Max" $ExportFile)
+  if [[ ! -z $ProcessCount ]] && [[ "$ProcessCount" != "null" ]] ; then
+    echo -en "${KeyColor} Processes = ${ValueColor}$ProcessCount running processes of $ProcessMax maximum processes"
+  fi
+}
+
+RenderHttpd () {
+  WriteLog Debug Info "Rendering Httpd"
+  HttpdVersion=$(jq -r ".Httpd.Version" $ExportFile)
+  if [[ ! -z $HttpdVersion ]] && [[ "$HttpdVersion" != "null" ]] ; then
+    echo -en "${KeyColor} Apache = ${ValueColor}Version: $HttpdVersion"
+  fi
+}
+
+RenderNginx () {
+  WriteLog Debug Info "Rendering Nginx"
+  NginxVersion=$(jq -r ".Nginx.Version" $ExportFile)
+  if [[ ! -z $NginxVersion ]] && [[ "$NginxVersion" != "null" ]] ; then
+    echo -en "${KeyColor} Nginx = ${ValueColor}Version: $NginxVersion"
+  fi
+}
+
+RenderMysql () {
+  WriteLog Debug Info "Rendering Mysql"
+  MysqlVersion=$(jq -r ".Mysql.Version" $ExportFile)
+  MysqlDistribution=$(jq -r ".Mysql.Distribution" $ExportFile)
+  if [[ ! -z $MysqlVersion ]] && [[ "$MysqlVersion" != "null" ]] ; then
+    echo -en "${KeyColor} MySQL = ${ValueColor}Version: $MysqlVersion Distribution: $MysqlDistribution"
+  fi
+}
+
+RenderPostgres () {
+  WriteLog Debug Info "Rendering Postgres"
+  PostgresVersion=$(jq -r ".Postgres.Version" $ExportFile)
+  if [[ ! -z $PostgresVersion ]] && [[ "$PostgresVersion" != "null" ]] ; then
+    echo -en "${KeyColor} PostgreSQL = ${ValueColor}Version: $PostgresVersion"
+  fi
+}
+
+RenderPhp () {
+  WriteLog Debug Info "Rendering Php"
+  PhpVersion=$(jq -r ".Php.Version" $ExportFile)
+  PhpMaxMemory=$(jq -r ".Php.MaxMemory" $ExportFile)
+  if [[ ! -z $PhpVersion ]] && [[ "$PhpVersion" != "null" ]] ; then
+    echo -en "${KeyColor} PHP = ${ValueColor}Version: $PhpVersion, Memory Limit: $PhpMaxMemory"
+  fi
+}
+
+RenderElasticsearch () {
+  ElasticsearchVersion=$(jq -r ".Elasticsearch.Version" $ExportFile)
+  if [[ ! -z $ElasticsearchVersion ]] && [[ "$ElasticsearchVersion" != "Unknown" ]] && [[ "$ElasticsearchVersion" != "null" ]] ; then
+    echo -e "${KeyColor} Elasticsearch = ${ValueColor}Version: $ElasticsearchVersion"
+  fi
+}
+
+RenderLogstash () {
+  LogstashVersion=$(jq -r ".Logstash.Version" $ExportFile)
+  if [[ ! -z $LogstashVersion ]] && [[ "$LogstashVersion" != "Unknown" ]] && [[ "$LogstashVersion" != "null" ]] ; then
+    echo -e "${KeyColor} Logstash = ${ValueColor}Version: $LogstashVersion"
+  fi
+}
 
 GenerateLine () {
   WriteLog Debug Info "Generating $Type"
@@ -1671,7 +1776,7 @@ GenerateInfo () {
 }
 
 PrintTemplate () {
-  LoadData
+#  LoadData
   WriteLog Debug Info "Template: $Template"
   if jq '.' $Template >/dev/null 2>&1 ; then
     WriteLog Verbose Info "Parsed json file $Template successfully."

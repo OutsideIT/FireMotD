@@ -48,7 +48,7 @@
   },
   "Info004": {
     "Type" : "Info",
-    "Char": "\\\\",
+    "Char": "/",
     "CharColor": "\\e[38;5;93m",
     "Value": "Platform",
     "KeyColor": "\\e[38;5;199m",
@@ -66,7 +66,7 @@
   },
   "Info005": {
     "Type" : "Info",
-    "Char": "\\\\",
+    "Char": "/",
     "CharColor": "\\e[38;5;93m",
     "Value": "CpuUsage",
     "KeyColor": "\\e[38;5;199m",
@@ -84,9 +84,54 @@
   },
   "Info007": {
     "Type" : "Info",
-    "Char": "\\\\",
+    "Char": "/",
     "CharColor": "\\e[38;5;93m",
     "Value": "Memory",
+    "KeyColor": "\\e[38;5;199m",
+    "ValueColor": "\\e[38;5;207m",
+    "Length": "79"
+  },
+  "Info008": {
+    "Type" : "Info",
+    "Char": "\\\\",
+    "CharColor": "\\e[38;5;93m",
+    "Value": "Swap",
+    "KeyColor": "\\e[38;5;199m",
+    "ValueColor": "\\e[38;5;207m",
+    "Length": "79"
+  },
+  "Info009": {
+    "Type" : "Info",
+    "Char": "/",
+    "CharColor": "\\e[38;5;93m",
+    "Value": "Root",
+    "KeyColor": "\\e[38;5;199m",
+    "ValueColor": "\\e[38;5;207m",
+    "Length": "79"
+  },
+  "Info010": {
+    "Type" : "Info",
+    "Char": "\\\\",
+    "CharColor": "\\e[38;5;93m",
+    "Value": "Updates",
+    "KeyColor": "\\e[38;5;199m",
+    "ValueColor": "\\e[38;5;207m",
+    "Length": "79"
+  },
+  "Info011": {
+    "Type" : "Info",
+    "Char": "/",
+    "CharColor": "\\e[38;5;93m",
+    "Value": "Sessions",
+    "KeyColor": "\\e[38;5;199m",
+    "ValueColor": "\\e[38;5;207m",
+    "Length": "79"
+  },
+  "Info012": {
+    "Type" : "Info",
+    "Char": "\\\\",
+    "CharColor": "\\e[38;5;93m",
+    "Value": "Processes",
     "KeyColor": "\\e[38;5;199m",
     "ValueColor": "\\e[38;5;207m",
     "Length": "79"
