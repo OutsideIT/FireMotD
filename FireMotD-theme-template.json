@@ -8,8 +8,8 @@
   "Line002": {
     "Type" : "Header",
     "Color": "\\e[0;34m",
-    "Character": "#",
-    "Value": "$HostName",
+    "Character": "$",
+    "Value": "HostName",
     "Length": "79"
   },
   "Line003": {
@@ -22,17 +22,24 @@
     "Type" : "Info",
     "Color": "\\e[0;34m",
     "Character": "#",
-    "Value": "$Release",
+    "Value": "HostIp",
     "Length": "79"
   },
   "Line005": {
     "Type" : "Info",
     "Color": "\\e[0;34m",
     "Character": "#",
-    "Value": "$Kernel",
+    "Value": "Release",
     "Length": "79"
   },
   "Line006": {
+    "Type" : "Info",
+    "Color": "\\e[0;34m",
+    "Character": "#",
+    "Value": "Kernel",
+    "Length": "79"
+  },
+  "Line007": {
     "Type" : "Line",
     "Color": "\\e[0;34m",
     "Character": "#",

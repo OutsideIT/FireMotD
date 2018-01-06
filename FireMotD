@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v8.13.171222
+# Version:      v9.01.180106
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -1597,12 +1597,20 @@ GenerateHeader () {
 
 GenerateInfo () {
   WriteLog Debug Info "Generating $Type"
+  HostIp=$(jq -r ".HostIp.Value" $ExportFile)
+  Release=$(jq -r ".Release.Value" $ExportFile)
+  Kernel=$(jq -r ".Kernel.Value" $ExportFile)
   PrintChar "$Char" 2 $Color
+  Value=$(cat $Template | jq -r .$val.Value)
+  Value2=$(echo $(eval echo "\$$Value"))
+  WriteLog Debug Info "Value: $Value . Release: $Value2"
+  PrintChar "  $Value = $Value2" 1 $Color
   PrintChar "\n" 1 $Color
   echo -en "\e[0;37m"  
 }
 
 PrintTemplate () {
+  LoadData
   WriteLog Debug Info "Template: $Template"
   if jq '.' $Template >/dev/null 2>&1 ; then
     WriteLog Verbose Info "Parsed json file $Template successfully."
