@@ -1737,15 +1737,15 @@ RenderLogstash () {
 }
 
 GenerateLine () {
-  WriteLog Debug Info "Generating $Type"
+  WriteLog Debug Info "Generating \"$Type\" with \"$Char\" in color \"$CharColor\""
   PrintChar "$Char" $Length $CharColor
-#  PrintChar "\n" 1 $Color
   echo -en "\n"
+  WriteLog Debug Info "Line $Type generated successfully"
 }
 
 GenerateHeader () {
   WriteLog Debug Info "Generating $Type"
-  ValueColor=$(cat $Template | jq -r .$val.ValueColor)
+  ValueColor=$(jq -r --arg i "$i" '.Template[$i | tonumber].ValueColor' $Template)  
   HostNameHeader="$(hostname)"
   HostChars=$((${#HostNameHeader} + 9))
   if (( HostChars > 47 )); then
@@ -1763,31 +1763,30 @@ GenerateHeader () {
 }
 
 GenerateInfo () {
-  WriteLog Debug Info "Generating $Type"
-  Value=$(cat $Template | jq -r .$val.Value)
-  ValueColor=$(cat $Template | jq -r .$val.ValueColor)
-  KeyColor=$(cat $Template | jq -r .$val.KeyColor)
+  Value=$(jq -r --arg i "$i" '.Template[$i | tonumber].Value' $Template)
+  ValueColor=$(jq -r --arg i "$i" '.Template[$i | tonumber].ValueColor' $Template)
+  KeyColor=$(jq -r --arg i "$i" '.Template[$i | tonumber].KeyColor' $Template)
   PrintChar "$Char" 2 $CharColor
-  WriteLog Debug Info "Executing Render$Value"
-#  Value2=$(echo $(eval echo "\$$Value"))
   RenderResult=$(Render${Value})
   echo -ne $RenderResult
   PrintChar "\n" 1 $Color
 }
 
 PrintTemplate () {
-#  LoadData
   WriteLog Debug Info "Template: $Template"
   if jq '.' $Template >/dev/null 2>&1 ; then
     WriteLog Verbose Info "Parsed json file $Template successfully."
-    while read -r val ; do
-      Type=$(cat $Template | jq -r .$val.Type)
-      Char=$(cat $Template | jq -r .$val.Char)
-      CharColor=$(cat $Template | jq -r .$val.CharColor)
-      Length=$(cat $Template | jq -r .$val.Length)
-      WriteLog Verbose Info "Generating ${val} type $Type character $Char color $CharColor"
+    LineCount=$(jq '.Template | length' $Template)
+    WriteLog Verbose Info "Looping through $LineCount lines"
+    LineCount=$((LineCount-1))
+    for i in $(seq 0 $LineCount) ; do
+      Type=$(jq -r --arg i "$i" '.Template[$i | tonumber].Type' $Template)
+      Char=$(jq -r --arg i "$i" '.Template[$i | tonumber].Char' $Template)
+      CharColor=$(jq -r --arg i "$i" '.Template[$i | tonumber].CharColor' $Template)
+      Length=$(jq -r --arg i "$i" '.Template[$i | tonumber].Length' $Template)
+      WriteLog Verbose Info "Generating line $i, type \"$Type\", character \"$Char\", color \"$CharColor\", length \"$Length\"."
       Generate${Type}
-    done < <(jq -r 'to_entries[] | .key' $Template)
+    done
   else
     WriteLog Output Error "Failed to parse json file $Template. Please verify with json lint validator"
   fi

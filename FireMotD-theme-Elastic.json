@@ -1,145 +1,157 @@
 {
-  "Line001": {
-    "Type" : "Line",
-    "Char": "^",
-    "CharColor": "\\e[38;5;44m",
-    "Length": "79"
+  "Theme": "Eline",
+  "Creator": "Willem D'Haese",
+  "CreationDate": "2018-01-08",
+  "Description": "A pink and purple colored theme designed for my wife Eline",
+  "DefaultSettings": {
+    "Char": "#",
+    "Length": 79,
+    "Separator": "=",
+    "SeparatorColor": "\\\\e[38;5;198m"
   },
-  "Header001": {
-    "Type" : "Header",
-    "Char": "o",
-    "CharColor": "\\e[38;5;27m",
-    "Value": "HostName",
-    "ValueColor": "\\e[38;5;214m",
-    "Length": "79"
-  },
-  "Line002": {
-    "Type" : "Line",
-    "Char": "v",
-    "CharColor": "\\e[38;5;44m",
-    "Length": "79"
-  },
-  "Info001": {
-    "Type" : "Info",
-    "Char": "oO",
-    "CharColor": "\\e[38;5;29m",
-    "Value": "HostIp",
-    "KeyColor": "\\e[38;5;160m",
-    "ValueColor": "\\e[38;5;214m",
-    "Length": "79"
-  },
-  "Info002": {
-    "Type" : "Info",
-    "Char": "o0",
-    "CharColor": "\\e[38;5;44m",
-    "Value": "Release",
-    "KeyColor": "\\e[38;5;160m",
-    "ValueColor": "\\e[38;5;214m",
-    "Length": "79"
-  },
-  "Info003": {
-    "Type" : "Info",
-    "Char": "o0",
-    "CharColor": "\\e[38;5;29m",
-    "Value": "Kernel",
-    "KeyColor": "\\e[38;5;160m",
-    "ValueColor": "\\e[38;5;214m",
-    "Length": "79"
-  },
-  "Info004": {
-    "Type" : "Info",
-    "Char": "o0",
-    "CharColor": "\\e[38;5;44m",
-    "Value": "Platform",
-    "KeyColor": "\\e[38;5;160m",
-    "ValueColor": "\\e[38;5;214m",
-    "Length": "79"
-  },
-  "Info006": {
-    "Type" : "Info",
-    "Char": "o0",
-    "CharColor": "\\e[38;5;29m",
-    "Value": "Uptime",
-    "KeyColor": "\\e[38;5;160m",
-    "ValueColor": "\\e[38;5;214m",
-    "Length": "79"
-  },
-  "Info005": {
-    "Type" : "Info",
-    "Char": "o0",
-    "CharColor": "\\e[38;5;44m",
-    "Value": "CpuUsage",
-    "KeyColor": "\\e[38;5;160m",
-    "ValueColor": "\\e[38;5;214m",
-    "Length": "79"
-  },
-  "Info006": {
-    "Type" : "Info",
-    "Char": "o0",
-    "CharColor": "\\e[38;5;29m",
-    "Value": "CpuLoad",
-    "KeyColor": "\\e[38;5;160m",
-    "ValueColor": "\\e[38;5;214m",
-    "Length": "79"
-  },
-  "Info007": {
-    "Type" : "Info",
-    "Char": "o0",
-    "CharColor": "\\e[38;5;44m",
-    "Value": "Memory",
-    "KeyColor": "\\e[38;5;160m",
-    "ValueColor": "\\e[38;5;214m",
-    "Length": "79"
-  },
-  "Info008": {
-    "Type" : "Info",
-    "Char": "o0",
-    "CharColor": "\\e[38;5;29m",
-    "Value": "Swap",
-    "KeyColor": "\\e[38;5;160m",
-    "ValueColor": "\\e[38;5;214m",
-    "Length": "79"
-  },
-  "Info009": {
-    "Type" : "Info",
-    "Char": "o0",
-    "CharColor": "\\e[38;5;44m",
-    "Value": "Root",
-    "KeyColor": "\\e[38;5;160m",
-    "ValueColor": "\\e[38;5;214m",
-    "Length": "79"
-  },
-  "Info010": {
-    "Type" : "Info",
-    "Char": "o0",
-    "CharColor": "\\e[38;5;29m",
-    "Value": "Updates",
-    "KeyColor": "\\e[38;5;160m",
-    "ValueColor": "\\e[38;5;214m",
-    "Length": "79"
-  },
-  "Info011": {
-    "Type" : "Info",
-    "Char": "o0",
-    "CharColor": "\\e[38;5;44m",
-    "Value": "Sessions",
-    "KeyColor": "\\e[38;5;160m",
-    "ValueColor": "\\e[38;5;214m",
-    "Length": "79"
-  },
-  "Info012": {
-    "Type" : "Info",
-    "Char": "o0",
-    "CharColor": "\\e[38;5;29m",
-    "Value": "Processes",
-    "KeyColor": "\\e[38;5;160m",
-    "ValueColor": "\\e[38;5;214m",
-    "Length": "79"
-  },
-  "Line009": {
-    "Type" : "Line",
-    "Char": "Y",
-    "CharColor": "\\e[38;5;44m",
-    "Length": "79"
-  }
+  "Template": [
+    {
+      "Type" : "Line",
+      "Char": "^",
+      "CharColor": "\\e[38;5;44m",
+      "Length": "79"
+    },
+    {
+      "Type" : "Header",
+      "Char": "o",
+      "CharColor": "\\e[38;5;27m",
+      "Value": "HostName",
+      "ValueColor": "\\e[38;5;214m",
+      "Length": "79"
+    },
+    {
+      "Type" : "Line",
+      "Char": "v",
+      "CharColor": "\\e[38;5;44m",
+      "Length": "79"
+    },
+    {
+      "Type" : "Info",
+      "Char": "oO",
+      "CharColor": "\\e[38;5;29m",
+      "Value": "HostIp",
+      "KeyColor": "\\e[38;5;160m",
+      "ValueColor": "\\e[38;5;214m",
+      "Length": "79"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "CharColor": "\\e[38;5;44m",
+      "Value": "Release",
+      "KeyColor": "\\e[38;5;160m",
+      "ValueColor": "\\e[38;5;214m",
+      "Length": "79"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "CharColor": "\\e[38;5;29m",
+      "Value": "Kernel",
+      "KeyColor": "\\e[38;5;160m",
+      "ValueColor": "\\e[38;5;214m",
+      "Length": "79"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "CharColor": "\\e[38;5;44m",
+      "Value": "Platform",
+      "KeyColor": "\\e[38;5;160m",
+      "ValueColor": "\\e[38;5;214m",
+      "Length": "79"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "CharColor": "\\e[38;5;29m",
+      "Value": "Uptime",
+      "KeyColor": "\\e[38;5;160m",
+      "ValueColor": "\\e[38;5;214m",
+      "Length": "79"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "CharColor": "\\e[38;5;44m",
+      "Value": "CpuUsage",
+      "KeyColor": "\\e[38;5;160m",
+      "ValueColor": "\\e[38;5;214m",
+      "Length": "79"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "CharColor": "\\e[38;5;29m",
+      "Value": "CpuLoad",
+      "KeyColor": "\\e[38;5;160m",
+      "ValueColor": "\\e[38;5;214m",
+      "Length": "79"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "CharColor": "\\e[38;5;44m",
+      "Value": "Memory",
+      "KeyColor": "\\e[38;5;160m",
+      "ValueColor": "\\e[38;5;214m",
+      "Length": "79"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "CharColor": "\\e[38;5;29m",
+      "Value": "Swap",
+      "KeyColor": "\\e[38;5;160m",
+      "ValueColor": "\\e[38;5;214m",
+      "Length": "79"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "CharColor": "\\e[38;5;44m",
+      "Value": "Root",
+      "KeyColor": "\\e[38;5;160m",
+      "ValueColor": "\\e[38;5;214m",
+      "Length": "79"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "CharColor": "\\e[38;5;29m",
+      "Value": "Updates",
+      "KeyColor": "\\e[38;5;160m",
+      "ValueColor": "\\e[38;5;214m",
+      "Length": "79"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "CharColor": "\\e[38;5;44m",
+      "Value": "Sessions",
+      "KeyColor": "\\e[38;5;160m",
+      "ValueColor": "\\e[38;5;214m",
+      "Length": "79"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "CharColor": "\\e[38;5;29m",
+      "Value": "Processes",
+      "KeyColor": "\\e[38;5;160m",
+      "ValueColor": "\\e[38;5;214m",
+      "Length": "79"
+    },
+    {
+      "Type" : "Line",
+      "Char": "Y",
+      "CharColor": "\\e[38;5;44m",
+      "Length": "79"
+    }
+  ]
 }
