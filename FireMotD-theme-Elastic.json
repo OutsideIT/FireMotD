@@ -2,156 +2,100 @@
   "Theme": "Eline",
   "Creator": "Willem D'Haese",
   "CreationDate": "2018-01-08",
-  "Description": "A pink and purple colored theme designed for my wife Eline",
+  "Description": "An Elastic theme for Elastic nodes",
   "DefaultSettings": {
-    "Char": "#",
+    "Char": "O",
+    "CharColor": "\\e[38;5;29m",
     "Length": 79,
-    "Separator": "=",
-    "SeparatorColor": "\\\\e[38;5;198m"
+    "KeyColor": "\\e[38;5;126m",
+    "Separator": "=>",
+    "SeparatorColor": "\\e[38;5;221m",
+    "ValueColor": "\\e[38;5;33m",
+    "HighlightColor": "\\e[38;5;75m"
   },
   "Template": [
     {
       "Type" : "Line",
-      "Char": "^",
-      "CharColor": "\\e[38;5;44m",
-      "Length": "79"
+      "Char": "^"
     },
     {
       "Type" : "Header",
-      "Char": "o",
-      "CharColor": "\\e[38;5;27m",
+      "CharColor": "\\e[38;5;38m",
       "Value": "HostName",
-      "ValueColor": "\\e[38;5;214m",
-      "Length": "79"
+      "ValueColor": "\\e[38;5;221m"
     },
     {
       "Type" : "Line",
-      "Char": "v",
-      "CharColor": "\\e[38;5;44m",
-      "Length": "79"
+      "Char": "v"
     },
     {
       "Type" : "Info",
       "Char": "oO",
-      "CharColor": "\\e[38;5;29m",
-      "Value": "HostIp",
-      "KeyColor": "\\e[38;5;160m",
-      "ValueColor": "\\e[38;5;214m",
-      "Length": "79"
+      "Value": "HostIp"
+    },
+    {
+      "Type" : "Info",
+      "Char": "oO",
+      "Value": "Release"
     },
     {
       "Type" : "Info",
       "Char": "o0",
-      "CharColor": "\\e[38;5;44m",
-      "Value": "Release",
-      "KeyColor": "\\e[38;5;160m",
-      "ValueColor": "\\e[38;5;214m",
-      "Length": "79"
+      "Value": "Kernel"
     },
     {
       "Type" : "Info",
       "Char": "o0",
-      "CharColor": "\\e[38;5;29m",
-      "Value": "Kernel",
-      "KeyColor": "\\e[38;5;160m",
-      "ValueColor": "\\e[38;5;214m",
-      "Length": "79"
+      "Value": "Platform"
     },
     {
       "Type" : "Info",
       "Char": "o0",
-      "CharColor": "\\e[38;5;44m",
-      "Value": "Platform",
-      "KeyColor": "\\e[38;5;160m",
-      "ValueColor": "\\e[38;5;214m",
-      "Length": "79"
+      "Value": "Uptime"
     },
     {
       "Type" : "Info",
       "Char": "o0",
-      "CharColor": "\\e[38;5;29m",
-      "Value": "Uptime",
-      "KeyColor": "\\e[38;5;160m",
-      "ValueColor": "\\e[38;5;214m",
-      "Length": "79"
+      "Value": "CpuUsage"
     },
     {
       "Type" : "Info",
       "Char": "o0",
-      "CharColor": "\\e[38;5;44m",
-      "Value": "CpuUsage",
-      "KeyColor": "\\e[38;5;160m",
-      "ValueColor": "\\e[38;5;214m",
-      "Length": "79"
+      "Value": "CpuLoad"
     },
     {
       "Type" : "Info",
       "Char": "o0",
-      "CharColor": "\\e[38;5;29m",
-      "Value": "CpuLoad",
-      "KeyColor": "\\e[38;5;160m",
-      "ValueColor": "\\e[38;5;214m",
-      "Length": "79"
+      "Value": "Memory"
     },
     {
       "Type" : "Info",
       "Char": "o0",
-      "CharColor": "\\e[38;5;44m",
-      "Value": "Memory",
-      "KeyColor": "\\e[38;5;160m",
-      "ValueColor": "\\e[38;5;214m",
-      "Length": "79"
+      "Value": "Swap"
     },
     {
       "Type" : "Info",
       "Char": "o0",
-      "CharColor": "\\e[38;5;29m",
-      "Value": "Swap",
-      "KeyColor": "\\e[38;5;160m",
-      "ValueColor": "\\e[38;5;214m",
-      "Length": "79"
+      "Value": "Root"
     },
     {
       "Type" : "Info",
       "Char": "o0",
-      "CharColor": "\\e[38;5;44m",
-      "Value": "Root",
-      "KeyColor": "\\e[38;5;160m",
-      "ValueColor": "\\e[38;5;214m",
-      "Length": "79"
+      "Value": "Updates"
     },
     {
       "Type" : "Info",
       "Char": "o0",
-      "CharColor": "\\e[38;5;29m",
-      "Value": "Updates",
-      "KeyColor": "\\e[38;5;160m",
-      "ValueColor": "\\e[38;5;214m",
-      "Length": "79"
+      "Value": "Sessions"
     },
     {
       "Type" : "Info",
       "Char": "o0",
-      "CharColor": "\\e[38;5;44m",
-      "Value": "Sessions",
-      "KeyColor": "\\e[38;5;160m",
-      "ValueColor": "\\e[38;5;214m",
-      "Length": "79"
-    },
-    {
-      "Type" : "Info",
-      "Char": "o0",
-      "CharColor": "\\e[38;5;29m",
-      "Value": "Processes",
-      "KeyColor": "\\e[38;5;160m",
-      "ValueColor": "\\e[38;5;214m",
-      "Length": "79"
+      "Value": "Processes"
     },
     {
       "Type" : "Line",
-      "Char": "Y",
-      "CharColor": "\\e[38;5;44m",
-      "Length": "79"
+      "Char": "Y"
     }
   ]
 }
