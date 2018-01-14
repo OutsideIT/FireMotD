@@ -1,0 +1,101 @@
+{
+  "Theme": "Elastic",
+  "Creator": "Willem D'Haese",
+  "CreationDate": "2018-01-08",
+  "Description": "An Elastic theme for Elastic nodes",
+  "DefaultSettings": {
+    "Char": "O",
+    "CharColor": "\\e[38;5;29m",
+    "Length": 79,
+    "KeyColor": "\\e[38;5;126m",
+    "Separator": "=>",
+    "SeparatorColor": "\\e[38;5;221m",
+    "ValueColor": "\\e[38;5;33m",
+    "HighlightColor": "\\e[38;5;75m"
+  },
+  "Template": [
+    {
+      "Type" : "Line",
+      "Char": "^"
+    },
+    {
+      "Type" : "Header",
+      "CharColor": "\\e[38;5;38m",
+      "Value": "HostName",
+      "ValueColor": "\\e[38;5;221m"
+    },
+    {
+      "Type" : "Line",
+      "Char": "v"
+    },
+    {
+      "Type" : "Info",
+      "Char": "oO",
+      "Value": "HostIp"
+    },
+    {
+      "Type" : "Info",
+      "Char": "oO",
+      "Value": "Release"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "Value": "Kernel"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "Value": "Platform"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "Value": "Uptime"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "Value": "CpuUsage"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "Value": "CpuLoad"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "Value": "Memory"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "Value": "Swap"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "Value": "Root"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "Value": "Updates"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "Value": "Sessions"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "Value": "Processes"
+    },
+    {
+      "Type" : "Line",
+      "Char": "Y"
+    }
+  ]
+}
