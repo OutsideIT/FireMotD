@@ -2,10 +2,16 @@
 
 ### Idea
 
-This tool displays useful system information after logging into a Linux system (or Windows with FireMotD.ps1, such as version, CPU information, 
-memory, disk information, number of updates, and many more useful things.
+This tool displays useful system information after logging into a Linux system (or Windows with FireMotD.ps1), such as version, CPU information, 
+memory, disk information, number of updates, and many more useful things. 
 
 ### Screenshots
+
+Eline:
+![FireMotD Eline](/../screenshots/FireMotD-Theme-Elastic-v9.01.png?raw=true "FireMotD Elastic")
+
+Eline:
+![FireMotD Eline](/../screenshots/FireMotD-Theme-Eline-v9.01.png?raw=true "FireMotD Eline")
 
 Modern:
 
@@ -33,7 +39,7 @@ Powershell:
 
 ### Status
 
-Production ready.
+Production ready. Making sysadmins happy since 2014.
 
 ### How To
 
@@ -64,15 +70,16 @@ Usage:
  FireMotD [-vhVs]
 
 Options:
-   -h | --help               Shows this help and exits
-   -v | --verbose            Verbose mode (shows messages)
-   -V | --version            Shows version information and exits
-   -t | --theme <Theme Name> Shows Motd info on screen, based on the chosen theme
-   -C | --colortest          Prints color test to screen
-   -M | --colormap           Prints color test to screen, with color numbers in it
-   -S | --save               Saves data to /var/tmp/FireMotD.json
-  -HV | --hideversion        Hides version number
- -sru | --skiprepoupdate     Skip the repository package update during update count calculation (apt only)
+   -h  | --help               			Shows this help and exits
+   -v  | --verbose            			Verbose mode (shows messages)
+   -V  | --version            			Shows version information and exits
+   -t  | --theme <Theme Name> 			Shows Motd info on screen, based on the chosen theme
+   -TF | --TemplateFile <Path to template> 	Shows theme based on json templates
+   -C  | --colortest          			Prints color test to screen
+   -M  | --colormap           			Prints color test to screen, with color numbers in it
+   -S  | --save               			Saves data to /var/tmp/FireMotD.json
+  -HV  | --hideversion        			Hides version number
+ -sru  | --skiprepoupdate     			Skip the repository package update (apt only)
 
 256-color themes:
  original
@@ -92,6 +99,7 @@ HTML theme:
 Examples:
  FireMotD -t original
  FireMotD -t html > /tmp/motd.html
+ FireMotD -TF FireMotD-theme-Elastic.json
  FireMotD --theme Modern
  FireMotD --colortest
  FireMotD -M
