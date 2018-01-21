@@ -7,6 +7,10 @@ memory, disk information, number of updates, and many more useful things.
 
 ### Screenshots
 
+Digipolis:
+
+![FireMotD Digipolis](/../screenshots/FireMotD-Theme-Digipolis-v9.01.png?raw=true "FireMotD Digipolis")
+
 Elastic:
 
 ![FireMotD Elastic](/../screenshots/FireMotD-Theme-Elastic-v9.01.png?raw=true "FireMotD Elastic")
