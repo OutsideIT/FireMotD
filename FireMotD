@@ -1532,6 +1532,8 @@ InitializeArgs () {
         Action="version" ; shift ;;
       -h|--help|--Help)
         Action="help" ; shift ;;
+      -I|--Install)
+        Action="install" ; shift ;;
       -s|-S|--save|--Save|--saveupdates|--SaveUpdates|--saveUpdates)
         Action="save" ; shift ;;
         #CheckSudo "$@" ; CheckDependencies ; ExportData ; exit $? ;;
