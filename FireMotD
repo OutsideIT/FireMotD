@@ -1536,7 +1536,6 @@ InitializeArgs () {
         Action="install" ; shift ;;
       -s|-S|--save|--Save|--saveupdates|--SaveUpdates|--saveUpdates)
         Action="save" ; shift ;;
-        #CheckSudo "$@" ; CheckDependencies ; ExportData ; exit $? ;;
       -HV|--hideversion|--HideVersion)
         HideVersion=1 ; shift ;;
       -sru|-SRU|--skiprepoupdate|--SkipRepoUpdate)
@@ -1547,7 +1546,6 @@ InitializeArgs () {
         Action="colortest" ; shift ;;
       -M|--Colormap|--colormap|--ColorMap|--colorMap) 
         Action="colormap" ; shift ;;
-        # ColorTest 0
       -E|--ExportFile)
         shift ; ExportFile=$1 ; shift ;;
       -TF|--TemplateFile)
@@ -1832,8 +1830,16 @@ PrintTheme () {
 }
 
 InstallFireMotD () {
-  WriteLog Output Info "Attemptin FireMotD installation"
-
+  WriteLog Output Info "Attempting FireMotD installation"
+  WriteLog Verbose Info "Creating theme directory"
+  mkdir -p /usr/share/firemotd/themes
+  WriteLog Verbose Info "Creating reference directory"
+  mkdir -p /usr/share/firemotd/references
+  WriteLog Verbose Info "Downloading themes"
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/dev-willem-installer/FireMotD-theme-Elastic.json -o /usr/share/firemotd/themes/FireMotD-theme-Elastic.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/dev-willem-installer/FireMotD-theme-Eline.json -o /usr/share/firemotd/themes/FireMotD-theme-Eline.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/dev-willem-installer/FireMotD-theme-Digipolis.json -o /usr/share/firemotd/th
+emes/FireMotD-theme-Digipolis.json
 }
 
 CheckAction () {
