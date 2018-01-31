@@ -1838,8 +1838,7 @@ InstallFireMotD () {
   WriteLog Verbose Info "Downloading themes"
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/dev-willem-installer/FireMotD-theme-Elastic.json -o /usr/share/firemotd/themes/FireMotD-theme-Elastic.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/dev-willem-installer/FireMotD-theme-Eline.json -o /usr/share/firemotd/themes/FireMotD-theme-Eline.json
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/dev-willem-installer/FireMotD-theme-Digipolis.json -o /usr/share/firemotd/th
-emes/FireMotD-theme-Digipolis.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/dev-willem-installer/FireMotD-theme-Digipolis.json -o /usr/share/firemotd/themes/FireMotD-theme-Digipolis.json
 }
 
 CheckAction () {
