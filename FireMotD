@@ -1829,12 +1829,20 @@ PrintTheme () {
   esac
 }
 
+InstallFireMotD () {
+  WriteLog Output Info "Attemptin FireMotD installation"
+
+}
+
 CheckAction () {
   case "$Action" in
     version)
       PrintVersion ;;
     help)
       PrintHelp ;;
+    install)
+      CheckSudo "$@"
+      InstallFireMotD ;;
     save)
       CheckSudo "$@" 
       CheckDependencies 
