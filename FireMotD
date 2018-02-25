@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v9.01.180106
+# Version:      v9.02.180225
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -1814,7 +1814,6 @@ PrintTemplate () {
 }
 
 PrintTheme () {
-  LoadData
   case "$Theme" in
     original|Original) StartOriginalBlue ; GenerateOriginal256Color ;;
     modern|Modern) GenerateOriginal256Color ;;
@@ -1839,6 +1838,7 @@ InstallFireMotD () {
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/dev-willem-installer/FireMotD-theme-Elastic.json -o /usr/share/firemotd/themes/FireMotD-theme-Elastic.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/dev-willem-installer/FireMotD-theme-Eline.json -o /usr/share/firemotd/themes/FireMotD-theme-Eline.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/dev-willem-installer/FireMotD-theme-Digipolis.json -o /usr/share/firemotd/themes/FireMotD-theme-Digipolis.json
+  /usr/local/bin/FireMotD -S
 }
 
 CheckAction () {
@@ -1855,8 +1855,10 @@ CheckAction () {
       CheckDependencies 
       ExportData ;;
     template)
+      LoadData
       PrintTemplate ;;
     theme)
+      LoadData
       PrintTheme ;;
     colormap)
       ColorTest 0 ;;
