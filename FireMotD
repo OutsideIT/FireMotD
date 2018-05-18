@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v9.03.180518
+# Version:      v9.04.180518
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -1860,9 +1860,9 @@ InstallFireMotD () {
   WriteLog Verbose Info "Creating reference directory"
   mkdir -p /usr/share/firemotd/references
   WriteLog Verbose Info "Downloading themes"
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/dev-willem-installer/FireMotD-theme-Elastic.json -o /usr/share/firemotd/themes/FireMotD-theme-Elastic.json
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/dev-willem-installer/FireMotD-theme-Eline.json -o /usr/share/firemotd/themes/FireMotD-theme-Eline.json
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/dev-willem-installer/FireMotD-theme-Digipolis.json -o /usr/share/firemotd/themes/FireMotD-theme-Digipolis.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/FireMotD-theme-Elastic.json -o /usr/share/firemotd/themes/FireMotD-theme-Elastic.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/FireMotD-theme-Eline.json -o /usr/share/firemotd/themes/FireMotD-theme-Eline.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/FireMotD-theme-Digipolis.json -o /usr/share/firemotd/themes/FireMotD-theme-Digipolis.json
   /usr/local/bin/FireMotD -S
 }
 
