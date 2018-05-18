@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v9.02.180225
+# Version:      v9.03.180518
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
@@ -1566,26 +1566,31 @@ PrintChar () {
 }
 
 RenderHostIp () {
-  HostIp=" ${KeyColor} Ip ${SeparatorColor}${Separator} ${HighlightColor}$(jq -r ".HostIp.Value" $ExportFile)"
-  echo -ne $HostIp 
+  WriteLog Debug Info "Rendering Ip"
+  HostIp="${KeyColor} Ip ${SeparatorColor}${Separator} ${HighlightColor}$(jq -r ".HostIp.Value" $ExportFile)"
+  PrintChar "$Char" 2 $CharColor
+  echo "${HostIp}\n"
 }
 
 RenderRelease () {
   WriteLog Debug Info "Rendering Release"
-  Release=" ${KeyColor} Release ${SeparatorColor}${Separator} ${ValueColor}$(jq -r ".Release.Value" $ExportFile)"
-  echo -ne $Release
+  PrintChar "$Char" 2 $CharColor
+  Release="${KeyColor} Release ${SeparatorColor}${Separator} ${ValueColor}$(jq -r ".Release.Value" $ExportFile)"
+  echo "${Release}\n"
 }
 
 RenderKernel () {
   WriteLog Debug Info "Rendering Kernel"
-  Kernel=" ${KeyColor} Kernel ${SeparatorColor}${Separator} ${ValueColor}$(jq -r ".Kernel.Value" $ExportFile)"
-  echo -en $Kernel
+  PrintChar "$Char" 2 $CharColor
+  Kernel="${KeyColor} Kernel ${SeparatorColor}${Separator} ${ValueColor}$(jq -r ".Kernel.Value" $ExportFile)"
+  echo "${Kernel}\n"
 }
 
 RenderPlatform () {
   WriteLog Debug Info "Rendering Platform"
-  Platform=" ${KeyColor} Platform ${SeparatorColor}${Separator} ${ValueColor}$(jq -r ".Platform.Value" $ExportFile)"
-  echo -en $Platform
+  PrintChar "$Char" 2 $CharColor
+  Platform="${KeyColor} Platform ${SeparatorColor}${Separator} ${ValueColor}$(jq -r ".Platform.Value" $ExportFile)"
+  echo "${Platform}\n"
 }
 
 RenderUptime () {
@@ -1595,7 +1600,8 @@ RenderUptime () {
   UptimeMinutes=$(jq -r ".Uptime.Minutes" $ExportFile)
   UptimeSeconds=$(jq -r ".Uptime.Seconds" $ExportFile)
   if [[ ! -z $UptimeDays ]] && [[ "$UptimeDays" != "null" ]] ; then
-    echo -ne "${KeyColor} Uptime ${SeparatorColor}${Separator} ${HighlightColor}${UptimeDays} ${ValueColor}day(s). ${HighlightColor}${UptimeHours}${ValueColor}:${HighlightColor}${UptimeMinutes}${ValueColor}:${HighlightColor}${UptimeSeconds}"
+    PrintChar "$Char" 2 $CharColor
+    echo "${KeyColor} Uptime ${SeparatorColor}${Separator} ${HighlightColor}${UptimeDays} ${ValueColor}day(s). ${HighlightColor}${UptimeHours}${ValueColor}:${HighlightColor}${UptimeMinutes}${ValueColor}:${HighlightColor}${UptimeSeconds}\n"
   fi
 }
 
@@ -1606,7 +1612,8 @@ RenderCpuUsage () {
   CpuUsageCoreCount=$(jq -r ".CpuUsage.CoreCount" $ExportFile)
   CpuUsageSocketCount=$(jq -r ".CpuUsage.SocketCount" $ExportFile)
   if [[ ! -z $CpuUsageAverage ]] && [[ "$CpuUsageAverage" != "null" ]] ; then
-    echo -ne "${KeyColor} CPU Usage ${SeparatorColor}${Separator} ${HighlightColor}${CpuUsageAverage}%${ValueColor} avg over ${HighlightColor}$CpuUsageCpuCount ${ValueColor}cpu(s) (${HighlightColor}$CpuUsageCoreCount ${ValueColor}core(s) x ${HighlightColor}$CpuUsageSocketCount ${ValueColor}socket(s))"
+    PrintChar "$Char" 2 $CharColor
+    echo "${KeyColor} CPU Usage ${SeparatorColor}${Separator} ${HighlightColor}${CpuUsageAverage}%${ValueColor} avg over ${HighlightColor}$CpuUsageCpuCount ${ValueColor}cpu(s) (${HighlightColor}$CpuUsageCoreCount ${ValueColor}core(s) x ${HighlightColor}$CpuUsageSocketCount ${ValueColor}socket(s))\n"
   fi
 }
 
@@ -1614,7 +1621,8 @@ RenderCpuLoad () {
   WriteLog Debug Info "Rendering CpuLoad"
   CpuLoad=$(jq -r ".CpuLoad.Value" $ExportFile)
   if [[ ! -z $CpuLoad ]] && [[ "$CpuLoad" != "null" ]] ; then
-    echo -ne "${KeyColor} CPU Load ${SeparatorColor}${Separator} ${HighlightColor}$CpuLoad"
+    PrintChar "$Char" 2 $CharColor
+    echo "${KeyColor} CPU Load ${SeparatorColor}${Separator} ${HighlightColor}${CpuLoad}\n"
   fi
 }
 
@@ -1626,7 +1634,8 @@ RenderMemory () {
   MemFreePerc=$(jq -r ".Memory.FreePerc" $ExportFile)
   MemUsedPerc=$(jq -r ".Memory.UsedPerc" $ExportFile)
   if [[ ! -z $MemTotalGB ]] && [[ "$MemTotalGB" != "null" ]] ; then
-    echo -ne "${KeyColor} Memory ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}${MemFreeGB}GB${ValueColor} (${HighlightColor}${MemFreePerc}%${ValueColor}), Used: ${HighlightColor}${MemUsedGB}GB${ValueColor} (${HighlightColor}${MemUsedPerc}%${ValueColor}), Total: ${HighlightColor}${MemTotalGB}GB${ValueColor}"
+    PrintChar "$Char" 2 $CharColor
+    echo "${KeyColor} Memory ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}${MemFreeGB}GB${ValueColor} (${HighlightColor}${MemFreePerc}%${ValueColor}), Used: ${HighlightColor}${MemUsedGB}GB${ValueColor} (${HighlightColor}${MemUsedPerc}%${ValueColor}), Total: ${HighlightColor}${MemTotalGB}GB${ValueColor}\n"
   fi
 }
 
@@ -1638,7 +1647,8 @@ RenderSwap () {
   SwapFreePerc=$(jq -r ".Swap.FreePerc" $ExportFile)
   SwapUsedPerc=$(jq -r ".Swap.UsedPerc" $ExportFile)
   if [[ ! -z $SwapTotalGB ]] && [[ "$SwapTotalGB" != "null" ]] ; then
-    echo -en "${KeyColor} Swap ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}${SwapFreeGB}GB ${ValueColor}(${HighlightColor}${SwapFreePerc}%${ValueColor}), Used: ${HighlightColor}${SwapUsedGB}GB ${ValueColor}(${HighlightColor}${SwapUsedPerc}%${ValueColor}), Total: ${HighlightColor}${SwapTotalGB}GB"
+    PrintChar "$Char" 2 $CharColor
+    echo "${KeyColor} Swap ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}${SwapFreeGB}GB ${ValueColor}(${HighlightColor}${SwapFreePerc}%${ValueColor}), Used: ${HighlightColor}${SwapUsedGB}GB ${ValueColor}(${HighlightColor}${SwapUsedPerc}%${ValueColor}), Total: ${HighlightColor}${SwapTotalGB}GB\n"
   fi
 }
 
@@ -1650,7 +1660,8 @@ RenderRoot () {
   DiskRootFreePerc=$(jq -r ".DiskRoot.FreePerc" $ExportFile)
   DiskRootUsedPerc=$(jq -r ".DiskRoot.UsedPerc" $ExportFile)
   if [[ ! -z $DiskRootTotalGB ]] && [[ "$DiskRootTotalGB" != "null" ]] ; then
-    echo -en "${KeyColor} Root ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}${DiskRootFreeGB}GB ${ValueColor}(${HighlightColor}${DiskRootFreePerc}%${ValueColor}), Used: ${HighlightColor}${DiskRootUsedGB}GB ${ValueColor}(${HighlightColor}${DiskRootUsedPerc}%${ValueColor}), Total: ${HighlightColor}${DiskRootTotalGB}GB"
+    PrintChar "$Char" 2 $CharColor
+    echo "${KeyColor} Root ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}${DiskRootFreeGB}GB ${ValueColor}(${HighlightColor}${DiskRootFreePerc}%${ValueColor}), Used: ${HighlightColor}${DiskRootUsedGB}GB ${ValueColor}(${HighlightColor}${DiskRootUsedPerc}%${ValueColor}), Total: ${HighlightColor}${DiskRootTotalGB}GB\n"
   fi
 }
 
@@ -1659,7 +1670,8 @@ RenderUpdates () {
   UpdateCount=$(jq -r ".Updates.Count" $ExportFile)
   UpdateType=$(jq -r ".Updates.Type" $ExportFile)
   if [[ ! -z $UpdateCount ]] && [[ "$UpdateCount" != "null" ]] ; then
-    echo -en "${KeyColor} Updates ${SeparatorColor}${Separator} ${HighlightColor}${UpdateCount} ${UpdateType} ${ValueColor}updates available."
+    PrintChar "$Char" 2 $CharColor
+    echo "${KeyColor} Updates ${SeparatorColor}${Separator} ${HighlightColor}${UpdateCount} ${UpdateType} ${ValueColor}updates available.\n"
   fi
 }
 
@@ -1667,7 +1679,8 @@ RenderSessions () {
   WriteLog Debug Info "Rendering Sessions"
   SessionCount=$(jq -r ".Sessions.Count" $ExportFile)
   if [[ ! -z $SessionCount ]] && [[ "$SessionCount" != "null" ]] ; then
-    echo -en "${KeyColor} Sessions ${SeparatorColor}${Separator} ${HighlightColor}$SessionCount"
+    PrintChar "$Char" 2 $CharColor
+    echo "${KeyColor} Sessions ${SeparatorColor}${Separator} ${HighlightColor}${SessionCount}\n"
   fi
 }
 
@@ -1676,7 +1689,8 @@ RenderProcesses () {
   ProcessCount=$(jq -r ".Processes.Count" $ExportFile)
   ProcessMax=$(jq -r ".Processes.Max" $ExportFile)
   if [[ ! -z $ProcessCount ]] && [[ "$ProcessCount" != "null" ]] ; then
-    echo -en "${KeyColor} Processes ${SeparatorColor}${Separator} ${HighlightColor}${ProcessCount} ${ValueColor}running processes of ${HighlightColor}${ProcessMax} ${ValueColor}maximum processes"
+    PrintChar "$Char" 2 $CharColor
+    echo "${KeyColor} Processes ${SeparatorColor}${Separator} ${HighlightColor}${ProcessCount} ${ValueColor}running processes of ${HighlightColor}${ProcessMax} ${ValueColor}maximum processes\n"
   fi
 }
 
@@ -1684,7 +1698,8 @@ RenderHttpd () {
   WriteLog Debug Info "Rendering Httpd"
   HttpdVersion=$(jq -r ".Httpd.Version" $ExportFile)
   if [[ ! -z $HttpdVersion ]] && [[ "$HttpdVersion" != "null" ]] ; then
-    echo -en "${KeyColor} Apache ${SeparatorColor}${Separator} ${ValueColor}Version: $HttpdVersion"
+    PrintChar "$Char" 2 $CharColor
+    echo "${KeyColor} Apache ${SeparatorColor}${Separator} ${ValueColor}Version: ${HttpdVersion}\n"
   fi
 }
 
@@ -1692,7 +1707,8 @@ RenderNginx () {
   WriteLog Debug Info "Rendering Nginx"
   NginxVersion=$(jq -r ".Nginx.Version" $ExportFile)
   if [[ ! -z $NginxVersion ]] && [[ "$NginxVersion" != "null" ]] ; then
-    echo -en "${KeyColor} Nginx ${SeparatorColor}${Separator} ${ValueColor}Version: $NginxVersion"
+    PrintChar "$Char" 2 $CharColor
+    echo "${KeyColor} Nginx ${SeparatorColor}${Separator} ${ValueColor}Version: ${NginxVersion}\n"
   fi
 }
 
@@ -1701,7 +1717,8 @@ RenderMysql () {
   MysqlVersion=$(jq -r ".Mysql.Version" $ExportFile)
   MysqlDistribution=$(jq -r ".Mysql.Distribution" $ExportFile)
   if [[ ! -z $MysqlVersion ]] && [[ "$MysqlVersion" != "null" ]] ; then
-    echo -en "${KeyColor} MySQL ${SeparatorColor}${Separator} ${ValueColor}Version: $MysqlVersion Distribution: $MysqlDistribution"
+    PrintChar "$Char" 2 $CharColor
+    echo "${KeyColor} MySQL ${SeparatorColor}${Separator} ${ValueColor}Version: ${MysqlVersion} Distribution: ${MysqlDistribution}\n"
   fi
 }
 
@@ -1709,7 +1726,8 @@ RenderPostgres () {
   WriteLog Debug Info "Rendering Postgres"
   PostgresVersion=$(jq -r ".Postgres.Version" $ExportFile)
   if [[ ! -z $PostgresVersion ]] && [[ "$PostgresVersion" != "null" ]] ; then
-    echo -en "${KeyColor} PostgreSQL ${SeparatorColor}${Separator} ${ValueColor}Version: $PostgresVersion"
+    PrintChar "$Char" 2 $CharColor
+    echo "${KeyColor} PostgreSQL ${SeparatorColor}${Separator} ${ValueColor}Version: ${PostgresVersion}\n"
   fi
 }
 
@@ -1718,21 +1736,26 @@ RenderPhp () {
   PhpVersion=$(jq -r ".Php.Version" $ExportFile)
   PhpMaxMemory=$(jq -r ".Php.MaxMemory" $ExportFile)
   if [[ ! -z $PhpVersion ]] && [[ "$PhpVersion" != "null" ]] ; then
-    echo -en "${KeyColor} PHP ${SeparatorColor}${Separator} ${ValueColor}Version: $PhpVersion, Memory Limit: $PhpMaxMemory"
+    PrintChar "$Char" 2 $CharColor
+    echo "${KeyColor} PHP ${SeparatorColor}${Separator} ${ValueColor}Version: $PhpVersion, Memory Limit: ${PhpMaxMemory}\n"
   fi
 }
 
 RenderElasticsearch () {
+  WriteLog Debug Info "Rendering Elasticsearch"
   ElasticsearchVersion=$(jq -r ".Elasticsearch.Version" $ExportFile)
   if [[ ! -z $ElasticsearchVersion ]] && [[ "$ElasticsearchVersion" != "Unknown" ]] && [[ "$ElasticsearchVersion" != "null" ]] ; then
-    echo -e "${KeyColor} Elasticsearch ${SeparatorColor}${Separator} ${ValueColor}Version: $ElasticsearchVersion"
+    PrintChar "$Char" 2 $CharColor
+    echo "${KeyColor} Elasticsearch ${SeparatorColor}${Separator} ${ValueColor}Version: ${ElasticsearchVersion}\n"
   fi
 }
 
 RenderLogstash () {
+  WriteLog Debug Info "Rendering Logstash"
   LogstashVersion=$(jq -r ".Logstash.Version" $ExportFile)
   if [[ ! -z $LogstashVersion ]] && [[ "$LogstashVersion" != "Unknown" ]] && [[ "$LogstashVersion" != "null" ]] ; then
-    echo -e "${KeyColor} Logstash ${SeparatorColor}${Separator} ${ValueColor}Version: $LogstashVersion"
+    PrintChar "$Char" 2 $CharColor
+    echo "${KeyColor} Logstash ${SeparatorColor}${Separator} ${ValueColor}Version: ${LogstashVersion}\n"
   fi
 }
 
@@ -1765,6 +1788,7 @@ GenerateHeader () {
 
 GenerateInfo () {
   Value=$(jq -r --arg i "$i" '.Template[$i | tonumber].Value' $Template)
+  WriteLog Debug Info "Generating $Value"
   ValueColor=$(jq -r --arg i "$i" '.Template[$i | tonumber].ValueColor' $Template)
   if [[ "$ValueColor" == "null" ]] ; then ValueColor=$DefaultValueColor ; fi
   KeyColor=$(jq -r --arg i "$i" '.Template[$i | tonumber].KeyColor' $Template)
@@ -1775,10 +1799,11 @@ GenerateInfo () {
   if [[ "$SeparatorColor" == "null" ]] ; then SeparatorColor=$DefaultSeparatorColor ; fi
   HighlightColor=$(jq -r --arg i "$i" '.Template[$i | tonumber].HighlightColor' $Template)
   if [[ "$HighlightColor" == "null" ]] ; then HighlightColor=$DefaultHighlightColor ; fi
-  PrintChar "$Char" 2 $CharColor
-  RenderResult=$(Render${Value})
-  echo -ne $RenderResult
-  PrintChar "\n" 1 $Color
+  RenderResult="$(Render${Value})"
+  if [[ "$RenderResult" != "" ]] ; then
+#    echo "ECHO $Value \"$RenderResult\"" 
+    echo -ne "$RenderResult"
+  fi
 }
 
 PrintTemplate () {

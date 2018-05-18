@@ -94,6 +94,16 @@
       "Value": "Processes"
     },
     {
+      "Type" : "Info",
+      "Char": "o0",
+      "Value": "Elasticsearch"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
+      "Value": "Logstash"
+    },
+    {
       "Type" : "Line",
       "Char": "Y"
     }
