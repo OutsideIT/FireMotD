@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v9.07.180713
+# Version:      v9.08.180713
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich
@@ -218,7 +218,7 @@ ExploreHostIp () {
         fi
     fi
     if [ ! -z $IpPath ] ; then
-        HostIp="$(${IpPath} route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
+        HostIp="$(${IpPath} route get 8.8.8.8 | head -1 | grep -Po '(?<=src )(\d{1,3}.){4}')"
         if [[ ! $HostIp =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             HostIp="$(${IpPath} route get 8.8.8.8 | head -1 | awk -F' ' '{print $(NF)}')"
         fi
