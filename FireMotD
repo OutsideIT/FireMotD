@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v9.06.180713
+# Version:      v9.07.180713
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich
@@ -284,6 +284,8 @@ ExplorePlatform () {
         Platform="$(echo "$Dmi" | sed 's/^.*VMware/VMware/' | sed 's/, B.*//')"
     elif [[ "$Dmi" = *"FUJITSU PRIMERGY"* ]] ; then
         Platform="$(echo "$Dmi" | sed 's/^.*FUJITSU PRIMERGY/Fujitsu Primergy/' | sed 's/, B.*//')"
+    elif [[ "$Dmi" = *"HP"* ]] ; then
+        Platform="$(echo "$Dmi" | sed 's/^.*Hewlett-Packard HP ProBook/HP Probook/' | sed 's/, B.*//')"
     elif [[ "$Dmi" = *"VirtualBox"* ]] ; then
         Platform="$(echo "$Dmi" | sed 's/^.*VirtualBox/VirtualBox/' | sed 's/ .*//')"
     elif [[ "$Dmi" = *"DMI:"* ]] ; then
