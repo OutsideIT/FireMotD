@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v9.05.180713
+# Version:      v9.06.180713
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Gustavo Neves, Thomas Dietrich
@@ -590,102 +590,11 @@ ExploreLogstash () {
 
 ExportData () {
     if [[ ! -s "$ExportFile" ]] ; then
-        echo '{
-  "HostName": {
-    "Generated": "@logon",
-    "Value": "Unknown",
-    "LastRun": "Never"
-  },
-  "HostIp": {
-    "Generated": "@cron",
-    "Value": "Unknown",
-    "LastRun": "Never"
-  },
-  "Release": {
-    "Generated": "@cron",
-    "Value": "Unknown",
-    "LastRun": "Never"
-  },
-  "Kernel": {
-    "Generated": "@cron",
-    "Value": "Unknown",
-    "LastRun": "Never"
-  },
-  "Platform": {
-    "Generated": "@cron",
-    "Value": "Unknown",
-    "LastRun": "Never"
-  },
-  "Uptime": {
-    "Generated": "@logon",
-    "Days": "Unknown",
-    "Hours": "Unknown",
-    "Minutes": "Unknown",
-    "Seconds": "Unknown",
-    "LastRun": "Never"
-  },
-  "CpuUsage": {
-    "Generated": "@logon",
-    "Average": "Unknown",
-    "CpuCount": "Unknown",
-    "CoreCount": "Unknown",
-    "SocketCount": "Unknown",
-    "LastRun": "Never"
-  },
-  "CpuLoad": {
-    "Generated": "@logon",
-    "Value": "Unknown",
-    "LastRun": "Never"
-  },
-  "Memory": {
-    "Generated": "@logon",
-    "TotalGB": "Unknown",
-    "FreeGB": "Unknown",
-    "UsedGB": "Unknown",
-    "FreePerc": "Unknown",
-    "UsedPerc": "Unknown",
-    "LastRun": "Never"
-  },
-  "Swap": {
-    "Generated": "@logon",
-    "TotalGB": "Unknown",
-    "FreeGB": "Unknown",
-    "UsedGB": "Unknown",
-    "FreePerc": "Unknown",
-    "UsedPerc": "Unknown",
-    "LastRun": "Never"
-  },
-  "DiskRoot": {
-    "Generated": "@logon",
-    "TotalGB": "Unknown",
-    "FreeGB": "Unknown",
-    "UsedGB": "Unknown",
-    "FreePerc": "Unknown",
-    "UsedPerc": "Unknown",
-    "LastRun": "Never"
-  },
-  "Updates": {
-    "Generated": "@cron",
-    "Type": "Unknown",
-    "Count": "Unknown",
-    "LastRun": "Never"
-  },
-  "Sessions": {
-    "Generated": "@logon",
-    "Count": "Unknown",
-    "LastRun": "Never"
-  },
-  "Processes": {
-    "Generated": "@logon",
-    "Count": "Unknown",
-    "Max": "Unknown",
-    "LastRun": "Never"
-  }
-}' > $ExportFile
-        chmod 766 $ExportFile
+      cp /usr/share/firemotd/templates/FireMotD-template-basic.json $ExportFile
+      chmod 766 $ExportFile
     fi
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
-    WriteLog Verbose Info "Original ExportFile: $ExportFile"
+    WriteLog Verbose Info "Looping through $ExportFile"
     while read -r val ; do
         WriteLog Verbose Info "Exploring ${val}"
         $(Explore${val})
