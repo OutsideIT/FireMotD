@@ -1,0 +1,92 @@
+{
+  "HostName": {
+    "Generated": "@logon",
+    "Value": "Unknown",
+    "LastRun": "Never"
+  },
+  "HostIp": {
+    "Generated": "@cron",
+    "Value": "Unknown",
+    "LastRun": "Never"
+  },
+  "Release": {
+    "Generated": "@cron",
+    "Value": "Unknown",
+    "LastRun": "Never"
+  },
+  "Kernel": {
+    "Generated": "@cron",
+    "Value": "Unknown",
+    "LastRun": "Never"
+  },
+  "Platform": {
+    "Generated": "@cron",
+    "Value": "Unknown",
+    "LastRun": "Never"
+  },
+  "Uptime": {
+    "Generated": "@logon",
+    "Days": "Unknown",
+    "Hours": "Unknown",
+    "Minutes": "Unknown",
+    "Seconds": "Unknown",
+    "LastRun": "Never"
+  },
+  "CpuUsage": {
+    "Generated": "@logon",
+    "Average": "Unknown",
+    "CpuCount": "Unknown",
+    "CoreCount": "Unknown",
+    "SocketCount": "Unknown",
+    "LastRun": "Never"
+  },
+  "CpuLoad": {
+    "Generated": "@logon",
+    "Value": "Unknown",
+    "LastRun": "Never"
+  },
+  "Memory": {
+    "Generated": "@logon",
+    "TotalGB": "Unknown",
+    "FreeGB": "Unknown",
+    "UsedGB": "Unknown",
+    "FreePerc": "Unknown",
+    "UsedPerc": "Unknown",
+    "LastRun": "Never"
+  },
+  "Swap": {
+    "Generated": "@logon",
+    "TotalGB": "Unknown",
+    "FreeGB": "Unknown",
+    "UsedGB": "Unknown",
+    "FreePerc": "Unknown",
+    "UsedPerc": "Unknown",
+    "LastRun": "Never"
+  },
+  "DiskRoot": {
+    "Generated": "@logon",
+    "TotalGB": "Unknown",
+    "FreeGB": "Unknown",
+    "UsedGB": "Unknown",
+    "FreePerc": "Unknown",
+    "UsedPerc": "Unknown",
+    "LastRun": "Never"
+  },
+  "Updates": {
+    "Generated": "@cron",
+    "Type": "Unknown",
+    "Count": "Unknown",
+    "LastRun": "Never"
+  },
+  "Sessions": {
+    "Generated": "@logon",
+    "Count": "Unknown",
+    "LastRun": "Never"
+  },
+  "Processes": {
+    "Generated": "@logon",
+    "Count": "Unknown",
+    "Max": "Unknown",
+    "LastRun": "Never"
+  }
+}
