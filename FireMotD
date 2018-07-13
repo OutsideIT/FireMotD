@@ -1855,15 +1855,29 @@ PrintTheme () {
 
 InstallFireMotD () {
   WriteLog Output Info "Attempting FireMotD installation"
-  WriteLog Verbose Info "Creating theme directory"
+  WriteLog Verbose Info "Creating themes directory"
   mkdir -p /usr/share/firemotd/themes
-  WriteLog Verbose Info "Creating reference directory"
+  WriteLog Verbose Info "Creating templates directory"
   mkdir -p /usr/share/firemotd/references
   WriteLog Verbose Info "Downloading themes"
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/FireMotD-theme-Elastic.json -o /usr/share/firemotd/themes/FireMotD-theme-Elastic.json
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/FireMotD-theme-Eline.json -o /usr/share/firemotd/themes/FireMotD-theme-Eline.json
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/FireMotD-theme-Digipolis.json -o /usr/share/firemotd/themes/FireMotD-theme-Digipolis.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Elastic.json -o /usr/share/firemotd/themes/FireMotD-theme-Elastic.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Eline.json -o /usr/share/firemotd/themes/FireMotD-theme-Eline.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Digipolis.json -o /usr/share/firemotd/themes/FireMotD-theme-Digipolis.json
+  WriteLog Verbose Info "Downloading templates"
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-all.json -o /usr/share/firemotd/templates/FireMotD-template-all.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-basic.json -o /usr/share/firemotd/templates/FireMotD-template-basic.json
+  WriteLog Verbose Info "Copying $(readlink -f $0) to /usr/local/bin/FireMotD"
+  cp "$(readlink -f $0)" "/usr/local/bin/FireMotD"
+  if [[ -x "/usr/bin/yum" ]] ; then
+    UpdateType="yum"
+    YumExec=$(which yum 2>/dev/null)
+    InstallResult=$($YumExec install jq moreutils sysstat -y)
+    WriteLog Debug Info "Install result: $InstallResult"
+  fi
+  WriteLog Output Info "Generating information"
   /usr/local/bin/FireMotD -S
+  WriteLog Output Info "Generating FireMotD"
+  /usr/local/bin/FireMotD -TF /usr/share/firemotd/themes/FireMotD-theme-Digipolis.json
 }
 
 CheckAction () {
