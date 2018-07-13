@@ -1,9 +1,9 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v9.04.180518
+# Version:      v9.05.180713
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
-# Contributors: Gustavo Neves, Thomas Dietrich, Dmitry Romanenko
+# Contributors: Gustavo Neves, Thomas Dietrich
 # Purpose:      Bash script that will dynamically generate a message
 #               of they day for users logging in.
 # On GitHub:    https://github.com/OutsideIT/FireMotD
