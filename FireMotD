@@ -1,9 +1,9 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v9.07.180713
+# Version:      v9.08.180715
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
-# Contributors: Gustavo Neves, Thomas Dietrich
+# Contributors: Thomas Dietrich, Dmitry Romanenko
 # Purpose:      Bash script that will dynamically generate a message
 #               of they day for users logging in.
 # On GitHub:    https://github.com/OutsideIT/FireMotD
@@ -1766,10 +1766,12 @@ PrintTheme () {
 
 InstallFireMotD () {
   WriteLog Output Info "Attempting FireMotD installation"
-  WriteLog Verbose Info "Creating themes directory"
+  WriteLog Verbose Info "Creating themes directory folder"
   mkdir -p /usr/share/firemotd/themes
-  WriteLog Verbose Info "Creating templates directory"
-  mkdir -p /usr/share/firemotd/references
+  WriteLog Verbose Info "Creating templates folder"
+  mkdir -p /usr/share/firemotd/templates
+  WriteLog Verbose Info "Creating data folder"
+  mkdir -p /usr/share/firemotd/data
   WriteLog Verbose Info "Downloading themes"
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Elastic.json -o /usr/share/firemotd/themes/FireMotD-theme-Elastic.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Eline.json -o /usr/share/firemotd/themes/FireMotD-theme-Eline.json
@@ -1782,6 +1784,11 @@ InstallFireMotD () {
   if [[ -x "/usr/bin/yum" ]] ; then
     UpdateType="yum"
     YumExec=$(which yum 2>/dev/null)
+    InstallResult=$($YumExec install jq moreutils sysstat -y)
+    WriteLog Debug Info "Install result: $InstallResult"
+  elif [[ -x "/usr/bin/apt" ]] ; then
+    UpdateType="apt"
+    YumExec=$(which apt 2>/dev/null)
     InstallResult=$($YumExec install jq moreutils sysstat -y)
     WriteLog Debug Info "Install result: $InstallResult"
   fi
