@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v9.10.180716
+# Version:      v9.11.180716
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Thomas Dietrich, Dmitry Romanenko
@@ -1365,24 +1365,26 @@ Usage:
  $ScriptName [-vhVs]
 
 Options:
-   -h | --help               Shows this help and exits
-   -v | --verbose            Verbose mode (shows messages)
-   -V | --version            Shows version information and exits
-   -t | --theme <Theme Name> Shows Motd info on screen, based on the chosen theme
-   -C | --colortest          Prints color test to screen
-   -M | --colormap           Prints color test to screen, with color numbers in it
-   -S | --save               Saves data to /usr/share/firemotd/data/FireMotD.json
-  -HV | --hideversion        Hides version number
- -sru | --skiprepoupdate     Skip the repository package update during update count calculation (apt only)
+   -h | --help                          Shows this help and exits
+   -v | --verbose                       Verbose mode
+   -d | --debug                         Debug mode
+   -V | --version                       Shows version information and exits
+   -t | --theme <Theme Name>            Shows MotD with chosen theme
+  -TF | --TemplateFile <Template Path>  Shows MotD with chosen template file
+   -C | --colortest                     Prints color test to screen
+   -M | --colormap                      Prints color test including color numbers
+   -S | --save                          Saves data to /usr/share/firemotd/data/FireMotD.json
+  -HV | --hideversion                   Hides version number (legacy themes)
+ -sru | --skiprepoupdate                Skip repository package update (apt only)
 
-256-color themes:
+Legacy 256-color themes:
  original
  modern
  gray
  orange
  invader
 
-16-color themes:
+Legacy 16-color themes:
  red
  blue
  clean
@@ -1390,10 +1392,16 @@ Options:
 HTML theme:
  html
 
+Theme templates:
+ Digipolis
+ Elastic
+ Eline
+
 Examples:
  $ScriptName -t original
  $ScriptName -t html > /tmp/motd.html
  $ScriptName --theme Modern
+ $ScriptName -TF /usr/share/firemotd/themes/FireMotD-theme-Eline.json
  $ScriptName --colortest
  $ScriptName -M
  sudo $ScriptName --saveupdates
