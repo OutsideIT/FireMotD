@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v9.11.180716
+# Version:      v9.12.180716
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Thomas Dietrich, Dmitry Romanenko
@@ -1398,9 +1398,9 @@ Theme templates:
  Eline
 
 Examples:
- $ScriptName -t original
+ $ScriptName -t Elastic
  $ScriptName -t html > /tmp/motd.html
- $ScriptName --theme Modern
+ $ScriptName --theme Digipolis
  $ScriptName -TF /usr/share/firemotd/themes/FireMotD-theme-Eline.json
  $ScriptName --colortest
  $ScriptName -M
@@ -1754,6 +1754,19 @@ PrintTemplate () {
   fi
 }
 
+CheckTheme () {
+  if [ -f /usr/share/firemotd/themes/FireMotD-theme-$Theme.json ] ; then
+    WriteLog Debug Info "Theme $Theme found in FireMotD themes folder"
+    Template="/usr/share/firemotd/themes/FireMotD-theme-$Theme.json"
+    PrintTemplate
+  elif [[ "$Theme" =~ (original|Original|modern|Modern|red|Red|blue|Blue|gray|Gray|orange|Orange|html|Html|blank|Blank|invader|Invader) ]] ; then
+    WriteLog Debug Info "Legacy theme $Theme found in FireMotD code"
+    PrintTheme
+  else
+    WriteLog Output Warning "Theme $Theme doesn't exist. Please verify FireMotD themes folder."
+  fi 
+}
+
 PrintTheme () {
   case "$Theme" in
     original|Original) StartOriginalBlue ; GenerateOriginal256Color ;;
@@ -1802,7 +1815,7 @@ InstallFireMotD () {
   WriteLog Output Info "Generating information"
   /usr/local/bin/FireMotD -S
   WriteLog Output Info "Generating FireMotD"
-  /usr/local/bin/FireMotD -TF /usr/share/firemotd/themes/FireMotD-theme-Digipolis.json
+  /usr/local/bin/FireMotD -t Digipolis
 }
 
 CheckAction () {
@@ -1823,7 +1836,7 @@ CheckAction () {
       PrintTemplate ;;
     theme)
       LoadData
-      PrintTheme ;;
+      CheckTheme ;;
     colormap)
       ColorTest 0 ;;
     colortest)
