@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v9.12.180716
+# Version:      v9.13.180716
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Thomas Dietrich, Dmitry Romanenko
@@ -1794,6 +1794,7 @@ InstallFireMotD () {
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Elastic.json -o /usr/share/firemotd/themes/FireMotD-theme-Elastic.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Eline.json -o /usr/share/firemotd/themes/FireMotD-theme-Eline.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Digipolis.json -o /usr/share/firemotd/themes/FireMotD-theme-Digipolis.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Red.json -o /usr/share/firemotd/themes/FireMotD-theme-Red.json
   WriteLog Verbose Info "Downloading templates"
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-all.json -o /usr/share/firemotd/templates/FireMotD-template-all.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-basic.json -o /usr/share/firemotd/templates/FireMotD-template-basic.json
