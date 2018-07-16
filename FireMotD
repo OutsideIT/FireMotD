@@ -25,6 +25,7 @@ HideVersion=0
 SkipRepoUpdate=0
 LogLocal=''
 ExportFile='/usr/share/firemotd/data/FireMotD.json'
+TemplateType='default'
 ScriptPath="$(readlink -f "$0")"
 ScriptName="$(basename "$ScriptPath")"
 ScriptVersion=" $(< "$ScriptPath" grep "# Version: " | head -n1 | awk '{print $3}' | tr -cd '[:digit:.-]' | sed 's/.\{0\}$//') "
@@ -588,9 +589,23 @@ ExploreLogstash () {
 }
 
 ExportData () {
-    if [[ ! -s "$ExportFile" ]] ; then
-      cp /usr/share/firemotd/templates/FireMotD-template-basic.json $ExportFile
-      chmod 766 $ExportFile
+    if [[ -s "$ExportFile" ]] ; then
+      if [[ "$TemplateType" != "default" ]] ; then
+        if [[ -s "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" ]] ; then
+          WriteLog Verbose Info "Template type set to ${TemplateType}. Overwriting.."
+          cp "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" $ExportFile
+          chmod 766 $ExportFile
+        else
+          WriteLog Output Error "Template ${TemplateType} does not exist. Try \'basic\' or \'all\'."
+ 	fi
+      fi
+    else
+      if [[ -s "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" ]] ; then
+        cp "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" $ExportFile
+        chmod 766 $ExportFile
+      else
+        WriteLog Output Error "Template ${TemplateType} does not exist. Try \'basic\' or \'all\'."
+      fi
     fi
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     WriteLog Verbose Info "Looping through $ExportFile"
@@ -1458,6 +1473,8 @@ InitializeArgs () {
         SkipRepoUpdate=1 ; shift ;;
       -t|-T|--Theme|--theme)
         shift ; Action="theme" ; Theme=$1 ; shift ;;
+      -D|--Data|--Template)
+         shift ; TemplateType="$1" ; shift ;;
       -C|--Colortest|--colortest|--ColorTest|--colorTest)
         Action="colortest" ; shift ;;
       -M|--Colormap|--colormap|--ColorMap|--colorMap)
