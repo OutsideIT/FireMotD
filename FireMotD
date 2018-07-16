@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v9.14.180716
+# Version:      v9.15.180716
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Thomas Dietrich, Dmitry Romanenko
@@ -586,6 +586,20 @@ ExploreLogstash () {
     fi
     jq ".Logstash.Version = \"$LogstashVersion\"" $ExportFile | sponge $ExportFile
     jq ".Logstash.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+}
+
+ExploreKibana () {
+    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+    if [[ -x "/usr/bin/yum" ]] ; then
+      KibanaVersion=$(/usr/bin/yum info -v kibana 2>/dev/null | grep -A12 -B5 -w installed | grep Version | awk '{print $3}')
+    else
+      KibanaVersion="Unknown"
+    fi
+    if [ -z $KibanaVersion ] || [[ $KibanaVersion == *"Error: No matching Packages"* ]] ; then
+      KibanaVersion="Unknown"
+    fi
+    jq ".Kibana.Version = \"$KibanaVersion\"" $ExportFile | sponge $ExportFile
+    jq ".Kibana.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
 }
 
 ExportData () {
@@ -1860,7 +1874,8 @@ CheckAction () {
       ColorTest 0 ;;
     colortest)
       ColorTest ;;
-    *) break ;;
+    *) 
+      WriteLog Output Error "Invalid action: \"$Action\"" ; exit 1 ;;
   esac
   return $?
 }

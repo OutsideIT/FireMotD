@@ -104,6 +104,11 @@
       "Value": "Logstash"
     },
     {
+      "Type" : "Info",
+      "Char": "o0",
+      "Value": "Kibana"
+    },
+    {
       "Type" : "Line",
       "Char": "Y"
     }
