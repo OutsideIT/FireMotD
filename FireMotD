@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v9.13.180716
+# Version:      v9.14.180716
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Thomas Dietrich, Dmitry Romanenko
@@ -600,6 +600,7 @@ ExportData () {
  	fi
       fi
     else
+      TemplateType="basic"
       if [[ -s "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" ]] ; then
         cp "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" $ExportFile
         chmod 766 $ExportFile

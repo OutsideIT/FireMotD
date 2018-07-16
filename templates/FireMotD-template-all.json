@@ -130,5 +130,10 @@
     "Generated": "@cron",
     "Version": "Unknown",
     "LastRun": "Never"
+  },
+  "Kibana": {
+    "Generated": "@cron",
+    "Version": "Unknown",
+    "LastRun": "Never"
   }
 }
