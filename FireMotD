@@ -1,9 +1,9 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v9.07.180713
+# Version:      v9.10.180716
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
-# Contributors: Gustavo Neves, Thomas Dietrich
+# Contributors: Thomas Dietrich, Dmitry Romanenko
 # Purpose:      Bash script that will dynamically generate a message
 #               of they day for users logging in.
 # On GitHub:    https://github.com/OutsideIT/FireMotD
@@ -24,7 +24,7 @@ Verbose=0
 HideVersion=0
 SkipRepoUpdate=0
 LogLocal=''
-ExportFile='/var/tmp/FireMotD.json'
+ExportFile='/usr/share/firemotd/data/FireMotD.json'
 ScriptPath="$(readlink -f "$0")"
 ScriptName="$(basename "$ScriptPath")"
 ScriptVersion=" $(< "$ScriptPath" grep "# Version: " | head -n1 | awk '{print $3}' | tr -cd '[:digit:.-]' | sed 's/.\{0\}$//') "
@@ -66,7 +66,7 @@ WriteLog () {
       echo "$Now: $ScriptName: $2: $3 " >> "$LogLocal"
     elif [ "$1" = "Verbose" ] && [ "$Verbose" = 1 ] ; then
       echo "$Now: $ScriptName: $2: $3" >> "$LogLocal"
-    elif [ "$1" = "Output" ] ; then 
+    elif [ "$1" = "Output" ] ; then
       echo "${Now}: $ScriptName: $2: $3" >> "$LogLocal"
     fi
   fi
@@ -218,12 +218,9 @@ ExploreHostIp () {
         fi
     fi
     if [ ! -z $IpPath ] ; then
-        HostIp="$(${IpPath} route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
+        HostIp="$(${IpPath} route get 8.8.8.8 | head -1 | grep -Po '(?<=src )(\d{1,3}.){4}' | xargs)"
         if [[ ! $HostIp =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            HostIp="$(${IpPath} route get 8.8.8.8 | head -1 | awk -F' ' '{print $(NF)}')"
-        fi
-        if [[ ! $HostIp =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            HostIp="Unable to parse ip. Please debug."
+            HostIp="Unable to parse ip $HostIp. Please debug."
         fi
     else
         HostIp="Unable to use ip route. Please debug."
@@ -340,7 +337,7 @@ ExploreUptime () {
 ExploreInstallDate () {
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     RpmPath="$(which rpm 2>/dev/null)"
-    if [[ (-f $RpmPath) && (-x $RpmPath) ]] ; then    
+    if [[ (-f $RpmPath) && (-x $RpmPath) ]] ; then
         InstallDate=$(rpm -qi basesystem | grep "Install Date" | sed 's/Install Date: //g' | sed 's/Build Host: .*//g')
     fi
     jq ".InstallDate.Value = \"$InstallDate\"" $ExportFile | sponge $ExportFile
@@ -604,7 +601,7 @@ ExportData () {
     WriteLog Verbose Info "Updated ExportFile: $ExportFile"
 }
 
-LoadData () { 
+LoadData () {
     WriteLog Verbose Info "Logon data refresh start"
     if [[ -s "$ExportFile" ]] ; then
         while read -r val ; do
@@ -628,43 +625,43 @@ StartOrangeTheme () {
     fi
     LeftoverChars=$((MaxLeftOverChars - HostChars -10))
     (( $LeftoverChars <= 0 )) && LeftoverChars=0
-    C1C=$(( 79 - 4 - 10 - HostChars - 4 ))                                                    
-    WriteLog Verbose Info "Row 1 Rest Chars: $C1C"                                            
-    C2C=$(( 79 - 4 - 4 - 9 - HostChars - 9 - 6 ))                                             
-    WriteLog Verbose Info "Row 2 Rest Chars: $C2C"                                            
-    CZC=$(( 79 - 4 - 4 ))                                                                     
-    WriteLog Verbose Info "Row Z Rest Chars: $CZC"                                            
-    # Color Part 1                                                                            
-    CP1="\e[38;5;202m##"                                                                      
-    # Color Row 1 Part 2                                                                      
-    CP12="\e[38;5;208m##########"                                                             
-    # Color Row 1 Host                                                                        
-    CP1H="\e[38;5;214m$(head -c $HostChars /dev/zero|tr '\0' '#')"                            
-    # Color Row 1 Rest                                                                        
-    C1R="\e[38;5;208m$(head -c $C1C /dev/zero|tr '\0' '#')"                                   
-    # Color Row 2 Part 2                                                                      
-    CP22="\e[38;5;208m####"                                                                   
-    # Color Row 2 Part 3                                                                      
-    CP23="\e[38;5;214m#########"                                                              
-    # Color Row 2 Host                                                                        
-    CP2H="\e[38;5;226m$(head -c $LeftoverChars /dev/zero|tr '\0' '#')"                        
-    # Color Row 2 Rest                                                                        
-    C2R="\e[38;5;208m$(head -c $C2C /dev/zero|tr '\0' '#')"                                   
-    # Color Row Z Rest                                                                        
-    CZR="\e[38;5;208m$(head -c $CZC /dev/zero|tr '\0' '#')"                                   
-    # Equal Scheme                                                                            
-    ES="\e[38;5;226m="                                                                         
-    # Host Color                                                                              
-    HC="\e[38;5;202m"                                                                         
-    # Value Color                                                                             
-    VC="\e[38;5;208m"                                                                         
-    # Highlight Color                                                                         
-    VCL="\e[38;5;202m"                                                                        
-    # Key Color                                                                               
-    KS="\e[38;5;214m"                                                                         
-    # Version Color                                                                           
-    SVC="\e[38;5;130m"                                                                        
-    WriteLog Verbose Info "Function StartOrangeTheme finished successfully. " 
+    C1C=$(( 79 - 4 - 10 - HostChars - 4 ))
+    WriteLog Verbose Info "Row 1 Rest Chars: $C1C"
+    C2C=$(( 79 - 4 - 4 - 9 - HostChars - 9 - 6 ))
+    WriteLog Verbose Info "Row 2 Rest Chars: $C2C"
+    CZC=$(( 79 - 4 - 4 ))
+    WriteLog Verbose Info "Row Z Rest Chars: $CZC"
+    # Color Part 1
+    CP1="\e[38;5;202m##"
+    # Color Row 1 Part 2
+    CP12="\e[38;5;208m##########"
+    # Color Row 1 Host
+    CP1H="\e[38;5;214m$(head -c $HostChars /dev/zero|tr '\0' '#')"
+    # Color Row 1 Rest
+    C1R="\e[38;5;208m$(head -c $C1C /dev/zero|tr '\0' '#')"
+    # Color Row 2 Part 2
+    CP22="\e[38;5;208m####"
+    # Color Row 2 Part 3
+    CP23="\e[38;5;214m#########"
+    # Color Row 2 Host
+    CP2H="\e[38;5;226m$(head -c $LeftoverChars /dev/zero|tr '\0' '#')"
+    # Color Row 2 Rest
+    C2R="\e[38;5;208m$(head -c $C2C /dev/zero|tr '\0' '#')"
+    # Color Row Z Rest
+    CZR="\e[38;5;208m$(head -c $CZC /dev/zero|tr '\0' '#')"
+    # Equal Scheme
+    ES="\e[38;5;226m="
+    # Host Color
+    HC="\e[38;5;202m"
+    # Value Color
+    VC="\e[38;5;208m"
+    # Highlight Color
+    VCL="\e[38;5;202m"
+    # Key Color
+    KS="\e[38;5;214m"
+    # Version Color
+    SVC="\e[38;5;130m"
+    WriteLog Verbose Info "Function StartOrangeTheme finished successfully. "
 }
 
 StartGrayTheme () {
@@ -946,7 +943,7 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme"
     LogstashVersion=$(jq -r ".Logstash.Version" $ExportFile)
     if [[ ! -z $LogstashVersion ]] && [[ "$LogstashVersion" != "Unknown" ]] && [[ "$LogstashVersion" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto      \e[38;5;39mLogstash \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$LogstashVersion"
-    fi 
+    fi
     echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme\e[0;37m"
 }
 
@@ -1194,19 +1191,19 @@ read -d '' HtmlCode <<EOF
         table tr:hover td {
             background: #f2f2f2;
             background: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#f0f0f0));
-            background: -moz-linear-gradient(top,  #f2f2f2,  #f0f0f0);  
+            background: -moz-linear-gradient(top,  #f2f2f2,  #f0f0f0);
         }
         .strong {
-            font-weight: bold; 
+            font-weight: bold;
         }
         .em {
-            font-style: italic; 
+            font-style: italic;
         }
         .right {
             text-align: right;
         }
         span {
-            font-weight: bold; 
+            font-weight: bold;
         }
     </style>
 </head>
@@ -1271,7 +1268,7 @@ read -d '' HtmlCode <<EOF
                 <td><span>$ProcessCount</span> running processes of <span>$ProcessMax</span> maximum processes</td>
             </tr>
 EOF
-    
+
     [[ $PhpVersion =~ ^[0-9.]+$ ]] && HtmlCode+="
             <tr>
                 <td>PHP Info</td>
@@ -1286,7 +1283,7 @@ EOF
             <tr>
                 <td>nginx Info</td>
                 <td>Version: <span>$nginxVersion</span></td>
-            </tr>"   
+            </tr>"
     [[ ! -z $MySqlVersion ]] && HtmlCode+="
             <tr>
                 <td>MySQL Info</td>
@@ -1362,8 +1359,8 @@ echo -e "$f7$rst"
 PrintHelp () {
     PrintVersion
     echo "
-Usage: 
- $ScriptName [-v] -t <Theme Name> 
+Usage:
+ $ScriptName [-v] -t <Theme Name>
  $ScriptName [-v] -C ['String']
  $ScriptName [-vhVs]
 
@@ -1374,7 +1371,7 @@ Options:
    -t | --theme <Theme Name> Shows Motd info on screen, based on the chosen theme
    -C | --colortest          Prints color test to screen
    -M | --colormap           Prints color test to screen, with color numbers in it
-   -S | --save               Saves data to /var/tmp/FireMotD.json
+   -S | --save               Saves data to /usr/share/firemotd/data/FireMotD.json
   -HV | --hideversion        Hides version number
  -sru | --skiprepoupdate     Skip the repository package update during update count calculation (apt only)
 
@@ -1416,7 +1413,7 @@ PrintVersion () {
 }
 
 CheckSudo () {
-    if [ "$EUID" -ne 0 ]; then 
+    if [ "$EUID" -ne 0 ]; then
         echo "Update check requires root privileges"
         echo "Example:"
         echo "    sudo $ScriptPath $1"
@@ -1453,9 +1450,9 @@ InitializeArgs () {
         SkipRepoUpdate=1 ; shift ;;
       -t|-T|--Theme|--theme)
         shift ; Action="theme" ; Theme=$1 ; shift ;;
-      -C|--Colortest|--colortest|--ColorTest|--colorTest) 
+      -C|--Colortest|--colortest|--ColorTest|--colorTest)
         Action="colortest" ; shift ;;
-      -M|--Colormap|--colormap|--ColorMap|--colorMap) 
+      -M|--Colormap|--colormap|--ColorMap|--colorMap)
         Action="colormap" ; shift ;;
       -E|--ExportFile)
         shift ; ExportFile=$1 ; shift ;;
@@ -1471,9 +1468,9 @@ PrintChar () {
   str=$1
   num=$2
   col=$3
-  for (( i = 1; i <= $num; i++ )) ; do 
+  for (( i = 1; i <= $num; i++ )) ; do
     echo -en "$col$str\e[0m"
-  done    
+  done
 }
 
 RenderHostIp () {
@@ -1712,7 +1709,7 @@ GenerateInfo () {
   if [[ "$HighlightColor" == "null" ]] ; then HighlightColor=$DefaultHighlightColor ; fi
   RenderResult="$(Render${Value})"
   if [[ "$RenderResult" != "" ]] ; then
-#    echo "ECHO $Value \"$RenderResult\"" 
+#    echo "ECHO $Value \"$RenderResult\""
     echo -ne "$RenderResult"
   fi
 }
@@ -1766,10 +1763,12 @@ PrintTheme () {
 
 InstallFireMotD () {
   WriteLog Output Info "Attempting FireMotD installation"
-  WriteLog Verbose Info "Creating themes directory"
+  WriteLog Verbose Info "Creating themes directory folder"
   mkdir -p /usr/share/firemotd/themes
-  WriteLog Verbose Info "Creating templates directory"
-  mkdir -p /usr/share/firemotd/references
+  WriteLog Verbose Info "Creating templates folder"
+  mkdir -p /usr/share/firemotd/templates
+  WriteLog Verbose Info "Creating data folder"
+  mkdir -p /usr/share/firemotd/data
   WriteLog Verbose Info "Downloading themes"
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Elastic.json -o /usr/share/firemotd/themes/FireMotD-theme-Elastic.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Eline.json -o /usr/share/firemotd/themes/FireMotD-theme-Eline.json
@@ -1780,9 +1779,16 @@ InstallFireMotD () {
   WriteLog Verbose Info "Copying $(readlink -f $0) to /usr/local/bin/FireMotD"
   cp "$(readlink -f $0)" "/usr/local/bin/FireMotD"
   if [[ -x "/usr/bin/yum" ]] ; then
+    WriteLog Verbose Info "Installing required yum packages"
     UpdateType="yum"
     YumExec=$(which yum 2>/dev/null)
     InstallResult=$($YumExec install jq moreutils sysstat -y)
+    WriteLog Debug Info "Install result: $InstallResult"
+  elif [[ -x "/usr/bin/apt" ]] ; then
+    WriteLog Verbose Info "Installing required apt-get packages"
+    UpdateType="apt"
+    AptExec=$(which apt-get 2>/dev/null)
+    InstallResult=$($AptExec install jq moreutils sysstat -y)
     WriteLog Debug Info "Install result: $InstallResult"
   fi
   WriteLog Output Info "Generating information"
@@ -1801,8 +1807,8 @@ CheckAction () {
       CheckSudo "$@"
       InstallFireMotD ;;
     save)
-      CheckSudo "$@" 
-      CheckDependencies 
+      CheckSudo "$@"
+      CheckDependencies
       ExportData ;;
     template)
       LoadData
