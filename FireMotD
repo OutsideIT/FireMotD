@@ -1707,6 +1707,15 @@ RenderLogstash () {
   fi
 }
 
+RenderKibana () {
+  WriteLog Debug Info "Rendering Kibana"
+  KibanaVersion=$(jq -r ".Kibana.Version" $ExportFile)
+  if [[ ! -z $KibanaVersion ]] && [[ "$KibanaVersion" != "Unknown" ]] && [[ "$KibanaVersion" != "null" ]] ; then
+    PrintChar "$Char" 2 $CharColor
+    echo "${KeyColor} Kibana ${SeparatorColor}${Separator} ${ValueColor}Version: ${KibanaVersion}\n"
+  fi
+}
+
 GenerateLine () {
   WriteLog Debug Info "Generating \"$Type\" with \"$Char\" in color \"$CharColor\""
   PrintChar "$Char" $Length $CharColor
