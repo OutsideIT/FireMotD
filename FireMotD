@@ -1800,7 +1800,7 @@ CheckTheme () {
     WriteLog Debug Info "Theme $Theme found in FireMotD themes folder"
     Template="/usr/share/firemotd/themes/FireMotD-theme-$Theme.json"
     PrintTemplate
-  elif [[ "$Theme" =~ (original|Original|modern|Modern|red|Red|blue|Blue|gray|Gray|orange|Orange|html|Html|blank|Blank|invader|Invader) ]] ; then
+  elif [[ "$Theme" =~ (original|Original|modern|Modern|red|blue|gray|Gray|orange|Orange|html|Html|blank|Blank|invader|Invader) ]] ; then
     WriteLog Debug Info "Legacy theme $Theme found in FireMotD code"
     PrintTheme
   else
@@ -1836,6 +1836,7 @@ InstallFireMotD () {
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Eline.json -o /usr/share/firemotd/themes/FireMotD-theme-Eline.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Digipolis.json -o /usr/share/firemotd/themes/FireMotD-theme-Digipolis.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Red.json -o /usr/share/firemotd/themes/FireMotD-theme-Red.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blue.json -o /usr/share/firemotd/themes/FireMotD-theme-Blue.json
   WriteLog Verbose Info "Downloading templates"
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-all.json -o /usr/share/firemotd/templates/FireMotD-template-all.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-basic.json -o /usr/share/firemotd/templates/FireMotD-template-basic.json

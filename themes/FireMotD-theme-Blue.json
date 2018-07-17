@@ -1,0 +1,101 @@
+{
+  "Theme": "Blue",
+  "Creator": "Willem D'Haese",
+  "CreationDate": "2018-07-17",
+  "Description": "A Blue 16 colors theme",
+  "DefaultSettings": {
+    "Char": "#",
+    "CharColor": "\\e[0;34m",
+    "Length": 79,
+    "KeyColor": "\\e[0;37m",
+    "Separator": "=",
+    "SeparatorColor": "\\e[1;34m",
+    "ValueColor": "\\e[0;36m",
+    "HighlightColor": "\\e[1;36m"
+  },
+  "Template": [
+    {
+      "Type" : "Line"
+    },
+    {
+      "Type" : "Header",
+      "CharColor": "\\e[1;34m",
+      "Value": "HostName",
+      "ValueColor": "\\e[1;36m"
+    },
+    {
+      "Type" : "Line",
+      "Char": "#"
+    },
+    {
+      "Type" : "Info",
+      "Char": "#",
+      "Value": "HostIp"
+    },
+    {
+      "Type" : "Info",
+      "Char": "#",
+      "Value": "Release"
+    },
+    {
+      "Type" : "Info",
+      "Char": "#",
+      "Value": "Kernel"
+    },
+    {
+      "Type" : "Info",
+      "Char": "#",
+      "Value": "Platform"
+    },
+    {
+      "Type" : "Info",
+      "Char": "#",
+      "Value": "Uptime"
+    },
+    {
+      "Type" : "Info",
+      "Char": "#",
+      "Value": "CpuUsage"
+    },
+    {
+      "Type" : "Info",
+      "Char": "#",
+      "Value": "CpuLoad"
+    },
+    {
+      "Type" : "Info",
+      "Char": "#",
+      "Value": "Memory"
+    },
+    {
+      "Type" : "Info",
+      "Char": "#",
+      "Value": "Swap"
+    },
+    {
+      "Type" : "Info",
+      "Char": "#",
+      "Value": "Root"
+    },
+    {
+      "Type" : "Info",
+      "Char": "#",
+      "Value": "Updates"
+    },
+    {
+      "Type" : "Info",
+      "Char": "#",
+      "Value": "Sessions"
+    },
+    {
+      "Type" : "Info",
+      "Char": "#",
+      "Value": "Processes"
+    },
+    {
+      "Type" : "Line",
+      "Char": "#",
+      "CharColor": "\\e[0;34m"
+    }
+  ]
+}
