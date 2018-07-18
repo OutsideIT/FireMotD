@@ -21,7 +21,7 @@
       "Type" : "Header",
       "CharColor": "\\e[1;34m",
       "Value": "HostName",
-      "ValueColor": "\\e[1;36m"
+      "ValueColor": "\\e[1;37m"
     },
     {
       "Type" : "Line",
