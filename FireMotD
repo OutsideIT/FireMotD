@@ -743,104 +743,6 @@ StartGrayTheme () {
     WriteLog Verbose Info "Function StartGrayTheme finished successfully. "
 }
 
-StartBlueTheme () {
-    WriteLog Verbose Info "Function StartBlueTheme started. "
-    HostName="$(hostname)"
-    HostChars=$((${#HostName} + 8))
-    if (( HostChars > 47 )); then
-        HostName=${HostName:0:39}
-        HostChars=47
-    fi
-    LeftoverChars=$((MaxLeftOverChars - HostChars -10))
-    (( $LeftoverChars <= 0 )) && LeftoverChars=0
-    C1C=$(( 79 - 4 - 10 - HostChars - 4 ))
-    WriteLog Verbose Info "Row 1 Rest Chars: $C1C"
-    C2C=$(( 79 - 4 - 4 - 9 - HostChars - 9 - 6 ))
-    WriteLog Verbose Info "Row 2 Rest Chars: $C2C"
-    CZC=$(( 79 - 4 - 4 ))
-    WriteLog Verbose Info "Row Z Rest Chars: $CZC"
-    # Color Part 1
-    CP1="\e[0;34m##"
-    # Color Row 1 Part 2
-    CP12="\e[1;34m##########"
-    # Color Row 1 Host
-    CP1H="\e[1;36m$(head -c $HostChars /dev/zero|tr '\0' '#')"
-    # Color Row 1 Rest
-    C1R="\e[1;34m$(head -c $C1C /dev/zero|tr '\0' '#')"
-    # Color Row 2 Part 2
-    CP22="\e[1;34m####"
-    # Color Row 2 Part 3
-    CP23="\e[1;36m#########"
-    # Color Row 2 Host
-    CP2H="\e[1;36m$(head -c $LeftoverChars /dev/zero|tr '\0' '#')"
-    # Color Row 2 Rest
-    C2R="\e[1;34m$(head -c $C2C /dev/zero|tr '\0' '#')"
-    # Color Row Z Rest
-    CZR="\e[1;34m$(head -c $CZC /dev/zero|tr '\0' '#')"
-    # Equal Scheme
-    ES="\e[1;34m="
-    # Host Color
-    HC="\e[1;32m"
-    # Value Color
-    VC="\e[0;32m"
-    # Highlight Color
-    VCL="\e[1;32m"
-    # Key Color
-    KS="\e[1;33m"
-    # Version Color
-    SVC="\e[1;36m"
-    WriteLog Verbose Info "Function StartBlueTheme finished successfully. "
-}
-
-StartRedTheme () {
-    WriteLog Verbose Info "Function StartRedTheme started. "
-    HostName="$(hostname)"
-    HostChars=$((${#HostName} + 8))
-    if (( HostChars > 47 )); then
-        HostName=${HostName:0:39}
-        HostChars=47
-    fi
-    LeftoverChars=$((MaxLeftOverChars - HostChars -10))
-    (( $LeftoverChars <= 0 )) && LeftoverChars=0
-    C1C=$(( 79 - 4 - 10 - HostChars - 4 ))
-    WriteLog Verbose Info "Row 1 Rest Chars: $C1C"
-    C2C=$(( 79 - 4 - 4 - 9 - HostChars - 9 - 6 ))
-    WriteLog Verbose Info "Row 2 Rest Chars: $C2C"
-    CZC=$(( 79 - 4 - 4 ))
-    WriteLog Verbose Info "Row Z Rest Chars: $CZC"
-    # Color Part 1
-    CP1="\e[0;31m##"
-    # Color Row 1 Part 2
-    CP12="\e[1;31m##########"
-    # Color Row 1 Host
-    CP1H="\e[1;33m$(head -c $HostChars /dev/zero|tr '\0' '#')"
-    # Color Row 1 Rest
-    C1R="\e[1;31m$(head -c $C1C /dev/zero|tr '\0' '#')"
-    # Color Row 2 Part 2
-    CP22="\e[1;31m####"
-    # Color Row 2 Part 3
-    CP23="\e[1;33m#########"
-    # Color Row 2 Host
-    CP2H="\e[2;31m$(head -c $LeftoverChars /dev/zero|tr '\0' '#')"
-    # Color Row 2 Rest
-    C2R="\e[1;31m$(head -c $C2C /dev/zero|tr '\0' '#')"
-    # Color Row Z Rest
-    CZR="\e[1;31m$(head -c $CZC /dev/zero|tr '\0' '#')"
-    # Equal Scheme
-    ES="\e[1;31m="
-    # Host Color
-    HC="\e[1;37m"
-    # Value Color
-    VC="\e[0;33m"
-    # Highlight Color
-    VCL="\e[1;33m"
-    # Key Color
-    KS="\e[0;37m"
-    # Version Color
-    SVC="\e[1;33m"
-    WriteLog Verbose Info "Function StartRedTheme finished successfully. "
-}
-
 StartOriginalBlue () {
     for i in {18..21} {21..18} ; do ShortBlueScheme+="\e[38;5;${i}m#\e[0m"  ; done ;
     for i in {17..21} {21..17} ; do BlueScheme+="\e[38;5;${i}m#\e[0m\e[38;5;${i}m#\e[0m"  ; done ;
@@ -1796,31 +1698,25 @@ PrintTemplate () {
 }
 
 CheckTheme () {
+  WriteLog Debug Info "Normalising theme $Theme"
+  Theme="$(echo "$Theme" | tr '[:upper:]' '[:lower:]')"
+  Theme="${Theme^}"
   if [ -f /usr/share/firemotd/themes/FireMotD-theme-$Theme.json ] ; then
     WriteLog Debug Info "Theme $Theme found in FireMotD themes folder"
     Template="/usr/share/firemotd/themes/FireMotD-theme-$Theme.json"
     PrintTemplate
-  elif [[ "$Theme" =~ (original|Original|modern|Modern|red|blue|gray|Gray|orange|Orange|html|Html|blank|Blank|invader|Invader) ]] ; then
-    WriteLog Debug Info "Legacy theme $Theme found in FireMotD code"
-    PrintTheme
   else
-    WriteLog Output Warning "Theme $Theme doesn't exist. Please verify FireMotD themes folder."
+    case "$Theme" in
+      original|Original) StartOriginalBlue ; GenerateOriginal256Color ;;
+      modern|Modern) GenerateOriginal256Color ;;
+      gray|Gray) StartGrayTheme ; GenerateBasic16Color ;;
+      orange|Orange) StartOrangeTheme ; GenerateBasic16Color ;;
+      html|Html) GenerateHtmlTheme ;;
+      blank|Blank|blanco|Blanco|Text|Clean|clean) GenerateBasic16Color ;;
+      invader|Invader) GenerateInvader ;;
+      *) WriteLog Output Error "You specified a non-existant theme: $1" ; exit 2 ;;
+    esac
   fi 
-}
-
-PrintTheme () {
-  case "$Theme" in
-    original|Original) StartOriginalBlue ; GenerateOriginal256Color ;;
-    modern|Modern) GenerateOriginal256Color ;;
-    red|Red) StartRedTheme ; GenerateBasic16Color ;;
-    blue|Blue) StartBlueTheme ; GenerateBasic16Color ;;
-    gray|Gray) StartGrayTheme ; GenerateBasic16Color ;;
-    orange|Orange) StartOrangeTheme ; GenerateBasic16Color ;;
-    html|Html) GenerateHtmlTheme ;;
-    blank|Blank|blanco|Blanco|Text|Clean|clean) GenerateBasic16Color ;;
-    invader|Invader) GenerateInvader ;;
-    *) WriteLog Output Error "You specified a non-existant theme: $1" ; exit 2 ;;
-  esac
 }
 
 InstallFireMotD () {
