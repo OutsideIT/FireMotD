@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v9.15.180716
+# Version:      v9.16.180717
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Thomas Dietrich, Dmitry Romanenko
@@ -692,55 +692,6 @@ StartOrangeTheme () {
     # Version Color
     SVC="\e[38;5;130m"
     WriteLog Verbose Info "Function StartOrangeTheme finished successfully. "
-}
-
-StartGrayTheme () {
-    WriteLog Verbose Info "Function StartGrayTheme started. "
-    HostName="$(hostname)"
-    HostChars=$((${#HostName} + 8))
-    if (( HostChars > 47 )); then
-        HostName=${HostName:0:39}
-        HostChars=47
-    fi
-    LeftoverChars=$((MaxLeftOverChars - HostChars -10))
-    (( $LeftoverChars <= 0 )) && LeftoverChars=0
-    C1C=$(( 79 - 4 - 10 - HostChars - 4 ))
-    WriteLog Verbose Info "Row 1 Rest Chars: $C1C"
-    C2C=$(( 79 - 4 - 4 - 9 - HostChars - 9 - 6 ))
-    WriteLog Verbose Info "Row 2 Rest Chars: $C2C"
-    CZC=$(( 79 - 4 - 4 ))
-    WriteLog Verbose Info "Row Z Rest Chars: $CZC"
-    # Color Part 1
-    CP1="\e[38;5;252m##"
-    # Color Row 1 Part 2
-    CP12="\e[38;5;243m##########"
-    # Color Row 1 Host
-    CP1H="\e[38;5;233m$(head -c $HostChars /dev/zero|tr '\0' '#')"
-    # Color Row 1 Rest
-    C1R="\e[38;5;243m$(head -c $C1C /dev/zero|tr '\0' '#')"
-    # Color Row 2 Part 2
-    CP22="\e[38;5;233m####"
-    # Color Row 2 Part 3
-    CP23="\e[38;5;233m#########"
-    # Color Row 2 Host
-    CP2H="\e[38;5;233m$(head -c $LeftoverChars /dev/zero|tr '\0' '#')"
-    # Color Row 2 Rest
-    C2R="\e[38;5;243m$(head -c $C2C /dev/zero|tr '\0' '#')"
-    # Color Row Z Rest
-    CZR="\e[38;5;243m$(head -c $CZC /dev/zero|tr '\0' '#')"
-    # Equal Scheme
-    ES="\e[38;5;15m="
-    # Host Color
-    HC="\e[38;5;250m"
-    # Value Color
-    VC="\e[38;5;248m"
-    # Highlight Color
-    VCL="\e[38;5;254m"
-    # Key Color
-    KS="\e[38;5;242m"
-    # Version Color
-    SVC="\e[38;5;240m"
-    WriteLog Verbose Info "Function StartGrayTheme finished successfully. "
 }
 
 StartOriginalBlue () {
@@ -1709,7 +1660,6 @@ CheckTheme () {
     case "$Theme" in
       original|Original) StartOriginalBlue ; GenerateOriginal256Color ;;
       modern|Modern) GenerateOriginal256Color ;;
-      gray|Gray) StartGrayTheme ; GenerateBasic16Color ;;
       orange|Orange) StartOrangeTheme ; GenerateBasic16Color ;;
       html|Html) GenerateHtmlTheme ;;
       blank|Blank|blanco|Blanco|Text|Clean|clean) GenerateBasic16Color ;;
@@ -1733,6 +1683,7 @@ InstallFireMotD () {
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Digipolis.json -o /usr/share/firemotd/themes/FireMotD-theme-Digipolis.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Red.json -o /usr/share/firemotd/themes/FireMotD-theme-Red.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blue.json -o /usr/share/firemotd/themes/FireMotD-theme-Blue.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Gray.json -o /usr/share/firemotd/themes/FireMotD-theme-gray.json
   WriteLog Verbose Info "Downloading templates"
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-all.json -o /usr/share/firemotd/templates/FireMotD-template-all.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-basic.json -o /usr/share/firemotd/templates/FireMotD-template-basic.json
