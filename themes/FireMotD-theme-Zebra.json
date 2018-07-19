@@ -1,0 +1,121 @@
+{
+  "Theme": "Zebra",
+  "Creator": "Willem D'Haese",
+  "CreationDate": "2018-07-19",
+  "Description": "A Black and White 2 colors theme",
+  "DefaultSettings": {
+    "Char": "<",
+    "CharColor": "\\e[1;30m",
+    "Length": 79,
+    "KeyColor": "\\e[0;37m",
+    "Separator": "=>",
+    "SeparatorColor": "\\e[1;30m",
+    "ValueColor": "\\e[0;37m",
+    "HighlightColor": "\\e[1;37m"
+  },
+  "Template": [
+    {
+      "Type" : "Line" 
+    },
+    {
+      "Type" : "Header",  
+      "Char": ">",
+      "CharColor": "\\e[0;37m",
+      "Value": "HostName",
+      "ValueColor": "\\e[1;37m"
+    },
+    {
+      "Type" : "Line"
+    },
+    {
+      "Type" : "Info",   
+      "Char": ">>",      
+      "CharColor": "\\e[0;37m",
+      "Value": "HostIp",   
+      "SeparatorColor": "\\e[0;37m"
+    },
+    {
+      "Type" : "Info",
+      "Char": "<<",
+      "CharColor": "\\e[1;30m",
+      "KeyColor": "\\e[1;30m",
+      "Value": "Release"
+    },
+    {
+      "Type" : "Info",
+      "Char": ">>",
+      "CharColor": "\\e[0;37m",
+      "Value": "Kernel",   
+      "SeparatorColor": "\\e[0;37m"
+    },
+    {
+      "Type" : "Info",
+      "Char": "<<",
+      "KeyColor": "\\e[1;30m",
+      "Value": "Platform"
+    },
+    {
+      "Type" : "Info",
+      "Char": ">>",
+      "CharColor": "\\e[0;37m",
+      "Value": "Uptime",   
+      "SeparatorColor": "\\e[0;37m"
+    },
+    {
+      "Type" : "Info",
+      "Char": "<<",
+      "KeyColor": "\\e[1;30m",
+      "Value": "CpuUsage"
+    },
+    {
+      "Type" : "Info",
+      "Char": ">>",
+      "CharColor": "\\e[0;37m",
+      "Value": "CpuLoad",   
+      "SeparatorColor": "\\e[0;37m"
+    },
+    {
+      "Type" : "Info",
+      "Char": "<<",
+      "KeyColor": "\\e[1;30m",
+      "Value": "Memory"
+    },
+    {
+      "Type" : "Info",
+      "Char": ">>",
+      "CharColor": "\\e[0;37m",
+      "Value": "Swap",   
+      "SeparatorColor": "\\e[0;37m"
+    },
+    {
+      "Type" : "Info",
+      "Char": "<<",
+      "KeyColor": "\\e[1;30m",
+      "Value": "Root"
+    },
+    {
+      "Type" : "Info",
+      "Char": ">>",
+      "CharColor": "\\e[0;37m",
+      "Value": "Updates",   
+      "SeparatorColor": "\\e[0;37m"
+    },
+    {
+      "Type" : "Info",
+      "Char": "<<",
+      "KeyColor": "\\e[1;30m",
+      "Value": "Sessions"
+    },
+    {
+      "Type" : "Info",
+      "Char": ">>",
+      "CharColor": "\\e[0;37m",
+      "Value": "Processes",   
+      "SeparatorColor": "\\e[0;37m"
+    },
+    {
+      "Type" : "Line",
+      "CharColor": "\\e[1;30m"
+    }
+  ]
+}
