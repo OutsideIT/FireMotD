@@ -1,0 +1,75 @@
+{
+  "Theme": "Blanco",
+  "Creator": "Willem D'Haese",
+  "CreationDate": "2018-07-19",
+  "Description": "A Blanco theme",
+  "DefaultSettings": {
+  },
+  "Template": [
+    {
+      "Type" : "Line"
+    },
+    {
+      "Type" : "Header",
+      "Value": "HostName"
+    },
+    {
+      "Type" : "Line"
+    },
+    {
+      "Type" : "Info",
+      "Value": "HostIp"
+    },
+    {
+      "Type" : "Info",
+      "Value": "Release"
+    },
+    {
+      "Type" : "Info",
+      "Value": "Kernel"
+    },
+    {
+      "Type" : "Info",
+      "Value": "Platform"
+    },
+    {
+      "Type" : "Info",
+      "Value": "Uptime"
+    },
+    {
+      "Type" : "Info",
+      "Value": "CpuUsage"
+    },
+    {
+      "Type" : "Info",
+      "Value": "CpuLoad"
+    },
+    {
+      "Type" : "Info",
+      "Value": "Memory"
+    },
+    {
+      "Type" : "Info",
+      "Value": "Swap"
+    },
+    {
+      "Type" : "Info",
+      "Value": "Root"
+    },
+    {
+      "Type" : "Info",
+      "Value": "Updates"
+    },
+    {
+      "Type" : "Info",
+      "Value": "Sessions"
+    },
+    {
+      "Type" : "Info",
+      "Value": "Processes"
+    },
+    {
+      "Type" : "Line"
+    }
+  ]
+}
