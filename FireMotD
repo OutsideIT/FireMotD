@@ -781,131 +781,6 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme"
     echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme\e[0;37m"
 }
 
-GenerateBasic16Color () {
-    WriteLog Verbose Info "Generating 16 color $Theme FireMotD"
-    ShownVersion=""
-    if [[ "$HideVersion" -eq 1 ]]; then
-        ShownVersion="$CP1$CP1$CP1$CP1$CP1$CP1"
-    else
-        ShownVersion="$ScriptVersion"
-    fi
-    HostName=$(jq -r ".HostName.Value" $ExportFile)
-    if [[ "$HostName" != "null" ]] && [[ "$HostName" != "" ]] ; then
-        echo -e "$CP1$CP1$CP12$CP1H$C1R$CP1$CP1
-$CP1$CP1$CP22$CP23 $HC$HostName $CP23$C2R$SVC$ShownVersion
-$CP1$CP1$CP12$CP1H$C1R$CP1$CP1"
-    fi
-    HostIp=$(jq -r ".HostIp.Value" $ExportFile)
-    if [[ ! -z $HostIp ]] && [[ "$HostIp" != "null" ]] ; then
-        echo -e "$CP1             ${KS}Ip $ES ${VCL}$HostIp"
-    fi
-    Release=$(jq -r ".Release.Value" $ExportFile)
-    if [[ ! -z $Release ]] && [[ "$Release" != "null" ]] ; then
-        echo -e "$CP1        ${KS}Release $ES ${VC}$Release"
-    fi
-    Kernel=$(jq -r ".Kernel.Value" $ExportFile)
-    if [[ ! -z $Kernel ]] && [[ "$Kernel" != "null" ]] ; then
-        echo -e "$CP1         ${KS}Kernel $ES ${VC}$Kernel"
-    fi
-    Platform=$(jq -r ".Platform.Value" $ExportFile)
-    if [[ ! -z $Platform ]] && [[ "$Platform" != "null" ]] ; then
-        echo -e "$CP1       ${KS}Platform $ES ${VC}$Platform"
-    fi
-    UptimeDays=$(jq -r ".Uptime.Days" $ExportFile)
-    UptimeHours=$(jq -r ".Uptime.Hours" $ExportFile)
-    UptimeMinutes=$(jq -r ".Uptime.Minutes" $ExportFile)
-    UptimeSeconds=$(jq -r ".Uptime.Seconds" $ExportFile)
-    if [[ ! -z $UptimeDays ]] && [[ "$UptimeDays" != "null" ]] ; then
-        echo -e "$CP1         ${KS}Uptime $ES ${VCL}${UptimeDays} ${VC}day(s). ${VCL}${UptimeHours}${VC}:${VCL}${UptimeMinutes}${VC}:${VCL}${UptimeSeconds}"
-    fi
-    InstallDate=$(jq -r ".InstallDate.Value" $ExportFile)
-    if [[ ! -z $InstallDate ]] && [[ "$InstallDate" != "null" ]] ; then
-        echo -e "$CP1      ${KS}Installed $ES ${VC}$InstallDate"
-    fi
-    CpuUsageAverage=$(jq -r ".CpuUsage.Average" $ExportFile)
-    CpuUsageCpuCount=$(jq -r ".CpuUsage.CpuCount" $ExportFile)
-    CpuUsageCoreCount=$(jq -r ".CpuUsage.CoreCount" $ExportFile)
-    CpuUsageSocketCount=$(jq -r ".CpuUsage.SocketCount" $ExportFile)
-    if [[ ! -z $CpuUsageAverage ]] && [[ "$CpuUsageAverage" != "null" ]] ; then
-        echo -e "$CP1      ${KS}CPU Usage $ES ${VCL}$CpuUsageAverage ${VC}% avg over ${VCL}${CpuUsageCpuCount}${VC} cpu(s)  ($CpuUsageCoreCount core(s) x $CpuUsageSocketCount socket(s))"
-    fi
-    CpuLoad=$(jq -r ".CpuLoad.Value" $ExportFile)
-    if [[ ! -z $CpuLoad ]] && [[ "$CpuLoad" != "null" ]] ; then
-        echo -e "$CP1       ${KS}CPU Load $ES ${VC}$CpuLoad"
-    fi
-    MemTotalGB=$(jq -r ".Memory.TotalGB" $ExportFile)
-    MemFreeGB=$(jq -r ".Memory.FreeGB" $ExportFile)
-    MemUsedGB=$(jq -r ".Memory.UsedGB" $ExportFile)
-    MemFreePerc=$(jq -r ".Memory.FreePerc" $ExportFile)
-    MemUsedPerc=$(jq -r ".Memory.UsedPerc" $ExportFile)
-    if [[ ! -z $MemTotalGB ]] && [[ "$MemTotalGB" != "null" ]] ; then
-        echo -e "$CP1         ${KS}Memory $ES ${VC}Free: ${VCL}${MemFreeGB}${VC}GB (${VCL}$MemFreePerc${VC}%), Used: ${VCL}${MemUsedGB}${VC}GB (${VCL}$MemUsedPerc${VC}%), Total: ${VCL}${MemTotalGB}${VC}GB"
-    fi
-    SwapTotalGB=$(jq -r ".Swap.TotalGB" $ExportFile)
-    SwapFreeGB=$(jq -r ".Swap.FreeGB" $ExportFile)
-    SwapUsedGB=$(jq -r ".Swap.UsedGB" $ExportFile)
-    SwapFreePerc=$(jq -r ".Swap.FreePerc" $ExportFile)
-    SwapUsedPerc=$(jq -r ".Swap.UsedPerc" $ExportFile)
-    if [[ ! -z $SwapTotalGB ]] && [[ "$SwapTotalGB" != "null" ]] ; then
-        echo -e "$CP1           ${KS}Swap $ES ${VC}Free: ${VCL}${SwapFreeGB}${VC}GB (${VCL}$SwapFreePerc${VC}%), Used: ${VCL}${SwapUsedGB}${VC}GB (${VCL}$SwapUsedPerc${VC}%), Total: ${VCL}${SwapTotalGB}${VC}GB"
-    fi
-    DiskRootTotalGB=$(jq -r ".DiskRoot.TotalGB" $ExportFile)
-    DiskRootFreeGB=$(jq -r ".DiskRoot.FreeGB" $ExportFile)
-    DiskRootUsedGB=$(jq -r ".DiskRoot.UsedGB" $ExportFile)
-    DiskRootFreePerc=$(jq -r ".DiskRoot.FreePerc" $ExportFile)
-    DiskRootUsedPerc=$(jq -r ".DiskRoot.UsedPerc" $ExportFile)
-    if [[ ! -z $DiskRootTotalGB ]] && [[ "$DiskRootTotalGB" != "null" ]] ; then
-        echo -e "$CP1           ${KS}Root $ES ${VC}Free: ${VCL}${DiskRootFreeGB}${VC}GB (${VCL}$DiskRootFreePerc${VC}%), Used: ${VCL}${DiskRootUsedGB}${VC}GB (${VCL}$DiskRootUsedPerc${VC}%), Total: ${VCL}${DiskRootTotalGB}${VC}GB"
-    fi
-    UpdateCount=$(jq -r ".Updates.Count" $ExportFile)
-    UpdateType=$(jq -r ".Updates.Type" $ExportFile)
-    if [[ ! -z $UpdateCount ]] && [[ "$UpdateCount" != "null" ]] ; then
-        echo -e "$CP1        ${KS}Updates $ES ${VCL}$UpdateCount${VC} ${UpdateType} updates available."
-    fi
-    SessionCount=$(jq -r ".Sessions.Count" $ExportFile)
-    if [[ ! -z $SessionCount ]] && [[ "$SessionCount" != "null" ]] ; then
-        echo -e "$CP1       ${KS}Sessions $ES ${VCL}$SessionCount"
-    fi
-    ProcessCount=$(jq -r ".Processes.Count" $ExportFile)
-    ProcessMax=$(jq -r ".Processes.Max" $ExportFile)
-    if [[ ! -z $ProcessCount ]] && [[ "$ProcessCount" != "null" ]] ; then
-        echo -e "$CP1      ${KS}Processes $ES ${VCL}$ProcessCount ${VC}running processes of ${VCL}$ProcessMax ${VC}maximum processes"
-    fi
-    HttpdVersion=$(jq -r ".Httpd.Version" $ExportFile)
-    if [[ ! -z $HttpdVersion ]] && [[ "$HttpdVersion" != "null" ]] ; then
-        echo -e "$CP1         ${KS}Apache $ES ${VC}Version: ${VCL}$HttpdVersion"
-    fi
-    NginxVersion=$(jq -r ".Nginx.Version" $ExportFile)
-    if [[ ! -z $NginxVersion ]] && [[ "$NginxVersion" != "null" ]] ; then
-        echo -e "$CP1          ${KS}Nginx $ES ${VC}Version: ${VCL}$NginxVersion"
-    fi
-    MysqlVersion=$(jq -r ".Mysql.Version" $ExportFile)
-    MysqlDistribution=$(jq ".Mysql.Distribution" $ExportFile)
-    if [[ ! -z $MysqlVersion ]] && [[ "$MysqlVersion" != "null" ]] ; then
-        echo -e "$CP1          ${KS}MySQL $ES ${VC}Version: ${VCL}$MysqlVersion ${VC}Distribution: ${VCL}$MysqlDistribution"
-    fi
-    PostgresVersion=$(jq -r ".Postgres.Version" $ExportFile)
-    if [[ ! -z $PostgresVersion ]] && [[ "$PostgresVersion" != "null" ]] ; then
-        echo -e "$CP1       ${KS}Postgres $ES ${VC}Version: ${VCL}$PostgreSqlVersion"
-    fi
-    PhpVersion=$(jq -r ".Php.Version" $ExportFile)
-    PhpMaxMemory=$(jq -r ".Php.MaxMemory" $ExportFile)
-    if [[ ! -z $PhpVersion ]] && [[ "$PhpVersion" != "null" ]] ; then
-        echo -e "$CP1            ${KS}PHP $ES ${VC}Version: ${VCL}$PhpVersion, ${VC}Memory Limit: ${VCL}$PhpMaxMemory"
-    fi
-    ElasticsearchVersion=$(jq -r ".Elasticsearch.Version" $ExportFile)
-    if [[ ! -z $ElasticsearchVersion ]] && [[ "$ElasticsearchVersion" != "Unknown" ]] && [[ "$ElasticsearchVersion" != "null" ]] ; then
-      echo -e "$CP1  ${KS}Elasticsearch $ES ${VC}Version: ${VCL}$ElasticsearchVersion"
-    fi
-    LogstashVersion=$(jq -r ".Logstash.Version" $ExportFile)
-    if [[ ! -z $LogstashVersion ]] && [[ "$LogstashVersion" != "Unknown" ]] && [[ "$LogstashVersion" != "null" ]] ; then
-      echo -e "$CP1       ${KS}Logstash $ES ${VC}Version: ${VCL}$LogstashVersion"
-    fi
-    echo -e "$CP1$CP1$CZR$CP1$CP1\e[0;37m"
-}
-
-
-
 GenerateHtmlTheme () {
     if [[ "$HideVersion" -eq 1 ]]; then
         ShownVersion=""
@@ -1221,13 +1096,14 @@ Html theme:
  - Html
 
 Theme templates:
+ - Blanco
+ - Blue
  - Digipolis
  - Elastic
  - Eline
- - Blue (16c)
- - Red (16c)
  - Gray
  - Orange
+ - Red
 
 Examples:
  $ScriptName -t Elastic
@@ -1568,13 +1444,21 @@ GenerateInfo () {
 PrintTemplate () {
   WriteLog Verbose Info "Printing template \"$Template\""
   DefaultChar=$(jq -r '.DefaultSettings.Char' $Template)
+  if [[ "$DefaultChar" == "null" ]] ; then DefaultChar="" ; fi
   DefaultCharColor=$(jq -r '.DefaultSettings.CharColor' $Template)
+  if [[ "$DefaultCharColor" == "null" ]] ; then DefaultCharColor="\e[0m" ; fi
   DefaultKeyColor=$(jq -r '.DefaultSettings.KeyColor' $Template)
+  if [[ "$DefaultKeyColor" == "null" ]] ; then DefaultKeyColor="\e[0m" ; fi
   DefaultLength=$(jq -r '.DefaultSettings.Length' $Template)
+  if [[ "$DefaultLenght" == "null" ]] ; then DefaultCharLength="79" ; fi
   DefaultSeparator=$(jq -r '.DefaultSettings.Separator' $Template)
+  if [[ "$DefaultSeparator" == "null" ]] ; then DefaultSeparator="" ; fi
   DefaultSeparatorColor=$(jq -r '.DefaultSettings.SeparatorColor' $Template)
+  if [[ "$DefaultSeparatorColor" == "null" ]] ; then DefaultSeparatorColor="\e[0m" ; fi
   DefaultValueColor=$(jq -r '.DefaultSettings.ValueColor' $Template)
+  if [[ "$DefaultValueColor" == "null" ]] ; then DefaultValueColor="\e[0m" ; fi
   DefaultHighlightColor=$(jq -r '.DefaultSettings.HighlightColor' $Template)
+  if [[ "$DefaultHighlightColor" == "null" ]] ; then DefaultHighlightColor="\e[0m" ; fi
   WriteLog Debug Info "Temlate default Char \"$DefaultChar\" CharColor \"$DefaultCharColor\" Length \"$DefaultLentgh\" Separator \"$DefaultSeparator\" SeparatorColor \"$DefaultSeparatorColor\""
   if jq '.' $Template >/dev/null 2>&1 ; then
     WriteLog Verbose Info "Parsed json file $Template successfully."
@@ -1610,7 +1494,6 @@ CheckTheme () {
       original|Original) StartOriginalBlue ; GenerateOriginal256Color ;;
       modern|Modern) GenerateOriginal256Color ;;
       html|Html) GenerateHtmlTheme ;;
-      blank|Blank|blanco|Blanco|Text|Clean|clean) GenerateBasic16Color ;;
       invader|Invader) GenerateInvader ;;
       *) WriteLog Output Error "You specified a non-existant theme: $1" ; exit 2 ;;
     esac
@@ -1626,6 +1509,7 @@ InstallFireMotD () {
   WriteLog Verbose Info "Creating data folder"
   mkdir -p /usr/share/firemotd/data
   WriteLog Verbose Info "Downloading themes"
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blanco.json -o /usr/share/firemotd/themes/FireMotD-theme-Blanco.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Elastic.json -o /usr/share/firemotd/themes/FireMotD-theme-Elastic.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Eline.json -o /usr/share/firemotd/themes/FireMotD-theme-Eline.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Digipolis.json -o /usr/share/firemotd/themes/FireMotD-theme-Digipolis.json
