@@ -1193,29 +1193,41 @@ PrintChar () {
 
 RenderHostIp () {
   WriteLog Debug Info "Rendering Ip"
-  HostIp="${KeyColor} Ip ${SeparatorColor}${Separator} ${HighlightColor}$(jq -r ".HostIp.Value" $ExportFile)"
   PrintChar "$Char" 2 $CharColor
+  InfoKey="Ip"
+  PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+  PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+  HostIp="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}$(jq -r ".HostIp.Value" $ExportFile)"
   echo "${HostIp}\n"
 }
 
 RenderRelease () {
   WriteLog Debug Info "Rendering Release"
   PrintChar "$Char" 2 $CharColor
-  Release="${KeyColor} Release ${SeparatorColor}${Separator} ${ValueColor}$(jq -r ".Release.Value" $ExportFile)"
+  InfoKey="Release"
+  PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+  PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+  Release="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}$(jq -r ".Release.Value" $ExportFile)"
   echo "${Release}\n"
 }
 
 RenderKernel () {
   WriteLog Debug Info "Rendering Kernel"
   PrintChar "$Char" 2 $CharColor
-  Kernel="${KeyColor} Kernel ${SeparatorColor}${Separator} ${ValueColor}$(jq -r ".Kernel.Value" $ExportFile)"
+  InfoKey="Kernel"
+  PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+  PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+  Kernel="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}$(jq -r ".Kernel.Value" $ExportFile)"
   echo "${Kernel}\n"
 }
 
 RenderPlatform () {
   WriteLog Debug Info "Rendering Platform"
   PrintChar "$Char" 2 $CharColor
-  Platform="${KeyColor} Platform ${SeparatorColor}${Separator} ${ValueColor}$(jq -r ".Platform.Value" $ExportFile)"
+  InfoKey="Platform"
+  PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+  PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+  Platform="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}$(jq -r ".Platform.Value" $ExportFile)"
   echo "${Platform}\n"
 }
 
@@ -1227,7 +1239,10 @@ RenderUptime () {
   UptimeSeconds=$(jq -r ".Uptime.Seconds" $ExportFile)
   if [[ ! -z $UptimeDays ]] && [[ "$UptimeDays" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
-    echo "${KeyColor} Uptime ${SeparatorColor}${Separator} ${HighlightColor}${UptimeDays} ${ValueColor}day(s). ${HighlightColor}${UptimeHours}${ValueColor}:${HighlightColor}${UptimeMinutes}${ValueColor}:${HighlightColor}${UptimeSeconds}\n"
+    InfoKey="Uptime"
+    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${UptimeDays} ${ValueColor}day(s). ${HighlightColor}${UptimeHours}${ValueColor}:${HighlightColor}${UptimeMinutes}${ValueColor}:${HighlightColor}${UptimeSeconds}\n"
   fi
 }
 
@@ -1239,7 +1254,10 @@ RenderCpuUsage () {
   CpuUsageSocketCount=$(jq -r ".CpuUsage.SocketCount" $ExportFile)
   if [[ ! -z $CpuUsageAverage ]] && [[ "$CpuUsageAverage" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
-    echo "${KeyColor} CPU Usage ${SeparatorColor}${Separator} ${HighlightColor}${CpuUsageAverage}%${ValueColor} avg over ${HighlightColor}$CpuUsageCpuCount ${ValueColor}cpu(s) (${HighlightColor}$CpuUsageCoreCount ${ValueColor}core(s) x ${HighlightColor}$CpuUsageSocketCount ${ValueColor}socket(s))\n"
+    InfoKey="CPU Usage"
+    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${CpuUsageAverage}%${ValueColor} avg over ${HighlightColor}$CpuUsageCpuCount ${ValueColor}cpu(s) (${HighlightColor}$CpuUsageCoreCount ${ValueColor}core(s) x ${HighlightColor}$CpuUsageSocketCount ${ValueColor}socket(s))\n"
   fi
 }
 
@@ -1248,7 +1266,10 @@ RenderCpuLoad () {
   CpuLoad=$(jq -r ".CpuLoad.Value" $ExportFile)
   if [[ ! -z $CpuLoad ]] && [[ "$CpuLoad" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
-    echo "${KeyColor} CPU Load ${SeparatorColor}${Separator} ${HighlightColor}${CpuLoad}\n"
+    InfoKey="CPU Load"
+    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${CpuLoad}\n"
   fi
 }
 
@@ -1261,7 +1282,10 @@ RenderMemory () {
   MemUsedPerc=$(jq -r ".Memory.UsedPerc" $ExportFile)
   if [[ ! -z $MemTotalGB ]] && [[ "$MemTotalGB" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
-    echo "${KeyColor} Memory ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}${MemFreeGB}GB${ValueColor} (${HighlightColor}${MemFreePerc}%${ValueColor}), Used: ${HighlightColor}${MemUsedGB}GB${ValueColor} (${HighlightColor}${MemUsedPerc}%${ValueColor}), Total: ${HighlightColor}${MemTotalGB}GB${ValueColor}\n"
+    InfoKey="Memory"
+    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}${MemFreeGB}GB${ValueColor} (${HighlightColor}${MemFreePerc}%${ValueColor}), Used: ${HighlightColor}${MemUsedGB}GB${ValueColor} (${HighlightColor}${MemUsedPerc}%${ValueColor}), Total: ${HighlightColor}${MemTotalGB}GB${ValueColor}\n"
   fi
 }
 
@@ -1274,7 +1298,10 @@ RenderSwap () {
   SwapUsedPerc=$(jq -r ".Swap.UsedPerc" $ExportFile)
   if [[ ! -z $SwapTotalGB ]] && [[ "$SwapTotalGB" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
-    echo "${KeyColor} Swap ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}${SwapFreeGB}GB ${ValueColor}(${HighlightColor}${SwapFreePerc}%${ValueColor}), Used: ${HighlightColor}${SwapUsedGB}GB ${ValueColor}(${HighlightColor}${SwapUsedPerc}%${ValueColor}), Total: ${HighlightColor}${SwapTotalGB}GB\n"
+    InfoKey="Swap"
+    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}${SwapFreeGB}GB ${ValueColor}(${HighlightColor}${SwapFreePerc}%${ValueColor}), Used: ${HighlightColor}${SwapUsedGB}GB ${ValueColor}(${HighlightColor}${SwapUsedPerc}%${ValueColor}), Total: ${HighlightColor}${SwapTotalGB}GB\n"
   fi
 }
 
@@ -1287,7 +1314,10 @@ RenderRoot () {
   DiskRootUsedPerc=$(jq -r ".DiskRoot.UsedPerc" $ExportFile)
   if [[ ! -z $DiskRootTotalGB ]] && [[ "$DiskRootTotalGB" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
-    echo "${KeyColor} Root ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}${DiskRootFreeGB}GB ${ValueColor}(${HighlightColor}${DiskRootFreePerc}%${ValueColor}), Used: ${HighlightColor}${DiskRootUsedGB}GB ${ValueColor}(${HighlightColor}${DiskRootUsedPerc}%${ValueColor}), Total: ${HighlightColor}${DiskRootTotalGB}GB\n"
+    InfoKey="Root"
+    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}${DiskRootFreeGB}GB ${ValueColor}(${HighlightColor}${DiskRootFreePerc}%${ValueColor}), Used: ${HighlightColor}${DiskRootUsedGB}GB ${ValueColor}(${HighlightColor}${DiskRootUsedPerc}%${ValueColor}), Total: ${HighlightColor}${DiskRootTotalGB}GB\n"
   fi
 }
 
@@ -1297,7 +1327,10 @@ RenderUpdates () {
   UpdateType=$(jq -r ".Updates.Type" $ExportFile)
   if [[ ! -z $UpdateCount ]] && [[ "$UpdateCount" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
-    echo "${KeyColor} Updates ${SeparatorColor}${Separator} ${HighlightColor}${UpdateCount} ${UpdateType} ${ValueColor}updates available.\n"
+    InfoKey="Updates"
+    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${UpdateCount} ${UpdateType} ${ValueColor}updates available.\n"
   fi
 }
 
@@ -1306,7 +1339,10 @@ RenderSessions () {
   SessionCount=$(jq -r ".Sessions.Count" $ExportFile)
   if [[ ! -z $SessionCount ]] && [[ "$SessionCount" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
-    echo "${KeyColor} Sessions ${SeparatorColor}${Separator} ${HighlightColor}${SessionCount}\n"
+    InfoKey="Sessions"
+    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${SessionCount}\n"
   fi
 }
 
@@ -1316,7 +1352,10 @@ RenderProcesses () {
   ProcessMax=$(jq -r ".Processes.Max" $ExportFile)
   if [[ ! -z $ProcessCount ]] && [[ "$ProcessCount" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
-    echo "${KeyColor} Processes ${SeparatorColor}${Separator} ${HighlightColor}${ProcessCount} ${ValueColor}running processes of ${HighlightColor}${ProcessMax} ${ValueColor}maximum processes\n"
+    InfoKey="Processes"
+    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${ProcessCount} ${ValueColor}running processes of ${HighlightColor}${ProcessMax} ${ValueColor}maximum processes\n"
   fi
 }
 
@@ -1325,7 +1364,10 @@ RenderHttpd () {
   HttpdVersion=$(jq -r ".Httpd.Version" $ExportFile)
   if [[ ! -z $HttpdVersion ]] && [[ "$HttpdVersion" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
-    echo "${KeyColor} Apache ${SeparatorColor}${Separator} ${ValueColor}Version: ${HttpdVersion}\n"
+    InfoKey="Apache"
+    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${HttpdVersion}\n"
   fi
 }
 
@@ -1334,7 +1376,10 @@ RenderNginx () {
   NginxVersion=$(jq -r ".Nginx.Version" $ExportFile)
   if [[ ! -z $NginxVersion ]] && [[ "$NginxVersion" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
-    echo "${KeyColor} Nginx ${SeparatorColor}${Separator} ${ValueColor}Version: ${NginxVersion}\n"
+    InfoKey="Nginx"
+    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${NginxVersion}\n"
   fi
 }
 
@@ -1344,7 +1389,10 @@ RenderMysql () {
   MysqlDistribution=$(jq -r ".Mysql.Distribution" $ExportFile)
   if [[ ! -z $MysqlVersion ]] && [[ "$MysqlVersion" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
-    echo "${KeyColor} MySQL ${SeparatorColor}${Separator} ${ValueColor}Version: ${MysqlVersion} Distribution: ${MysqlDistribution}\n"
+    InfoKey="MySQL"
+    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${MysqlVersion} Distribution: ${MysqlDistribution}\n"
   fi
 }
 
@@ -1353,7 +1401,10 @@ RenderPostgres () {
   PostgresVersion=$(jq -r ".Postgres.Version" $ExportFile)
   if [[ ! -z $PostgresVersion ]] && [[ "$PostgresVersion" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
-    echo "${KeyColor} PostgreSQL ${SeparatorColor}${Separator} ${ValueColor}Version: ${PostgresVersion}\n"
+    InfoKey="PostgresQL"
+    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${PostgresVersion}\n"
   fi
 }
 
@@ -1363,7 +1414,10 @@ RenderPhp () {
   PhpMaxMemory=$(jq -r ".Php.MaxMemory" $ExportFile)
   if [[ ! -z $PhpVersion ]] && [[ "$PhpVersion" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
-    echo "${KeyColor} PHP ${SeparatorColor}${Separator} ${ValueColor}Version: $PhpVersion, Memory Limit: ${PhpMaxMemory}\n"
+    InfoKey="PHP"
+    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: $PhpVersion, Memory Limit: ${PhpMaxMemory}\n"
   fi
 }
 
@@ -1372,7 +1426,10 @@ RenderElasticsearch () {
   ElasticsearchVersion=$(jq -r ".Elasticsearch.Version" $ExportFile)
   if [[ ! -z $ElasticsearchVersion ]] && [[ "$ElasticsearchVersion" != "Unknown" ]] && [[ "$ElasticsearchVersion" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
-    echo "${KeyColor} Elasticsearch ${SeparatorColor}${Separator} ${ValueColor}Version: ${ElasticsearchVersion}\n"
+    InfoKey="Elasticsearch"
+    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${ElasticsearchVersion}\n"
   fi
 }
 
@@ -1381,7 +1438,10 @@ RenderLogstash () {
   LogstashVersion=$(jq -r ".Logstash.Version" $ExportFile)
   if [[ ! -z $LogstashVersion ]] && [[ "$LogstashVersion" != "Unknown" ]] && [[ "$LogstashVersion" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
-    echo "${KeyColor} Logstash ${SeparatorColor}${Separator} ${ValueColor}Version: ${LogstashVersion}\n"
+    InfoKey="Logstash"
+    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${LogstashVersion}\n"
   fi
 }
 
@@ -1390,7 +1450,10 @@ RenderKibana () {
   KibanaVersion=$(jq -r ".Kibana.Version" $ExportFile)
   if [[ ! -z $KibanaVersion ]] && [[ "$KibanaVersion" != "Unknown" ]] && [[ "$KibanaVersion" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
-    echo "${KeyColor} Kibana ${SeparatorColor}${Separator} ${ValueColor}Version: ${KibanaVersion}\n"
+    InfoKey="Kibana"
+    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${KibanaVersion}\n"
   fi
 }
 
@@ -1451,6 +1514,10 @@ PrintTemplate () {
   if [[ "$DefaultKeyColor" == "null" ]] ; then DefaultKeyColor="\e[0m" ; fi
   DefaultLength=$(jq -r '.DefaultSettings.Length' $Template)
   if [[ "$DefaultLenght" == "null" ]] ; then DefaultCharLength="79" ; fi
+  SeparatorSpace=$(jq -r '.DefaultSettings.SeparatorSpace' $Template)
+  if [[ "$SeparatorSpace" == "null" ]] ; then SeparatorSpace="40" ; fi
+  (( $SeparatorSpace < 8 )) && SeparatorSpace=0
+  (( $SeparatorSpace > 25 )) && SeparatorSpace=25
   DefaultSeparator=$(jq -r '.DefaultSettings.Separator' $Template)
   if [[ "$DefaultSeparator" == "null" ]] ; then DefaultSeparator="" ; fi
   DefaultSeparatorColor=$(jq -r '.DefaultSettings.SeparatorColor' $Template)
@@ -1492,7 +1559,6 @@ CheckTheme () {
   else
     case "$Theme" in
       original|Original) StartOriginalBlue ; GenerateOriginal256Color ;;
-      modern|Modern) GenerateOriginal256Color ;;
       html|Html) GenerateHtmlTheme ;;
       invader|Invader) GenerateInvader ;;
       *) WriteLog Output Error "You specified a non-existant theme: $1" ; exit 2 ;;
@@ -1510,12 +1576,13 @@ InstallFireMotD () {
   mkdir -p /usr/share/firemotd/data
   WriteLog Verbose Info "Downloading themes"
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blanco.json -o /usr/share/firemotd/themes/FireMotD-theme-Blanco.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blue.json -o /usr/share/firemotd/themes/FireMotD-theme-Blue.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Digipolis.json -o /usr/share/firemotd/themes/FireMotD-theme-Digipolis.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Elastic.json -o /usr/share/firemotd/themes/FireMotD-theme-Elastic.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Eline.json -o /usr/share/firemotd/themes/FireMotD-theme-Eline.json
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Digipolis.json -o /usr/share/firemotd/themes/FireMotD-theme-Digipolis.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Gray.json -o /usr/share/firemotd/themes/FireMotD-theme-Gray.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Modern.json -o /usr/share/firemotd/themes/FireMotD-theme-Modern.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Red.json -o /usr/share/firemotd/themes/FireMotD-theme-Red.json
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blue.json -o /usr/share/firemotd/themes/FireMotD-theme-Blue.json
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Gray.json -o /usr/share/firemotd/themes/FireMotD-theme-gray.json
   WriteLog Verbose Info "Downloading templates"
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-all.json -o /usr/share/firemotd/templates/FireMotD-template-all.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-basic.json -o /usr/share/firemotd/templates/FireMotD-template-basic.json
