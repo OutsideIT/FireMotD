@@ -36,10 +36,11 @@ all: install bash_completion cron
 install:
 	cp FireMotD $(IFILE)
 	chmod 755 $(IFILE)
-	mkdir -p $(DDIR)/{data,templates,themes}
+	mkdir -p $(DDIR)/data
+	mkdir -p $(DDIR)/templates
+	mkdir -p $(DDIR)/themes
 	cp templates/* $(DDIR)/templates
 	cp themes/* $(DDIR)/themes
-	$(IDIR)/FireMotD -S
 
 bash_completion:
 	cp $(BCIFILE) $(BCOFILE)
@@ -49,6 +50,6 @@ cron:
 
 uninstall:
 	rm -f $(IFILE)
+	rm -rf $(DDIR)
 	rm -f $(BCOFILE)
 	rm -f $(CRONFILE)
-        rm -rf $(DDIR)
