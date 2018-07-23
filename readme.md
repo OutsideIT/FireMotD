@@ -7,7 +7,7 @@ memory, disk information, number of updates, and many more useful things.
 
 ### Theme Presentation
 
-![FireMotD Themes](/../screenshots/FireMotD-Presentation-v10.01.mkv?raw=true "FireMotD Theme Presentation")
+![FireMotD Themes](/../screenshots/FireMotD-Presentation-v10.01.gif?raw=true "FireMotD Theme Presentation")
 
 Powershell:
 
