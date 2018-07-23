@@ -5,39 +5,9 @@
 This tool displays useful system information after logging into a Linux system (or Windows with FireMotD.ps1), such as version, CPU information, 
 memory, disk information, number of updates, and many more useful things. 
 
-### Screenshots
+### Theme Presentation
 
-Digipolis:
-
-![FireMotD Digipolis](/../screenshots/FireMotD-Theme-Digipolis-v9.01.png?raw=true "FireMotD Digipolis")
-
-Elastic:
-
-![FireMotD Elastic](/../screenshots/FireMotD-Theme-Elastic-v9.01.png?raw=true "FireMotD Elastic")
-
-Eline:
-
-![FireMotD Eline](/../screenshots/FireMotD-Theme-Eline-v9.01.png?raw=true "FireMotD Eline")
-
-Modern:
-
-![FireMotD Modern](/../screenshots/FireMotD-Theme-Modern-v8.04.png?raw=true "FireMotD Modern")
-
-Blue:
-
-![FireMotD Blue](/../screenshots/FireMotD-Theme-Blue-v8.04.png?raw=true "FireMotD Blue")
-
-Red:
-
-![FireMotD Red](/../screenshots/FireMotD-Theme-Red-v8.04.png?raw=true "FireMotD Red")
-
-Gray:
-
-![FireMotD Gray](/../screenshots/FireMotD-Theme-Gray-v8.04.png?raw=true "FireMotD Gray")
-
-Original:
-
-![FireMotD Original](/../screenshots/FireMotD-Theme-Original-v8.04.png?raw=true "FireMotD Original")
+![FireMotD Themes](/../screenshots/FireMotD-Presentation-v10.01.mkv?raw=true "FireMotD Theme Presentation")
 
 Powershell:
 
@@ -79,37 +49,42 @@ Options:
    -h  | --help               			Shows this help and exits
    -v  | --verbose            			Verbose mode (shows messages)
    -V  | --version            			Shows version information and exits
-   -t  | --theme <Theme Name> 			Shows Motd info on screen, based on the chosen theme
+   -T  | --theme <Theme Name> 			Shows Motd info on screen, based on the chosen theme
    -TF | --TemplateFile <Path to template> 	Shows theme based on json templates
    -C  | --colortest          			Prints color test to screen
    -M  | --colormap           			Prints color test to screen, with color numbers in it
    -S  | --save               			Saves data to /var/tmp/FireMotD.json
+   -I  | --install				Installs FireMotD
   -HV  | --hideversion        			Hides version number
  -sru  | --skiprepoupdate     			Skip the repository package update (apt only)
 
 256-color themes:
- original
- modern
- gray
- orange
- invader
+ Digipolis
+ Elastic
+ Eline
+ Gray
+ Invader
+ Modern
+ Orange
+ Original
 
 16-color themes:
- red
- blue
- clean
+ Blanco
+ Blue
+ Red
 
 HTML theme:
  html
 
 Examples:
- FireMotD -t original
+ sudo FireMotD -I -d
+ sudo FireMotD -S -d
+ FireMotD -T Modern
  FireMotD -t html > /tmp/motd.html
  FireMotD -TF FireMotD-theme-Elastic.json
  FireMotD --theme Modern
  FireMotD --colortest
  FireMotD -M
- sudo FireMotD --saveupdates
 
 Note:
  Some functionalities may require superuser privileges. Eg. check for updates.
@@ -117,7 +92,16 @@ Note:
  sudo FireMotD -S
 ```
 
-### System Install
+### Installation
+
+#### Built-in Install function
+
+Run this command from you homefolder:
+```bash
+curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/FireMotD -o ~/FireMotD && chmod 755 ~/FireMotD && sudo ~/FireMotD -I -d
+```
+
+#### Make
 
 You need to have `make` installed on the system, if you want to use the Makefile.
 
@@ -179,7 +163,7 @@ nano ~/.profile
 
 Add the FireMotD call at the end of the file (choose your theme)
 ```bash
-/usr/local/bin/FireMotD -t red
+/usr/local/bin/FireMotD -T Red
 ```
 
 ##### To add FireMotD to all users
@@ -190,7 +174,7 @@ You may also create a initialization script `init.sh` which will call the `FireM
 ```bash
 #!/bin/bash
  
-/usr/local/bin/FireMotD --Theme Red
+/usr/local/bin/FireMotD -T Digipolis
 ```
 
 ### On Nagios Exchange

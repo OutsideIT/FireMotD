@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v9.17.180719
+# Version:      v10.01.180723
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Thomas Dietrich, Dmitry Romanenko
@@ -603,32 +603,37 @@ ExploreKibana () {
 }
 
 ExportData () {
-    if [[ -s "$ExportFile" ]] ; then
-      if [[ "$TemplateType" != "default" ]] ; then
-        if [[ -s "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" ]] ; then
-          WriteLog Verbose Info "Template type set to ${TemplateType}. Overwriting.."
-          cp "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" $ExportFile
-          chmod 766 $ExportFile
-        else
-          WriteLog Output Error "Template ${TemplateType} does not exist. Try \'basic\' or \'all\'."
- 	fi
-      fi
+  if [ ! -d "/usr/share/firemotd/templates" ]; then
+     WriteLog Output Error "Template folder doesn't exist. Upgrading from an older version? Please run make again or run the install function \"FireMotD -I -v\"."
+     exit 2
+  elif [[ -s "$ExportFile" ]] ; then
+    if [[ "$TemplateType" != "default" ]] ; then
+      if [[ -s "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" ]] ; then
+        WriteLog Verbose Info "Template type set to ${TemplateType}. Overwriting.."
+        cp "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" $ExportFile
+        chmod 766 $ExportFile
+      else
+        WriteLog Output Error "Template ${TemplateType} does not exist. Try running the install function \"FireMotD -I -v\"."
+        exit 2
+	    fi
     else
       TemplateType="basic"
       if [[ -s "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" ]] ; then
         cp "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" $ExportFile
         chmod 766 $ExportFile
       else
-        WriteLog Output Error "Template ${TemplateType} does not exist. Try \'basic\' or \'all\'."
+        WriteLog Output Error "Template ${TemplateType} does not exist. Try running the install function \"FireMotD -I -v\"."
+        exi 2
       fi
     fi
-    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
-    WriteLog Verbose Info "Looping through $ExportFile"
-    while read -r val ; do
-        WriteLog Verbose Info "Exploring ${val}"
-        $(Explore${val})
-    done < <(jq -r 'to_entries[] | select(.value.Generated == "@cron") | .key' $ExportFile)
-    WriteLog Verbose Info "Updated ExportFile: $ExportFile"
+  fi
+  ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+  WriteLog Verbose Info "Looping through \"$ExportFile\" based on $TemplateType template."
+  while read -r val ; do
+    WriteLog Debug Info "Exploring ${val}"
+    $(Explore${val})
+  done < <(jq -r 'to_entries[] | select(.value.Generated == "@cron") | .key' $ExportFile)
+  WriteLog Verbose Info "Updated ExportFile: $ExportFile"
 }
 
 LoadData () {
@@ -1139,47 +1144,10 @@ CheckSudo () {
 }
 
 CheckDependencies () {
-  command -v bc >/dev/null 2>&1 || { WriteLog Output Error "Unable to detect bc. Please install." >&2 ; exit 1 ; }
-  command -v jq >/dev/null 2>&1 || { WriteLog Output Error "Unable to detect jq. Please install." >&2 ; exit 1 ; }
-  command -v mpstat >/dev/null 2>&1 || { WriteLog Output Error "Unable to detect mpstat. Please install sysstat package." >&2 ; exit 1 ; }
-  command -v sponge >/dev/null 2>&1 || { WriteLog Output Error "Unable to detect sponge. Please install moreutils package." >&2 ; exit 1 ; }
-}
-
-InitializeArgs () {
-  while :; do
-    case "$1" in
-      -v|--verbose|--Verbose)
-        Verbose=1 ; WriteLog Verbose Info "Verbose mode" ; shift ;;
-      -d|--debug|--Debug)
-        Debug=1  ; WriteLog Debug Info "Debug mode" ; shift ;;
-      -V|--version|--Version)
-        Action="version" ; shift ;;
-      -h|--help|--Help)
-        Action="help" ; shift ;;
-      -I|--Install)
-        Action="install" ; shift ;;
-      -s|-S|--save|--Save|--saveupdates|--SaveUpdates|--saveUpdates)
-        Action="save" ; shift ;;
-      -HV|--hideversion|--HideVersion)
-        HideVersion=1 ; shift ;;
-      -sru|-SRU|--skiprepoupdate|--SkipRepoUpdate)
-        SkipRepoUpdate=1 ; shift ;;
-      -t|-T|--Theme|--theme)
-        shift ; Action="theme" ; Theme=$1 ; shift ;;
-      -D|--Data|--Template)
-         shift ; TemplateType="$1" ; shift ;;
-      -C|--Colortest|--colortest|--ColorTest|--colorTest)
-        Action="colortest" ; shift ;;
-      -M|--Colormap|--colormap|--ColorMap|--colorMap)
-        Action="colormap" ; shift ;;
-      -E|--ExportFile)
-        shift ; ExportFile=$1 ; shift ;;
-      -TF|--TemplateFile)
-        shift ; Action="template" ; Template=$1 ; shift ;;
-      -*) echo "You specified a non-existant option: $1" ; exit 2 ;;
-      *) break ;;
-    esac
-  done
+  command -v bc >/dev/null 2>&1 || { WriteLog Output Error "Unable to detect bc. Please install manually or run \"FireMotD -I -v\"." >&2 ; exit 1 ; }
+  command -v jq >/dev/null 2>&1 || { WriteLog Output Error "Unable to detect jq. Please install manually or run \"FireMotD -I -v\"." >&2 ; exit 1 ; }
+  command -v mpstat >/dev/null 2>&1 || { WriteLog Output Error "Unable to detect mpstat. Please install sysstat package manually or run \"FireMotD -I -v\"." >&2 ; exit 1 ; }
+  command -v sponge >/dev/null 2>&1 || { WriteLog Output Error "Unable to detect sponge. Please install moreutils package manually or run \"FireMotD -I -v\"." >&2 ; exit 1 ; }
 }
 
 PrintChar () {
@@ -1515,7 +1483,7 @@ PrintTemplate () {
   DefaultLength=$(jq -r '.DefaultSettings.Length' $Template)
   if [[ "$DefaultLenght" == "null" ]] ; then DefaultCharLength="79" ; fi
   SeparatorSpace=$(jq -r '.DefaultSettings.SeparatorSpace' $Template)
-  if [[ "$SeparatorSpace" == "null" ]] ; then SeparatorSpace="40" ; fi
+  if [[ "$SeparatorSpace" == "null" ]] ; then SeparatorSpace="10" ; fi
   (( $SeparatorSpace < 8 )) && SeparatorSpace=0
   (( $SeparatorSpace > 25 )) && SeparatorSpace=25
   DefaultSeparator=$(jq -r '.DefaultSettings.Separator' $Template)
@@ -1607,6 +1575,65 @@ InstallFireMotD () {
   /usr/local/bin/FireMotD -t Digipolis
 }
 
+Present () {
+  WriteLog Output Info "Starting FireMotD theme presentation"
+  WriteLog Verbose Info "FireMotD Blue theme"
+  FireMotD -T Blue
+  WriteLog Verbose Info "FireMotD Digipolis theme"
+  FireMotD -T Digipolis
+  WriteLog Verbose Info "FireMotD Elastic theme"
+  FireMotD -T Elastic
+  WriteLog Verbose Info "FireMotD Eline theme"
+  FireMotD -T Eline
+  WriteLog Verbose Info "FireMotD Gray theme"
+  FireMotD -T Gray
+  WriteLog Verbose Info "FireMotD Modern theme"
+  FireMotD -T Modern
+  WriteLog Verbose Info "FireMotD Original theme"
+  FireMotD -T Original
+  WriteLog Verbose Info "FireMotD Red theme"
+  FireMotD -T Red
+}
+
+InitializeArgs () {
+  while :; do
+    case "$1" in
+      -v|--verbose|--Verbose)
+        Verbose=1 ; WriteLog Verbose Info "Verbose mode" ; shift ;;
+      -d|--debug|--Debug)
+        Debug=1  ; WriteLog Debug Info "Debug mode" ; shift ;;
+      -V|--version|--Version)
+        Action="version" ; shift ;;
+      -h|--help|--Help)
+        Action="help" ; shift ;;
+      -P|--Presentation)
+        Action="present" ; shift ;;
+      -I|--install|--Install)
+        Action="install" ; shift ;;
+      -s|-S|--save|--Save|--saveupdates|--SaveUpdates|--saveUpdates)
+        Action="save" ; shift ;;
+      -HV|--hideversion|--HideVersion)
+        HideVersion=1 ; shift ;;
+      -sru|-SRU|--skiprepoupdate|--SkipRepoUpdate)
+        SkipRepoUpdate=1 ; shift ;;
+      -T|--Theme|--theme)
+        shift ; Action="theme" ; Theme=$1 ; shift ;;
+      -D|--Data|--Template)
+        shift ; TemplateType="$1" ; shift ;;
+      -C|--Colortest|--colortest|--ColorTest|--colorTest)
+        Action="colortest" ; shift ;;
+      -M|--Colormap|--colormap|--ColorMap|--colorMap)
+        Action="colormap" ; shift ;;
+      -E|--ExportFile)
+        shift ; ExportFile=$1 ; shift ;;
+      -TF|--TemplateFile)
+        shift ; Action="template" ; Template=$1 ; shift ;;
+      -*) echo "You specified a non-existant option: $1" ; exit 2 ;;
+      *) break ;;
+    esac
+  done
+}
+
 CheckAction () {
   case "$Action" in
     version)
@@ -1630,6 +1657,8 @@ CheckAction () {
       ColorTest 0 ;;
     colortest)
       ColorTest ;;
+    present)
+      Present ;;
     *) 
       WriteLog Output Error "Invalid action: \"$Action\"" ; exit 1 ;;
   esac
