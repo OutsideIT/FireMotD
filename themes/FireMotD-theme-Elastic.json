@@ -10,7 +10,7 @@
     "KeyColor": "\\e[38;5;126m",
     "Separator": "=>",
     "SeparatorColor": "\\e[38;5;221m",
-    "SeparatorSpace": 12,
+    "SeparatorSpace": 14,
     "ValueColor": "\\e[38;5;33m",
     "HighlightColor": "\\e[38;5;75m"
   },
