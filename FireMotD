@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v10.02.180725
+# Version:      v10.03.180725
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Thomas Dietrich, Dmitry Romanenko
@@ -607,7 +607,7 @@ ExportData () {
      WriteLog Output Error "Template folder doesn't exist. Upgrading from an older version? Please run make again or run the install function \"FireMotD -I -v\"."
      exit 2
   elif [[ -s "$ExportFile" ]] ; then
-    WriteLog Verbose Info "Exportfile $ExportFile found"
+    WriteLog Verbose Info "Exportfile $ExportFile found, template type $TemplateType"
     if [[ "$TemplateType" != "default" ]] ; then
       if [[ -s "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" ]] ; then
         WriteLog Verbose Info "Template type set to ${TemplateType}. Overwriting.."
@@ -616,15 +616,14 @@ ExportData () {
       else
         WriteLog Output Error "Template ${TemplateType} does not exist. Try running the install function \"FireMotD -I -v\"."
         exit 2
-	    fi
+      fi
     else
-      TemplateType="basic"
-      if [[ -s "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" ]] ; then
+      if [[ ! -f "/usr/share/firemotd/data/FireMotD.json" ]] ; then
+        TemplateType="basic"
         cp "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" $ExportFile
         chmod 766 $ExportFile
       else
-        WriteLog Output Error "Template ${TemplateType} does not exist. Try running the install function \"FireMotD -I -v\"."
-        exi 2
+        WriteLog Verbose Info "No data template selected. Leaving as-is.."
       fi
     fi
   else
@@ -640,14 +639,12 @@ v\"."
         exit 2
             fi
     else
-      TemplateType="basic"
-      if [[ -s "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" ]] ; then
+      if [[ ! -f "/usr/share/firemotd/data/FireMotD.json" ]] ; then
+        TemplateType="basic"
         cp "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" $ExportFile
         chmod 766 $ExportFile
       else
-        WriteLog Output Error "Template ${TemplateType} does not exist. Try running the install function \"FireMotD -I -
-v\"."
-        exi 2
+        WriteLog Verbose Info "No data template selected. Leaving as-is.."
       fi
     fi
   fi
@@ -1594,7 +1591,7 @@ InstallFireMotD () {
     WriteLog Debug Info "Install result: $InstallResult"
   fi
   WriteLog Output Info "Generating information"
-  /usr/local/bin/FireMotD -S
+  /usr/local/bin/FireMotD -S -d
   WriteLog Output Info "Generating FireMotD"
   /usr/local/bin/FireMotD -t Digipolis
 }
