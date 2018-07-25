@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v10.01.180723
+# Version:      v10.02.180725
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Thomas Dietrich, Dmitry Romanenko
@@ -607,6 +607,7 @@ ExportData () {
      WriteLog Output Error "Template folder doesn't exist. Upgrading from an older version? Please run make again or run the install function \"FireMotD -I -v\"."
      exit 2
   elif [[ -s "$ExportFile" ]] ; then
+    WriteLog Verbose Info "Exportfile $ExportFile found"
     if [[ "$TemplateType" != "default" ]] ; then
       if [[ -s "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" ]] ; then
         WriteLog Verbose Info "Template type set to ${TemplateType}. Overwriting.."
@@ -623,6 +624,29 @@ ExportData () {
         chmod 766 $ExportFile
       else
         WriteLog Output Error "Template ${TemplateType} does not exist. Try running the install function \"FireMotD -I -v\"."
+        exi 2
+      fi
+    fi
+  else
+    WriteLog Verbose Info "Exportfile $ExportFile not found. Copying template $TemplateType"
+    if [[ "$TemplateType" != "default" ]] ; then
+      if [[ -s "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" ]] ; then
+        WriteLog Verbose Info "Template type set to ${TemplateType}. Overwriting.."
+        cp "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" $ExportFile
+        chmod 766 $ExportFile
+      else
+        WriteLog Output Error "Template ${TemplateType} does not exist. Try running the install function \"FireMotD -I -
+v\"."
+        exit 2
+            fi
+    else
+      TemplateType="basic"
+      if [[ -s "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" ]] ; then
+        cp "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" $ExportFile
+        chmod 766 $ExportFile
+      else
+        WriteLog Output Error "Template ${TemplateType} does not exist. Try running the install function \"FireMotD -I -
+v\"."
         exi 2
       fi
     fi
@@ -1616,7 +1640,7 @@ InitializeArgs () {
         HideVersion=1 ; shift ;;
       -sru|-SRU|--skiprepoupdate|--SkipRepoUpdate)
         SkipRepoUpdate=1 ; shift ;;
-      -T|--Theme|--theme)
+      -T|-t|--Theme|--theme)
         shift ; Action="theme" ; Theme=$1 ; shift ;;
       -D|--Data|--Template)
         shift ; TemplateType="$1" ; shift ;;
