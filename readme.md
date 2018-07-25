@@ -25,18 +25,6 @@ Please check https://outsideit.net/firemotd for more information on how to use t
 
 In case you find a bug or have a feature request, please make an issue on GitHub.
 
-### Install Dependencies
-
-##### Using yum
-```
-sudo yum install bc sysstat jq moreutils
-```
-
-##### Using apt-get
-```
-sudo apt-get install bc sysstat jq moreutils
-```
-
 ### Usage Help
 
 ```
@@ -50,6 +38,7 @@ Options:
    -v  | --verbose            			Verbose mode (shows messages)
    -V  | --version            			Shows version information and exits
    -T  | --theme <Theme Name> 			Shows Motd info on screen, based on the chosen theme
+   -D  | --Data                  Data template to use (basic or all)
    -TF | --TemplateFile <Path to template> 	Shows theme based on json templates
    -C  | --colortest          			Prints color test to screen
    -M  | --colormap           			Prints color test to screen, with color numbers in it
@@ -78,7 +67,7 @@ HTML theme:
 
 Examples:
  sudo FireMotD -I -d
- sudo FireMotD -S -d
+ sudo FireMotD -S -d -D all
  FireMotD -T Modern
  FireMotD -t html > /tmp/motd.html
  FireMotD -TF FireMotD-theme-Elastic.json
@@ -93,6 +82,18 @@ Note:
 ```
 
 ### Installation
+
+#### Dependencies
+
+##### Using yum
+```
+sudo yum install bc sysstat jq moreutils
+```
+
+##### Using apt-get
+```
+sudo apt-get install bc sysstat jq moreutils
+```
 
 #### Built-in Install function
 
@@ -127,7 +128,7 @@ Root privilege is required for this operation. Only `/etc/crontab` and the files
 The recommended way to generate /var/tmp/FireMotD.json is by creating a separate cron file for firemotd like this:
 
 ```bash
-sudo vim /etc/cron.d/firemotd
+sudo vim /etc/cron.d/FireMotD
 # FireMotD system updates check (randomly execute between 0:00:00 and 5:59:59)
 0 0 * * * root perl -e 'sleep int(rand(21600))' && /usr/local/bin/FireMotD -S &>/dev/null
 ```
