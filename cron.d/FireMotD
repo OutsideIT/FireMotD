@@ -1,1 +1,2 @@
+# FireMotD Data Generator Cron Job
 00 00 * * * root perl -e 'sleep int(rand(3600))' && /usr/local/bin/FireMotD -S -D all &>/dev/null
