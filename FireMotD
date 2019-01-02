@@ -33,6 +33,7 @@ LC_ALL="C"
 LC_CTYPE="C"
 LC_NUMERIC="C"
 LANG="C"
+RenderTime="live"
 
 WriteLog () {
   if [ ! -z "$ScriptName" ] ; then
@@ -654,7 +655,8 @@ v\"."
     WriteLog Debug Info "Exploring ${val}"
     $(Explore${val})
   done < <(jq -r 'to_entries[] | select(.value.Generated == "@cron") | .key' $ExportFile)
-  WriteLog Verbose Info "Updated ExportFile: $ExportFile"
+  WriteLog Verbose Info "Updated ExportFile $ExportFile"
+  GenerateCache
 }
 
 LoadData () {
@@ -1171,17 +1173,7 @@ CheckDependencies () {
   command -v sponge >/dev/null 2>&1 || { WriteLog Output Error "Unable to detect sponge. Please install moreutils package manually or run \"FireMotD -I -v\"." >&2 ; exit 1 ; }
 }
 
-PrintChar () {
-  str=$1
-  num=$2
-  col=$3
-  for (( i = 1; i <= $num; i++ )) ; do
-    echo -en "$col$str\e[0m"
-  done
-}
-
 RenderHostIp () {
-  WriteLog Debug Info "Rendering Ip"
   PrintChar "$Char" 2 $CharColor
   InfoKey="Ip"
   PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
@@ -1191,7 +1183,6 @@ RenderHostIp () {
 }
 
 RenderRelease () {
-  WriteLog Debug Info "Rendering Release"
   PrintChar "$Char" 2 $CharColor
   InfoKey="Release"
   PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
@@ -1201,7 +1192,6 @@ RenderRelease () {
 }
 
 RenderKernel () {
-  WriteLog Debug Info "Rendering Kernel"
   PrintChar "$Char" 2 $CharColor
   InfoKey="Kernel"
   PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
@@ -1211,7 +1201,6 @@ RenderKernel () {
 }
 
 RenderPlatform () {
-  WriteLog Debug Info "Rendering Platform"
   PrintChar "$Char" 2 $CharColor
   InfoKey="Platform"
   PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
@@ -1221,7 +1210,6 @@ RenderPlatform () {
 }
 
 RenderUptime () {
-  WriteLog Debug Info "Rendering Uptime"
   UptimeDays=$(jq -r ".Uptime.Days" $ExportFile)
   UptimeHours=$(jq -r ".Uptime.Hours" $ExportFile)
   UptimeMinutes=$(jq -r ".Uptime.Minutes" $ExportFile)
@@ -1236,7 +1224,6 @@ RenderUptime () {
 }
 
 RenderCpuUsage () {
-  WriteLog Debug Info "Rendering CpuUsage"
   CpuUsageAverage=$(jq -r ".CpuUsage.Average" $ExportFile)
   CpuUsageCpuCount=$(jq -r ".CpuUsage.CpuCount" $ExportFile)
   CpuUsageCoreCount=$(jq -r ".CpuUsage.CoreCount" $ExportFile)
@@ -1251,7 +1238,6 @@ RenderCpuUsage () {
 }
 
 RenderCpuLoad () {
-  WriteLog Debug Info "Rendering CpuLoad"
   CpuLoad=$(jq -r ".CpuLoad.Value" $ExportFile)
   if [[ ! -z $CpuLoad ]] && [[ "$CpuLoad" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
@@ -1263,7 +1249,6 @@ RenderCpuLoad () {
 }
 
 RenderMemory () {
-  WriteLog Debug Info "Rendering Memory"
   MemTotalGB=$(jq -r ".Memory.TotalGB" $ExportFile)
   MemFreeGB=$(jq -r ".Memory.FreeGB" $ExportFile)
   MemUsedGB=$(jq -r ".Memory.UsedGB" $ExportFile)
@@ -1279,7 +1264,6 @@ RenderMemory () {
 }
 
 RenderSwap () {
-  WriteLog Debug Info "Rendering Swap"
   SwapTotalGB=$(jq -r ".Swap.TotalGB" $ExportFile)
   SwapFreeGB=$(jq -r ".Swap.FreeGB" $ExportFile)
   SwapUsedGB=$(jq -r ".Swap.UsedGB" $ExportFile)
@@ -1295,7 +1279,6 @@ RenderSwap () {
 }
 
 RenderRoot () {
-  WriteLog Debug Info "Rendering Root"
   DiskRootTotalGB=$(jq -r ".DiskRoot.TotalGB" $ExportFile)
   DiskRootFreeGB=$(jq -r ".DiskRoot.FreeGB" $ExportFile)
   DiskRootUsedGB=$(jq -r ".DiskRoot.UsedGB" $ExportFile)
@@ -1311,7 +1294,6 @@ RenderRoot () {
 }
 
 RenderUpdates () {
-  WriteLog Debug Info "Rendering Updates"
   UpdateCount=$(jq -r ".Updates.Count" $ExportFile)
   UpdateType=$(jq -r ".Updates.Type" $ExportFile)
   if [[ ! -z $UpdateCount ]] && [[ "$UpdateCount" != "null" ]] ; then
@@ -1324,7 +1306,6 @@ RenderUpdates () {
 }
 
 RenderSessions () {
-  WriteLog Debug Info "Rendering Sessions"
   SessionCount=$(jq -r ".Sessions.Count" $ExportFile)
   if [[ ! -z $SessionCount ]] && [[ "$SessionCount" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
@@ -1336,7 +1317,6 @@ RenderSessions () {
 }
 
 RenderProcesses () {
-  WriteLog Debug Info "Rendering Processes"
   ProcessCount=$(jq -r ".Processes.Count" $ExportFile)
   ProcessMax=$(jq -r ".Processes.Max" $ExportFile)
   if [[ ! -z $ProcessCount ]] && [[ "$ProcessCount" != "null" ]] ; then
@@ -1349,7 +1329,6 @@ RenderProcesses () {
 }
 
 RenderHttpd () {
-  WriteLog Debug Info "Rendering Httpd"
   HttpdVersion=$(jq -r ".Httpd.Version" $ExportFile)
   if [[ ! -z $HttpdVersion ]] && [[ "$HttpdVersion" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
@@ -1361,7 +1340,6 @@ RenderHttpd () {
 }
 
 RenderNginx () {
-  WriteLog Debug Info "Rendering Nginx"
   NginxVersion=$(jq -r ".Nginx.Version" $ExportFile)
   if [[ ! -z $NginxVersion ]] && [[ "$NginxVersion" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
@@ -1373,7 +1351,6 @@ RenderNginx () {
 }
 
 RenderMysql () {
-  WriteLog Debug Info "Rendering Mysql"
   MysqlVersion=$(jq -r ".Mysql.Version" $ExportFile)
   MysqlDistribution=$(jq -r ".Mysql.Distribution" $ExportFile)
   if [[ ! -z $MysqlVersion ]] && [[ "$MysqlVersion" != "null" ]] ; then
@@ -1386,7 +1363,6 @@ RenderMysql () {
 }
 
 RenderPostgres () {
-  WriteLog Debug Info "Rendering Postgres"
   PostgresVersion=$(jq -r ".Postgres.Version" $ExportFile)
   if [[ ! -z $PostgresVersion ]] && [[ "$PostgresVersion" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
@@ -1398,7 +1374,6 @@ RenderPostgres () {
 }
 
 RenderPhp () {
-  WriteLog Debug Info "Rendering Php"
   PhpVersion=$(jq -r ".Php.Version" $ExportFile)
   PhpMaxMemory=$(jq -r ".Php.MaxMemory" $ExportFile)
   if [[ ! -z $PhpVersion ]] && [[ "$PhpVersion" != "null" ]] ; then
@@ -1411,7 +1386,6 @@ RenderPhp () {
 }
 
 RenderElasticsearch () {
-  WriteLog Debug Info "Rendering Elasticsearch"
   ElasticsearchVersion=$(jq -r ".Elasticsearch.Version" $ExportFile)
   if [[ ! -z $ElasticsearchVersion ]] && [[ "$ElasticsearchVersion" != "Unknown" ]] && [[ "$ElasticsearchVersion" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
@@ -1423,7 +1397,6 @@ RenderElasticsearch () {
 }
 
 RenderLogstash () {
-  WriteLog Debug Info "Rendering Logstash"
   LogstashVersion=$(jq -r ".Logstash.Version" $ExportFile)
   if [[ ! -z $LogstashVersion ]] && [[ "$LogstashVersion" != "Unknown" ]] && [[ "$LogstashVersion" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
@@ -1435,7 +1408,6 @@ RenderLogstash () {
 }
 
 RenderKibana () {
-  WriteLog Debug Info "Rendering Kibana"
   KibanaVersion=$(jq -r ".Kibana.Version" $ExportFile)
   if [[ ! -z $KibanaVersion ]] && [[ "$KibanaVersion" != "Unknown" ]] && [[ "$KibanaVersion" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
@@ -1449,8 +1421,11 @@ RenderKibana () {
 GenerateLine () {
   WriteLog Debug Info "Generating \"$Type\" with \"$Char\" in color \"$CharColor\""
   PrintChar "$Char" $Length $CharColor
-  echo -en "\n"
-  WriteLog Debug Info "Line $Type generated successfully"
+  if [[ "$RenderTime" == "live" ]] ; then
+    echo -en "\n"
+  elif [[ "$RenderTime" == "cache" ]] ; then
+    echo -en "\n" >> /usr/share/firemotd/cache/firemotd-${Theme}.txt
+  fi
 }
 
 GenerateHeader () {
@@ -1470,7 +1445,11 @@ GenerateHeader () {
   PrintChar "$HostNameHeader" 1 $ValueColor
   PrintChar " " 2 $CharColor
   PrintChar "$Char" $LeftoverChars $CharColor
-  echo -en "\n"
+  if [[ "$RenderTime" == "live" ]] ; then
+    echo -en "\n"
+  elif [[ "$RenderTime" == "cache" ]] ; then
+    echo -en "\n" >> /usr/share/firemotd/cache/firemotd-${Theme}.txt
+  fi
 }
 
 GenerateInfo () {
@@ -1486,15 +1465,84 @@ GenerateInfo () {
   if [[ "$SeparatorColor" == "null" ]] ; then SeparatorColor=$DefaultSeparatorColor ; fi
   HighlightColor=$(jq -r --arg i "$i" '.Template[$i | tonumber].HighlightColor' $Template)
   if [[ "$HighlightColor" == "null" ]] ; then HighlightColor=$DefaultHighlightColor ; fi
+  WriteLog Debug Info "Rendering $Value"
   RenderResult="$(Render${Value})"
   if [[ "$RenderResult" != "" ]] ; then
-#    echo "ECHO $Value \"$RenderResult\""
-    echo -ne "$RenderResult"
+    if [[ "$RenderTime" == "live" ]] ; then
+      echo -ne "$RenderResult"
+    elif [[ "$RenderTime" == "cache" ]] ; then
+      echo -ne "$RenderResult" >> /usr/share/firemotd/cache/firemotd-${Theme}.txt
+    fi
   fi
+}
+
+PrintChar () {
+  str=$1
+  num=$2
+  col=$3
+  for (( i = 1; i <= $num; i++ )) ; do
+    if [[ "$RenderTime" == "live" ]] ; then
+      echo -en "$col$str\e[0m"
+    elif [[ "$RenderTime" == "cache" ]] ; then
+      echo -en "$col$str\e[0m" >> /usr/share/firemotd/cache/firemotd-${Theme}.txt
+    fi
+  done
 }
 
 PrintTemplate () {
   WriteLog Verbose Info "Printing template \"$Template\""
+  DefaultChar=$(jq -r '.DefaultSettings.Char' $Template)
+  if [[ "$DefaultChar" == "null" ]] ; then DefaultChar="" ; fi
+  DefaultCharColor=$(jq -r '.DefaultSettings.CharColor' $Template)
+  if [[ "$DefaultCharColor" == "null" ]] ; then DefaultCharColor="\e[0m" ; fi
+  DefaultKeyColor=$(jq -r '.DefaultSettings.KeyColor' $Template)
+  if [[ "$DefaultKeyColor" == "null" ]] ; then DefaultKeyColor="\e[0m" ; fi
+  DefaultLength=$(jq -r '.DefaultSettings.Length' $Template)
+  if [[ "$DefaultLenght" == "null" ]] ; then DefaultCharLength="79" ; fi
+  SeparatorSpace=$(jq -r '.DefaultSettings.SeparatorSpace' $Template)
+  if [[ "$SeparatorSpace" == "null" ]] ; then SeparatorSpace="10" ; fi
+  (( $SeparatorSpace < 8 )) && SeparatorSpace=0
+  (( $SeparatorSpace > 25 )) && SeparatorSpace=25
+  DefaultSeparator=$(jq -r '.DefaultSettings.Separator' $Template)
+  if [[ "$DefaultSeparator" == "null" ]] ; then DefaultSeparator="" ; fi
+  DefaultSeparatorColor=$(jq -r '.DefaultSettings.SeparatorColor' $Template)
+  if [[ "$DefaultSeparatorColor" == "null" ]] ; then DefaultSeparatorColor="\e[0m" ; fi
+  DefaultValueColor=$(jq -r '.DefaultSettings.ValueColor' $Template)
+  if [[ "$DefaultValueColor" == "null" ]] ; then DefaultValueColor="\e[0m" ; fi
+  DefaultHighlightColor=$(jq -r '.DefaultSettings.HighlightColor' $Template)
+  if [[ "$DefaultHighlightColor" == "null" ]] ; then DefaultHighlightColor="\e[0m" ; fi
+  WriteLog Debug Info "Temlate default Char \"$DefaultChar\" CharColor \"$DefaultCharColor\" Length \"$DefaultLentgh\" Separator \"$DefaultSeparator\" SeparatorColor \"$DefaultSeparatorColor\""
+  if jq '.' $Template >/dev/null 2>&1 ; then
+    WriteLog Verbose Info "Parsed json file $Template successfully."
+    LineCount=$(jq '.Template | length' $Template)
+    WriteLog Verbose Info "Looping through $LineCount lines"
+    LineCount=$((LineCount-1))
+    for i in $(seq 0 $LineCount) ; do
+      Type=$(jq -r --arg i "$i" '.Template[$i | tonumber].Type' $Template)
+      Char=$(jq -r --arg i "$i" '.Template[$i | tonumber].Char' $Template)
+      if [[ "$Char" == "null" ]] ; then Char=$DefaultChar ; fi
+      CharColor=$(jq -r --arg i "$i" '.Template[$i | tonumber].CharColor' $Template)
+      if [[ "$CharColor" == "null" ]] ; then CharColor=$DefaultCharColor ; fi
+      Length=$(jq -r --arg i "$i" '.Template[$i | tonumber].Length' $Template)
+      if [[ "$Length" == "null" ]] ; then Length=$DefaultLength ; fi
+      WriteLog Verbose Info "Generating line $i, type \"$Type\", character \"$Char\", color \"$CharColor\", length \"$Length\"."
+      Generate${Type}
+    done
+    if [[ "$RenderTime" == "cache" ]] ; then
+      cat /usr/share/firemotd/cache/firemotd-${Theme}.txt
+    fi
+  else
+    WriteLog Output Error "Failed to parse json file $Template. Please verify with json lint validator"
+  fi
+}
+
+GenerateCache () {
+  RenderTime="cache"
+  Theme="Elastic"
+  Template="/usr/share/firemotd/themes/FireMotD-theme-Elastic.json"
+  touch /usr/share/firemotd/cache/firemotd-${Theme}.txt
+  chmod 0666 /usr/share/firemotd/cache/firemotd-${Theme}.txt
+  WriteLog Verbose Info "Generating cache for \"$Template\""
   DefaultChar=$(jq -r '.DefaultSettings.Char' $Template)
   if [[ "$DefaultChar" == "null" ]] ; then DefaultChar="" ; fi
   DefaultCharColor=$(jq -r '.DefaultSettings.CharColor' $Template)
@@ -1563,6 +1611,8 @@ InstallFireMotD () {
   mkdir -p /usr/share/firemotd/templates
   WriteLog Verbose Info "Creating data folder"
   mkdir -p /usr/share/firemotd/data
+  WriteLog Verbose Info "Creating cache folder"
+  mkdir -p -m0777 /usr/share/firemotd/cache  
   WriteLog Verbose Info "Downloading themes"
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blanco.json -o /usr/share/firemotd/themes/FireMotD-theme-Blanco.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blue.json -o /usr/share/firemotd/themes/FireMotD-theme-Blue.json
@@ -1649,6 +1699,8 @@ InitializeArgs () {
         shift ; ExportFile=$1 ; shift ;;
       -TF|--TemplateFile)
         shift ; Action="template" ; Template=$1 ; shift ;;
+      -R|--RenderTime)
+        shift ; RenderTime="$1" ; shift ;;
       -*) echo "You specified a non-existant option: $1" ; exit 2 ;;
       *) break ;;
     esac
