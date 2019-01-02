@@ -26,10 +26,10 @@
   },
   "Uptime": {
     "Generated": "@logon",
-    "Days": "Unknown",
-    "Hours": "Unknown",
-    "Minutes": "Unknown",
-    "Seconds": "Unknown",
+    "Days": "$UptimeDays",
+    "Hours": "$UptimeHours",
+    "Minutes": "$UptimeMinutes",
+    "Seconds": "$UptimeSeconds",
     "LastRun": "Never"
   },
   "InstallDate": {
