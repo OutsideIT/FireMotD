@@ -1,7 +1,7 @@
 {
   "HostName": {
     "Generated": "@logon",
-    "Value": "Unknown",
+    "Value": "$Hostname",
     "LastRun": "Never"
   },
   "HostIp": {

@@ -324,16 +324,16 @@ ExplorePlatform () {
 }
 
 ExploreUptime () {
-    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
-    UptimeDays=$(awk '{print int($1/86400)}' /proc/uptime)
-    UptimeHours=$(awk '{print int($1%86400/3600)}' /proc/uptime)
-    UptimeMinutes=$(awk '{print int(($1%3600)/60)}' /proc/uptime)
-    UptimeSeconds=$(awk '{print int($1%60)}' /proc/uptime)
-    jq ".Uptime.Days = \"$UptimeDays\"" $ExportFile | sponge $ExportFile
-    jq ".Uptime.Hours = \"$UptimeHours\"" $ExportFile | sponge $ExportFile
-    jq ".Uptime.Minutes = \"$UptimeMinutes\"" $ExportFile | sponge $ExportFile
-    jq ".Uptime.Seconds = \"$UptimeSeconds\"" $ExportFile | sponge $ExportFile
-    jq ".Uptime.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+  ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+  UptimeDays=$(awk '{print int($1/86400)}' /proc/uptime)
+  UptimeHours=$(awk '{print int($1%86400/3600)}' /proc/uptime)
+  UptimeMinutes=$(awk '{print int(($1%3600)/60)}' /proc/uptime)
+  UptimeSeconds=$(awk '{print int($1%60)}' /proc/uptime)
+  jq ".Uptime.Days = \"$UptimeDays\"" $ExportFile | sponge $ExportFile
+  jq ".Uptime.Hours = \"$UptimeHours\"" $ExportFile | sponge $ExportFile
+  jq ".Uptime.Minutes = \"$UptimeMinutes\"" $ExportFile | sponge $ExportFile
+  jq ".Uptime.Seconds = \"$UptimeSeconds\"" $ExportFile | sponge $ExportFile
+  jq ".Uptime.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
 }
 
 ExploreInstallDate () {
@@ -1424,7 +1424,7 @@ GenerateLine () {
   if [[ "$RenderTime" == "live" ]] ; then
     echo -en "\n"
   elif [[ "$RenderTime" == "cache" ]] ; then
-    echo -en "\n" >> /usr/share/firemotd/cache/firemotd-${Theme}.txt
+    echo -en "\n" >> /usr/share/firemotd/cache/firemotd-${Theme}.motd
   fi
 }
 
@@ -1448,7 +1448,7 @@ GenerateHeader () {
   if [[ "$RenderTime" == "live" ]] ; then
     echo -en "\n"
   elif [[ "$RenderTime" == "cache" ]] ; then
-    echo -en "\n" >> /usr/share/firemotd/cache/firemotd-${Theme}.txt
+    echo -en "\n" >> /usr/share/firemotd/cache/firemotd-${Theme}.motd
   fi
 }
 
@@ -1471,7 +1471,7 @@ GenerateInfo () {
     if [[ "$RenderTime" == "live" ]] ; then
       echo -ne "$RenderResult"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      echo -ne "$RenderResult" >> /usr/share/firemotd/cache/firemotd-${Theme}.txt
+      echo -ne "$RenderResult" >> /usr/share/firemotd/cache/firemotd-${Theme}.motd
     fi
   fi
 }
@@ -1484,7 +1484,7 @@ PrintChar () {
     if [[ "$RenderTime" == "live" ]] ; then
       echo -en "$col$str\e[0m"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      echo -en "$col$str\e[0m" >> /usr/share/firemotd/cache/firemotd-${Theme}.txt
+      echo -en "$col$str\e[0m" >> /usr/share/firemotd/cache/firemotd-${Theme}.motd
     fi
   done
 }
@@ -1529,19 +1529,39 @@ PrintTemplate () {
       Generate${Type}
     done
     if [[ "$RenderTime" == "cache" ]] ; then
-      cat /usr/share/firemotd/cache/firemotd-${Theme}.txt
+      cat /usr/share/firemotd/cache/firemotd-${Theme}.motd
     fi
   else
     WriteLog Output Error "Failed to parse json file $Template. Please verify with json lint validator"
   fi
 }
 
+PrintCachedTemplate1 () {
+  WriteLog Verbose Info "Printing cached template \"$Theme\""
+  sed -i -e 's/'"\${UptimeDays}"'/'"$(jq -r ".Uptime.Days" $ExportFile)"'/g' -e 's/'"\${UptimeHours}"'/'"$(jq -r ".Uptime.Hours" $ExportFile)"'/g' -e 's/'"\${UptimeMinutes}"'/'"$(jq -r ".Uptime.Minutes" $ExportFile)"'/g' -e 's/'"\${UptimeSeconds}"'/'"$(jq -r ".Uptime.Seconds" $ExportFile)"'/g'  -e 's/'"\${CpuUsageAverage}"'/'"$(jq -r ".CpuUsage.Average" $ExportFile)"'/g' /usr/share/firemotd/cache/firemotd-${Theme}.motd
+#  cat /usr/share/firemotd/cache/firemotd-${Theme}.motd
+  eval "echo \"$(cat /usr/share/firemotd/cache/firemotd-${Theme}.motd)\""
+}
+
+PrintCachedTemplate2 () {
+  WriteLog Verbose Info "Printing cached template \"$Theme\""
+  CpuUsageAverage=$(jq -r ".CpuUsage.Average" $ExportFile) 
+  CpuUsageCpuCount=$(jq -r ".CpuUsage.CpuCount" $ExportFile)
+  CpuUsageCoreCount=$(jq -r ".CpuUsage.CoreCount" $ExportFile)
+  CpuUsageSocketCount=$(jq -r ".CpuUsage.SocketCount" $ExportFile)
+#  sed -i -e 's/'"\${UptimeDays}"'/'"$(jq -r ".Uptime.Days" $ExportFile)"'/g' -e 's/'"\${UptimeHours}"'/'"$(jq -r ".Uptime.Hours" $ExportFile)"'/g' -e 's/'"\${UptimeMinutes}"'/'"$(jq -r ".Uptime.Minutes" $ExportFile)"'/g' -e 's/'"\${UptimeSeconds}"'/'"$(jq -r ".Uptime.Seconds" $ExportFile)"'/g'  -e 's/'"\${CpuUsageAverage}"'/'"$(jq -r ".CpuUsage.Average" $ExportFile)"'/g' /usr/share/firemotd/cache/firemotd-${Theme}.motd
+#  cat /usr/share/firemotd/cache/firemotd-${Theme}.motd
+  eval "echo \"$(cat /usr/share/firemotd/cache/firemotd-${Theme}.motd)\""
+}
+
 GenerateCache () {
   RenderTime="cache"
   Theme="Elastic"
   Template="/usr/share/firemotd/themes/FireMotD-theme-Elastic.json"
-  touch /usr/share/firemotd/cache/firemotd-${Theme}.txt
-  chmod 0666 /usr/share/firemotd/cache/firemotd-${Theme}.txt
+  Cache="/usr/share/firemotd/cache/firemotd-${Theme}.motd"
+  rm $Cache -f
+  touch $Cache
+  chmod 0666 $Cache
   WriteLog Verbose Info "Generating cache for \"$Template\""
   DefaultChar=$(jq -r '.DefaultSettings.Char' $Template)
   if [[ "$DefaultChar" == "null" ]] ; then DefaultChar="" ; fi
@@ -1592,7 +1612,8 @@ CheckTheme () {
   if [ -f /usr/share/firemotd/themes/FireMotD-theme-$Theme.json ] ; then
     WriteLog Debug Info "Theme $Theme found in FireMotD themes folder"
     Template="/usr/share/firemotd/themes/FireMotD-theme-$Theme.json"
-    PrintTemplate
+#    PrintTemplate
+    PrintCachedTemplate2
   else
     case "$Theme" in
       original|Original) StartOriginalBlue ; GenerateOriginal256Color ;;
