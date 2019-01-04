@@ -608,7 +608,7 @@ ExportData () {
      WriteLog Output Error "Template folder doesn't exist. Upgrading from an older version? Please run make again or run the install function \"FireMotD -I -v\"."
      exit 2
   elif [[ -s "$ExportFile" ]] ; then
-    WriteLog Verbose Info "Exportfile $ExportFile found, template type $TemplateType"
+    WriteLog Debug Info "Exportfile $ExportFile found."
     if [[ "$TemplateType" != "default" ]] ; then
       if [[ -s "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" ]] ; then
         WriteLog Verbose Info "Template type set to ${TemplateType}. Overwriting.."
@@ -623,12 +623,10 @@ ExportData () {
         TemplateType="basic"
         cp "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" $ExportFile
         chmod 766 $ExportFile
-      else
-        WriteLog Verbose Info "No data template selected. Leaving as-is.."
       fi
     fi
   else
-    WriteLog Verbose Info "Exportfile $ExportFile not found. Copying template $TemplateType"
+    WriteLog Debug Info "Exportfile $ExportFile not found. "
     if [[ "$TemplateType" != "default" ]] ; then
       if [[ -s "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" ]] ; then
         WriteLog Verbose Info "Template type set to ${TemplateType}. Overwriting.."
@@ -638,24 +636,21 @@ ExportData () {
         WriteLog Output Error "Template ${TemplateType} does not exist. Try running the install function \"FireMotD -I -
 v\"."
         exit 2
-            fi
+      fi
     else
       if [[ ! -f "/usr/share/firemotd/data/FireMotD.json" ]] ; then
         TemplateType="basic"
         cp "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" $ExportFile
         chmod 766 $ExportFile
-      else
-        WriteLog Verbose Info "No data template selected. Leaving as-is.."
       fi
     fi
   fi
   ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
-  WriteLog Verbose Info "Looping through \"$ExportFile\" based on $TemplateType template."
   while read -r val ; do
     WriteLog Debug Info "Exploring ${val}"
     $(Explore${val})
   done < <(jq -r 'to_entries[] | select(.value.Generated == "@cron") | .key' $ExportFile)
-  WriteLog Verbose Info "Exporting system data to \"${ExportFile}\" finished."
+  WriteLog Verbose Info "Export system data to \"${ExportFile}\" finished."
 }
 
 LoadData () {
@@ -666,7 +661,7 @@ LoadData () {
            $(Explore${val})
         done < <(jq -r 'to_entries[] | select(.value.Generated == "@logon") | .key' $ExportFile)
     else
-        WriteLog Output Info "No FireMotD ExportFile detected. Please generate with \"sudo .\\FireMotD -S\""
+        WriteLog Output Info "No FireMotD ExportFile detected. Please generate with \"sudo .\/FireMotD -S\""
         exit 2
     fi
     WriteLog Verbose Info "Logon Data refresh for end"
@@ -1173,38 +1168,51 @@ CheckDependencies () {
 }
 
 RenderHostIp () {
-  PrintChar "$Char" 2 $CharColor
-  InfoKey="Ip"
-  PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-  PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
-  HostIp="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}$(jq -r ".HostIp.Value" $ExportFile)"
-  if [[ "$RenderTime" == "live" ]] ; then
+  HostIp=$(jq -r ".HostIp.Value" $ExportFile)
+  if [[ ! -z "$HostIp" ]] && [[ "$HostIp" != "null" ]] && [[ "$HostIp" != "Unknown" ]] ; then
+    PrintChar "$Char" 2 $CharColor
+    InfoKey="Ip"
+    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    if [[ "$RenderTime" == "live" ]] ; then
+      HostIp="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${HostIp}"
+    elif [[ "$RenderTime" == "cache" ]] ; then
+      HostIp="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r ".HostIp.Value" $ExportFile)"
+    fi
     echo "${HostIp}\n"
-  elif [[ "$RenderTime" == "cache" ]] ; then
-    echo "\${HostIp}\n"
   fi
 }
 
 RenderRelease () {
-  PrintChar "$Char" 2 $CharColor
-  InfoKey="Release"
-  PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-  PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
-  Release="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}$(jq -r ".Release.Value" $ExportFile)"
-  if [[ "$RenderTime" == "live" ]] ; then
+  Release=$(jq -r ".Release.Value" $ExportFile)
+  if [[ ! -z "$Release" ]] && [[ "$Release" != "null" ]] && [[ "$Release" != "Unknown" ]] ; then
+    PrintChar "$Char" 2 $CharColor
+    InfoKey="Release"
+    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    if [[ "$RenderTime" == "live" ]] ; then
+      Release="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}${Release}"
+    elif [[ "$RenderTime" == "cache" ]] ; then
+      Release="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}\$(jq -r ".Release.Value" $ExportFile)"
+    fi
     echo "${Release}\n"
-  elif [[ "$RenderTime" == "cache" ]] ; then
-    echo "\${Release}\n"
   fi
 }
 
 RenderKernel () {
-  PrintChar "$Char" 2 $CharColor
-  InfoKey="Kernel"
-  PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-  PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
-  Kernel="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}$(jq -r ".Kernel.Value" $ExportFile)"
-  echo "${Kernel}\n"
+  Kernel=$(jq -r ".Kernel.Value" $ExportFile)
+  if [[ ! -z "$Kernel" ]] && [[ "$Kernel" != "null" ]] && [[ "$Kernel" != "Unknown" ]] ; then
+    PrintChar "$Char" 2 $CharColor
+    InfoKey="Kernel"
+    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
+    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    if [[ "$RenderTime" == "live" ]] ; then
+      Kernel="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}${Kernel}"
+    elif [[ "$RenderTime" == "cache" ]] ; then
+      Kernel="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}\$(jq -r ".Kernel.Value" $ExportFile)"
+    fi
+    echo "${Kernel}\n"
+  fi
 }
 
 RenderPlatform () {
@@ -1212,35 +1220,43 @@ RenderPlatform () {
   InfoKey="Platform"
   PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
   PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
-  Platform="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}$(jq -r ".Platform.Value" $ExportFile)"
+  if [[ "$RenderTime" == "live" ]] ; then
+    Platform="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}$(jq -r ".Platform.Value" $ExportFile)"
+  elif [[ "$RenderTime" == "cache" ]] ; then
+    Platform="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}\$(jq -r ".Platform.Value" $ExportFile)"
+  fi
   echo "${Platform}\n"
 }
 
 RenderUptime () {
-  UptimeDays=$(jq -r ".Uptime.Days" $ExportFile)
-  UptimeHours=$(jq -r ".Uptime.Hours" $ExportFile)
-  UptimeMinutes=$(jq -r ".Uptime.Minutes" $ExportFile)
-  UptimeSeconds=$(jq -r ".Uptime.Seconds" $ExportFile)
   if [[ ! -z $UptimeDays ]] && [[ "$UptimeDays" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
     InfoKey="Uptime"
     PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
     PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
-    echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${UptimeDays} ${ValueColor}day(s). ${HighlightColor}${UptimeHours}${ValueColor}:${HighlightColor}${UptimeMinutes}${ValueColor}:${HighlightColor}${UptimeSeconds}\n"
+    if [[ "$RenderTime" == "live" ]] ; then
+     Uptime="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}$(jq -r ".Uptime.Days" $ExportFile) ${ValueColor}day(s). ${HighlightColor}$(jq -r ".Uptime.Hours" $ExportFile)${ValueColor}:${HighlightColor}$(jq -r ".Uptime.Minutes" $ExportFile)${ValueColor}:${HighlightColor}$(jq -r ".Uptime.Seconds" $ExportFile)"
+       Uptime="TEST1"
+    elif [[ "$RenderTime" == "cache" ]] ; then
+      Uptime="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r ".Uptime.Days" $ExportFile) ${ValueColor}day(s). ${HighlightColor}\$(jq -r ".Uptime.Hours" $ExportFile)${ValueColor}:${HighlightColor}\$(jq -r ".Uptime.Minutes" $ExportFile)${ValueColor}:${HighlightColor}\$(jq -r ".Uptime.Seconds" $ExportFile)"
+      Uptime="TEST2"
+    fi
+    echo "${Uptime}\n"
   fi
 }
 
 RenderCpuUsage () {
-  CpuUsageAverage=$(jq -r ".CpuUsage.Average" $ExportFile)
-  CpuUsageCpuCount=$(jq -r ".CpuUsage.CpuCount" $ExportFile)
-  CpuUsageCoreCount=$(jq -r ".CpuUsage.CoreCount" $ExportFile)
-  CpuUsageSocketCount=$(jq -r ".CpuUsage.SocketCount" $ExportFile)
   if [[ ! -z $CpuUsageAverage ]] && [[ "$CpuUsageAverage" != "null" ]] ; then
     PrintChar "$Char" 2 $CharColor
     InfoKey="CPU Usage"
     PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
     PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
-    echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${CpuUsageAverage}%${ValueColor} avg over ${HighlightColor}$CpuUsageCpuCount ${ValueColor}cpu(s) (${HighlightColor}$CpuUsageCoreCount ${ValueColor}core(s) x ${HighlightColor}$CpuUsageSocketCount ${ValueColor}socket(s))\n"
+    if [[ "$RenderTime" == "live" ]] ; then
+    CpuUsage="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}$(jq -r ".CpuUsage.Average" $ExportFile)%${ValueColor} avg over ${HighlightColor}$(jq -r ".CpuUsage.CpuCount" $ExportFile) ${ValueColor}cpu(s) (${HighlightColor}$(jq -r ".CpuUsage.CoreCount" $ExportFile) ${ValueColor}core(s) x ${HighlightColor}$(jq -r ".CpuUsage.SocketCount" $ExportFile) ${ValueColor}socket(s))"
+    elif [[ "$RenderTime" == "cache" ]] ; then
+    CpuUsage="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r ".CpuUsage.Average" $ExportFile)%${ValueColor} avg over ${HighlightColor}\$(jq -r ".CpuUsage.CpuCount" $ExportFile) ${ValueColor}cpu(s) (${HighlightColor}\$(jq -r ".CpuUsage.CoreCount" $ExportFile) ${ValueColor}core(s) x ${HighlightColor}\$(jq -r ".CpuUsage.SocketCount" $ExportFile) ${ValueColor}socket(s))"
+    fi
+    echo "${CpuUsage}\n"
   fi
 }
 
@@ -1251,7 +1267,12 @@ RenderCpuLoad () {
     InfoKey="CPU Load"
     PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
     PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
-    echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${CpuLoad}\n"
+    if [[ "$RenderTime" == "live" ]] ; then
+      CpuLoad="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}$(jq -r ".CpuLoad.Value" $ExportFile)"
+    elif [[ "$RenderTime" == "cache" ]] ; then
+      CpuLoad="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r ".CpuLoad.Value" $ExportFile)"
+    fi
+    echo "${CpuLoad}\n"
   fi
 }
 
@@ -1486,7 +1507,9 @@ GenerateInfo () {
     if [[ "$RenderTime" == "live" ]] ; then
       echo -ne "$RenderResult\e[0m"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      echo -ne "$RenderResult\e[0m"
+      if [ "$Debug" = 1 ] ; then 
+        echo -ne "$RenderResult\e[0m"
+      fi
       echo -ne "$RenderResult\e[0m" >> /usr/share/firemotd/cache/firemotd-${Theme}.motd
     fi
   fi
@@ -1547,64 +1570,6 @@ PrintTemplate () {
   else
     WriteLog Output Error "Failed to parse json file $Template. Please verify with json lint validator"
   fi
-}
-
-PrintCachedTemplate1 () {
-  WriteLog Verbose Info "Printing cached template \"$Theme\""
-  sed -i -e 's/'"\${UptimeDays}"'/'"$(jq -r ".Uptime.Days" $ExportFile)"'/g' -e 's/'"\${UptimeHours}"'/'"$(jq -r ".Uptime.Hours" $ExportFile)"'/g' -e 's/'"\${UptimeMinutes}"'/'"$(jq -r ".Uptime.Minutes" $ExportFile)"'/g' -e 's/'"\${UptimeSeconds}"'/'"$(jq -r ".Uptime.Seconds" $ExportFile)"'/g'  -e 's/'"\${CpuUsageAverage}"'/'"$(jq -r ".CpuUsage.Average" $ExportFile)"'/g' /usr/share/firemotd/cache/firemotd-${Theme}.motd
-#  cat /usr/share/firemotd/cache/firemotd-${Theme}.motd
-  eval "echo \"$(cat /usr/share/firemotd/cache/firemotd-${Theme}.motd)\""
-}
-
-PrintCachedTemplate2 () {
-  WriteLog Verbose Info "Printing cached template for theme \"$Theme\". Loading generated info..."
-  HostIp=$(jq -r ".HostIp.Value" $ExportFile)
-  Release=$(jq -r ".Release.Value" $ExportFile)
-  Kernel=$(jq -r ".Kernel.Value" $ExportFile)
-  Platform=$(jq -r ".Platform.Value" $ExportFile)
-  UptimeDays=$(jq -r ".Uptime.Days" $ExportFile)
-  UptimeHours=$(jq -r ".Uptime.Hours" $ExportFile)
-  UptimeMinutes=$(jq -r ".Uptime.Minutes" $ExportFile)
-  UptimeSeconds=$(jq -r ".Uptime.Seconds" $ExportFile)
-  InstallDate=$(jq -r ".InstallDate.Value" $ExportFile)
-  CpuUsageAverage=$(jq -r ".CpuUsage.Average" $ExportFile)
-  CpuUsageCpuCount=$(jq -r ".CpuUsage.CpuCount" $ExportFile)
-  CpuUsageCoreCount=$(jq -r ".CpuUsage.CoreCount" $ExportFile)
-  CpuUsageSocketCount=$(jq -r ".CpuUsage.SocketCount" $ExportFile)
-  CpuLoad=$(jq -r ".CpuLoad.Value" $ExportFile)
-  MemTotalGB=$(jq -r ".Memory.TotalGB" $ExportFile)
-  MemFreeGB=$(jq -r ".Memory.FreeGB" $ExportFile)
-  MemUsedGB=$(jq -r ".Memory.UsedGB" $ExportFile)
-  MemFreePerc=$(jq -r ".Memory.FreePerc" $ExportFile)
-  MemUsedPerc=$(jq -r ".Memory.UsedPerc" $ExportFile)
-  SwapTotalGB=$(jq -r ".Swap.TotalGB" $ExportFile)
-  SwapFreeGB=$(jq -r ".Swap.FreeGB" $ExportFile)
-  SwapUsedGB=$(jq -r ".Swap.UsedGB" $ExportFile)
-  SwapFreePerc=$(jq -r ".Swap.FreePerc" $ExportFile)
-  SwapUsedPerc=$(jq -r ".Swap.UsedPerc" $ExportFile)
-  DiskRootTotalGB=$(jq -r ".DiskRoot.TotalGB" $ExportFile)
-  DiskRootFreeGB=$(jq -r ".DiskRoot.FreeGB" $ExportFile)
-  DiskRootUsedGB=$(jq -r ".DiskRoot.UsedGB" $ExportFile)
-  DiskRootFreePerc=$(jq -r ".DiskRoot.FreePerc" $ExportFile)
-  DiskRootUsedPerc=$(jq -r ".DiskRoot.UsedPerc" $ExportFile)
-  UpdateType=$(jq -r ".Updates.Type" $ExportFile)
-  UpdateCount=$(jq -r ".Updates.Count" $ExportFile)
-  SessionCount=$(jq -r ".Sessions.Count" $ExportFile)
-  ProcessCount=$(jq -r ".Processes.Count" $ExportFile)
-  ProcessMax=$(jq -r ".Processes.Max" $ExportFile)
-  HttpdVersion=$(jq -r ".Httpd.Version" $ExportFile)
-  NginxVersion=$(jq -r ".Nginx.Version" $ExportFile)
-  MysqlVersion=$(jq -r ".Mysql.Version" $ExportFile)
-  MysqlDistribution=$(jq -r ".Mysql.Distribution" $ExportFile)
-  PostgresVersion=$(jq -r ".Postgres.Version" $ExportFile)
-  PhpVersion=$(jq -r ".Php.Version" $ExportFile)
-  PhpMaxMemory=$(jq -r ".Php.MaxMemory" $ExportFile)
-  ElasticsearchVersion=$(jq -r ".Elasticsearch.Version" $ExportFile)
-  LogstashVersion=$(jq -r ".Logstash.Version" $ExportFile)
-  KibanaVersion=$(jq -r ".Kibana.Version" $ExportFile)
-  WriteLog Verbose Info "Evaluating cached template \"firemotd-${Theme}.motd\"."
-  eval "echo \"$(cat /usr/share/firemotd/cache/firemotd-${Theme}.motd)\""
-  WriteLog Verbose Info "Theme ${Theme} loaded successfully from cache"
 }
 
 GenerateCache () {
@@ -1671,11 +1636,14 @@ CheckTheme () {
     Template="/usr/share/firemotd/themes/FireMotD-theme-${Theme}.json"
     if [ -f /usr/share/firemotd/cache/firemotd-${Theme}.motd ] ; then
       WriteLog Debug Info "Cache for theme ${Theme} found in FireMotD cache folder"
-      PrintCachedTemplate2
+      WriteLog Verbose Info "Evaluating cached template \"firemotd-${Theme}.motd\"."
+      eval "echo \"$(cat /usr/share/firemotd/cache/firemotd-${Theme}.motd)\""
     else
-      WriteLog Debug Info "Cache for theme ${Theme} not found in FireMotD cache folder"
-      ExportData
-      PrintCachedTemplate2
+      WriteLog Output Warning "Cache for theme ${Theme} not found in FireMotD cache folder. Generating..."
+#      ExportData
+      GenerateCache $Theme
+      WriteLog Verbose Info "Evaluating cached template \"firemotd-${Theme}.motd\"."
+      eval "echo \"$(cat /usr/share/firemotd/cache/firemotd-${Theme}.motd)\""
     fi 
   else
     case "$Theme" in
