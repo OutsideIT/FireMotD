@@ -1,139 +1,139 @@
 {
   "HostName": {
     "Generated": "@logon",
-    "Value": "Unknown",
+    "Value": "${Hostname}",
     "LastRun": "Never"
   },
   "HostIp": {
     "Generated": "@cron",
-    "Value": "Unknown",
+    "Value": "${HostIp}",
     "LastRun": "Never"
   },
   "Release": {
     "Generated": "@cron",
-    "Value": "Unknown",
+    "Value": "${Release}",
     "LastRun": "Never"
   },
   "Kernel": {
     "Generated": "@cron",
-    "Value": "Unknown",
+    "Value": "${Kernel}",
     "LastRun": "Never"
   },
   "Platform": {
     "Generated": "@cron",
-    "Value": "Unknown",
+    "Value": "${Platform}",
     "LastRun": "Never"
   },
   "Uptime": {
     "Generated": "@logon",
-    "Days": "Unknown",
-    "Hours": "Unknown",
-    "Minutes": "Unknown",
-    "Seconds": "Unknown",
+    "Days": "${UptimeDays}",
+    "Hours": "${UptimeHours}",
+    "Minutes": "${UptimeMinutes}",
+    "Seconds": "${UptimeSeconds}",
     "LastRun": "Never"
   },
   "InstallDate": {
     "Generated": "@cron",
-    "Value": "Unknown",
+    "Value": "${InstallDate}",
     "LastRun": "Never"
   },
   "CpuUsage": {
     "Generated": "@logon",
-    "Average": "Unknown",
-    "CpuCount": "Unknown",
-    "CoreCount": "Unknown",
-    "SocketCount": "Unknown",
+    "Average": "${CpuUsageAverage}",
+    "CpuCount": "${CpuUsageCpuCount}",
+    "CoreCount": "${CpuUsageCoreCount}",
+    "SocketCount": "${CpuUsageSocketCount}",
     "LastRun": "Never"
   },
   "CpuLoad": {
     "Generated": "@logon",
-    "Value": "Unknown",
+    "Value": "${CpuLoad}",
     "LastRun": "Never"
   },
   "Memory": {
     "Generated": "@logon",
-    "TotalGB": "Unknown",
-    "FreeGB": "Unknown",
-    "UsedGB": "Unknown",
-    "FreePerc": "Unknown",
-    "UsedPerc": "Unknown",
+    "TotalGB": "${MemTotalGB}",
+    "FreeGB": "${MemFreeGB}",
+    "UsedGB": "${MemUsedGB}",
+    "FreePerc": "${MemFreePerc}",
+    "UsedPerc": "${MemUsedPerc}",
     "LastRun": "Never"
   },
   "Swap": {
     "Generated": "@logon",
-    "TotalGB": "Unknown",
-    "FreeGB": "Unknown",
-    "UsedGB": "Unknown",
-    "FreePerc": "Unknown",
-    "UsedPerc": "Unknown",
+    "TotalGB": "${SwapTotalGB}",
+    "FreeGB": "${SwapFreeGB}",
+    "UsedGB": "${SwapUsedGB}",
+    "FreePerc": "${SwapFreePerc}",
+    "UsedPerc": "${SwapUsedPerc}",
     "LastRun": "Never"
   },
   "DiskRoot": {
     "Generated": "@logon",
-    "TotalGB": "Unknown",
-    "FreeGB": "Unknown",
-    "UsedGB": "Unknown",
-    "FreePerc": "Unknown",
-    "UsedPerc": "Unknown",
+    "TotalGB": "${DiskRootTotalGB}",
+    "FreeGB": "${DiskRootFreeGB}",
+    "UsedGB": "${DiskRootUsedGB}",
+    "FreePerc": "${DiskRootFreePerc}",
+    "UsedPerc": "${DiskRootUsedPerc}",
     "LastRun": "Never"
   },
   "Updates": {
     "Generated": "@cron",
-    "Type": "Unknown",
-    "Count": "Unknown",
+    "Type": "${UpdateType}",
+    "Count": "${UpdateCount}",
     "LastRun": "Never"
   },
   "Sessions": {
     "Generated": "@logon",
-    "Count": "Unknown",
+    "Count": "${SessionCount}",
     "LastRun": "Never"
   },
   "Processes": {
     "Generated": "@logon",
-    "Count": "Unknown",
-    "Max": "Unknown",
+    "Count": "${ProcessCount}",
+    "Max": "${ProcessMax}",
     "LastRun": "Never"
   },
   "Httpd": {
     "Generated": "@cron",
-    "Version": "Unknown",
+    "Version": "${HtppdVersion}",
     "LastRun": "Never"
   },
   "Nginx": {
     "Generated": "@cron",
-    "Version": "Unknown",
+    "Version": "${NginxVersion}",
     "LastRun": "Never"
   },
   "Mysql": {
     "Generated": "@cron",
-    "Version": "Unknown",
-    "Distribution": "Unknown",
+    "Version": "${MysqlVersion}",
+    "Distribution": "${MysqlDistribution}",
     "LastRun": "Never"
   },
   "Postgres": {
     "Generated": "@cron",
-    "Version": "Unknown",
+    "Version": "${PostgresVersion}",
     "LastRun": "Never"
   },
   "Php": {
     "Generated": "@cron",
-    "Version": "Unknown",
-    "MaxMemory": "Unknown",
+    "Version": "${PhpVersion}",
+    "MaxMemory": "${PhpMaxMemory}",
     "LastRun": "Never"
   },
   "Elasticsearch": {
     "Generated": "@cron",
-    "Version": "Unknown",
+    "Version": "${ElasticsearchVersion}",
     "LastRun": "Never"
   },
   "Logstash": {
     "Generated": "@cron",
-    "Version": "Unknown",
+    "Version": "${LogstashVersion}",
     "LastRun": "Never"
   },
   "Kibana": {
     "Generated": "@cron",
-    "Version": "Unknown",
+    "Version": "${KibanaVersion}",
     "LastRun": "Never"
   }
 }

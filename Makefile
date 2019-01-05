@@ -1,5 +1,5 @@
 # Config name:  Makefile
-# Version:      v2.01.180721
+# Version:      v2.02.190105
 # Created on:   24/06/2016
 # Author:       Willem D'Haese
 # Contributors: Thomas Dietrich, Dmitry Romanenko
@@ -39,6 +39,7 @@ install:
 	mkdir -p $(DDIR)/data
 	mkdir -p $(DDIR)/templates
 	mkdir -p $(DDIR)/themes
+        mkdir -p $(DDIR)/cache
 	cp templates/* $(DDIR)/templates
 	cp themes/* $(DDIR)/themes
 
