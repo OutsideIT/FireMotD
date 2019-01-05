@@ -97,6 +97,11 @@
     {
       "Type" : "Info",
       "Char": "o0",
+      "Value": "Php"
+    },
+    {
+      "Type" : "Info",
+      "Char": "o0",
       "Value": "Elasticsearch"
     },
     {

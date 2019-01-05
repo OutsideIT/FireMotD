@@ -69,6 +69,22 @@
       "Value": "Processes"
     },
     {
+      "Type" : "Info",
+      "Value": "Php"
+    },
+    {
+      "Type" : "Info",
+      "Value": "Elasticsearch"
+    },
+    {
+      "Type" : "Info",
+      "Value": "Logstash"
+    },
+    {
+      "Type" : "Info",
+      "Value": "Kibana"
+    },
+    {
       "Type" : "Line"
     }
   ]

@@ -37,9 +37,9 @@
     {
       "Type" : "Info",
       "Char": "<<",
-      "CharColor": "\\e[1;30m",
       "KeyColor": "\\e[1;30m",
-      "Value": "Release"
+      "Value": "Release",
+      "ValueColor": "\\e[1;30m"
     },
     {
       "Type" : "Info",
@@ -52,7 +52,8 @@
       "Type" : "Info",
       "Char": "<<",
       "KeyColor": "\\e[1;30m",
-      "Value": "Platform"
+      "Value": "Platform",
+      "ValueColor": "\\e[1;30m"
     },
     {
       "Type" : "Info",
@@ -65,7 +66,8 @@
       "Type" : "Info",
       "Char": "<<",
       "KeyColor": "\\e[1;30m",
-      "Value": "CpuUsage"
+      "Value": "CpuUsage",
+      "ValueColor": "\\e[1;30m"
     },
     {
       "Type" : "Info",
@@ -78,7 +80,8 @@
       "Type" : "Info",
       "Char": "<<",
       "KeyColor": "\\e[1;30m",
-      "Value": "Memory"
+      "Value": "Memory",
+      "ValueColor": "\\e[1;30m"
     },
     {
       "Type" : "Info",
@@ -91,7 +94,8 @@
       "Type" : "Info",
       "Char": "<<",
       "KeyColor": "\\e[1;30m",
-      "Value": "Root"
+      "Value": "Root",
+      "ValueColor": "\\e[1;30m"
     },
     {
       "Type" : "Info",
@@ -104,7 +108,8 @@
       "Type" : "Info",
       "Char": "<<",
       "KeyColor": "\\e[1;30m",
-      "Value": "Sessions"
+      "Value": "Sessions",
+      "ValueColor": "\\e[1;30m"
     },
     {
       "Type" : "Info",
@@ -112,6 +117,13 @@
       "CharColor": "\\e[0;37m",
       "Value": "Processes",   
       "SeparatorColor": "\\e[0;37m"
+    },
+    {
+      "Type" : "Info",
+      "Char": "<<",
+      "KeyColor": "\\e[1;30m",
+      "Value": "Php",
+      "ValueColor": "\\e[1;30m"
     },
     {
       "Type" : "Line",

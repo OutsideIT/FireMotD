@@ -92,6 +92,11 @@
       "Value": "Processes"
     },
     {
+      "Type" : "Info",
+      "Char": "#",
+      "Value": "Php"
+    },
+    {
       "Type" : "Line",
       "Char": "#",
       "CharColor": "\\e[38;5;208m"
