@@ -1710,8 +1710,13 @@ CheckTheme () {
 
 GenerateCaches () {
   WriteLog Verbose Info "Generating theme caches"
+  GenerateCache Blue
+  GenerateCache Digipolis
   GenerateCache Elastic
-  GenerateCache Eline  
+  GenerateCache Eline
+  GenerateCache Gray 
+  GenerateCache Orange
+  GenerateCache Red
 }
 
 InstallFireMotD () {
@@ -1733,6 +1738,7 @@ InstallFireMotD () {
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Gray.json -o /usr/share/firemotd/themes/FireMotD-theme-Gray.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Modern.json -o /usr/share/firemotd/themes/FireMotD-theme-Modern.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Red.json -o /usr/share/firemotd/themes/FireMotD-theme-Red.json
+curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Orange.json -o /usr/share/firemotd/themes/FireMotD-theme-Orange.json
   WriteLog Verbose Info "Downloading templates"
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-all.json -o /usr/share/firemotd/templates/FireMotD-template-all.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-basic.json -o /usr/share/firemotd/templates/FireMotD-template-basic.json
