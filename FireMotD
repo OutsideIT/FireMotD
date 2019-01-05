@@ -465,14 +465,14 @@ ExploreUpdates () {
     jq ".Updates.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
 }
 
-ExploreProcesses () {
+ExploreSessions () {
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
-    SessionCount="$(who | grep -c "$USER") sessions"
+    SessionCount="$(who | grep -c "$USER")"
     jq ".Sessions.Count = \"$SessionCount\"" $ExportFile | sponge $ExportFile
     jq ".Sessions.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
 }
 
-ExploreSessions () {
+ExploreProcesses () {
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     ProcessCount="$(ps -A --no-headers | wc -l)"
     SysctlPath="$(which sysctl 2>/dev/null)"
@@ -1351,9 +1351,9 @@ RenderSessions () {
     PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
     PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
     if [[ "$RenderTime" == "live" ]] ; then
-      SessionsRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${SessionCount}"
+      SessionsRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${SessionCount} session(s)"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      SessionsRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r ".Sessions.Count" $ExportFile)"
+      SessionsRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r ".Sessions.Count" $ExportFile) session(s)"
     fi
     echo "${SessionsRender}\n"
   fi
@@ -1449,9 +1449,9 @@ RenderPhp () {
     PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
     PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
     if [[ "$RenderTime" == "live" ]] ; then
-      PhpRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${PhpVersion}, Memory Limit: $(jq -r ".Php.MaxMemory" $ExportFile)"
+      PhpRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${HighlightColor}${PhpVersion}${ValueColor}, Memory Limit: ${HighlightColor}$(jq -r ".Php.MaxMemory" $ExportFile)"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      PhpRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: \$(jq -r ".Php.Version" $ExportFile), Memory Limit: \$(jq -r ".Php.MaxMemory" $ExportFile)"
+      PhpRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${HighlightColor}\$(jq -r ".Php.Version" $ExportFile)${ValueColor}, Memory Limit: ${HighlightColor}\$(jq -r ".Php.MaxMemory" $ExportFile)"
     fi
     echo "${PhpRender}\n"
   fi
@@ -1709,9 +1709,25 @@ CheckTheme () {
 }
 
 GenerateCaches () {
-  WriteLog Verbose Info "Generating theme caches"
-  GenerateCache Elastic
-  GenerateCache Eline  
+  WriteLog Debug Info "Theme ${Theme} found in FireMotD themes folder"
+  if [[ "$Theme" == "all" ]] ; then
+    WriteLog Verbose Info "Generating $Theme theme caches"
+    GenerateCache Blue
+    GenerateCache Digipolis
+    GenerateCache Elastic
+    GenerateCache Eline
+    GenerateCache Gray 
+    GenerateCache Orange
+    GenerateCache Red
+    GenerateCache Zebra
+  elif [ -f /usr/share/firemotd/themes/FireMotD-theme-${Theme}.json ] ; then
+    WriteLog Debug Info "Theme ${Theme} found in FireMotD themes folder"
+    WriteLog Verbose Info "Generating $Theme theme cache"
+    GenerateCache $Theme
+  else
+    WriteLog Output Error "Theme ${Theme} not found in /usr/share/firemotd/themes"
+    exit 1
+  fi
 }
 
 InstallFireMotD () {
@@ -1723,7 +1739,7 @@ InstallFireMotD () {
   WriteLog Verbose Info "Creating data folder"
   mkdir -p /usr/share/firemotd/data
   WriteLog Verbose Info "Creating cache folder"
-  mkdir -p -m0777 /usr/share/firemotd/cache  
+  mkdir -p /usr/share/firemotd/cache  
   WriteLog Verbose Info "Downloading themes"
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blanco.json -o /usr/share/firemotd/themes/FireMotD-theme-Blanco.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blue.json -o /usr/share/firemotd/themes/FireMotD-theme-Blue.json
@@ -1733,6 +1749,8 @@ InstallFireMotD () {
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Gray.json -o /usr/share/firemotd/themes/FireMotD-theme-Gray.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Modern.json -o /usr/share/firemotd/themes/FireMotD-theme-Modern.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Red.json -o /usr/share/firemotd/themes/FireMotD-theme-Red.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Orange.json -o /usr/share/firemotd/themes/FireMotD-theme-Orange.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Zebra.json -o /usr/share/firemotd/themes/FireMotD-theme-Zebra.json
   WriteLog Verbose Info "Downloading templates"
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-all.json -o /usr/share/firemotd/templates/FireMotD-template-all.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-basic.json -o /usr/share/firemotd/templates/FireMotD-template-basic.json
@@ -1752,9 +1770,11 @@ InstallFireMotD () {
     WriteLog Debug Info "Install result: $InstallResult"
   fi
   WriteLog Output Info "Generating information"
-  /usr/local/bin/FireMotD -S -d
+  /usr/local/bin/FireMotD -S -d -D all
   WriteLog Output Info "Generating FireMotD"
   /usr/local/bin/FireMotD -t Digipolis
+  WriteLog Output Info "Generating caches"
+  /usr/local/bin/FireMotD -G
 }
 
 Present () {
@@ -1791,7 +1811,7 @@ InitializeArgs () {
       -P|--Presentation)
         Action="present" ; shift ;;
       -G|--GenerateCaches)
-        Action="caches" ; shift ;;
+        shift ; Action="caches" ; Theme="$1" ; shift ;;
       -I|--install|--Install)
         Action="install" ; shift ;;
       -s|-S|--save|--Save|--saveupdates|--SaveUpdates|--saveUpdates)
@@ -1801,7 +1821,7 @@ InitializeArgs () {
       -sru|-SRU|--skiprepoupdate|--SkipRepoUpdate)
         SkipRepoUpdate=1 ; shift ;;
       -T|-t|--Theme|--theme)
-        shift ; Action="theme" ; Theme=$1 ; shift ;;
+        shift ; Action="theme" ; Theme="$1" ; shift ;;
       -D|--Data|--Template)
         shift ; TemplateType="$1" ; shift ;;
       -C|--Colortest|--colortest|--ColorTest|--colorTest)
@@ -1809,9 +1829,9 @@ InitializeArgs () {
       -M|--Colormap|--colormap|--ColorMap|--colorMap)
         Action="colormap" ; shift ;;
       -E|--ExportFile)
-        shift ; ExportFile=$1 ; shift ;;
+        shift ; ExportFile="$1" ; shift ;;
       -TF|--TemplateFile)
-        shift ; Action="template" ; Template=$1 ; shift ;;
+        shift ; Action="template" ; Template="$1" ; shift ;;
       -R|--RenderTime)
         shift ; RenderTime="$1" ; shift ;;
       -*) echo "You specified a non-existant option: $1" ; exit 2 ;;
@@ -1836,6 +1856,8 @@ CheckAction () {
     template)
       LoadData
       PrintTemplate ;;
+    caches)
+      GenerateCaches ;;
     theme)
       LoadData
       CheckTheme ;;
@@ -1845,8 +1867,6 @@ CheckAction () {
       ColorTest ;;
     present)
       Present ;;
-    caches)
-      GenerateCaches ;;
     *) 
       WriteLog Output Error "Invalid action: \"$Action\"" ; exit 1 ;;
   esac
