@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v11.01.190105
+# Version:      v11.02.190106
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Thomas Dietrich, Dmitry Romanenko
@@ -654,17 +654,38 @@ v\"."
 }
 
 LoadData () {
-    WriteLog Verbose Info "Logon data refresh start"
-    if [[ -s "$ExportFile" ]] ; then
-        while read -r val ; do
-           WriteLog Verbose Info "Exploring ${val}"
-           $(Explore${val})
-        done < <(jq -r 'to_entries[] | select(.value.Generated == "@logon") | .key' $ExportFile)
-    else
-        WriteLog Output Info "No FireMotD ExportFile detected. Please generate with \"sudo .\/FireMotD -S\""
-        exit 2
+  WriteLog Verbose Info "Logon data refresh start"
+  if [[ -s "$ExportFile" ]] ; then
+    i=0
+    if [[ "$MultiThreaded" == "1" ]] ; then
+      Procs=$(nproc --all)
+      let Procs++
     fi
-    WriteLog Verbose Info "Logon Data refresh for end"
+    while read -r val ; do
+      if [[ "$MultiThreaded" == "1" ]] ; then
+        WriteLog Verbose Info "Exploring ${val} in background job $i"
+        $(Explore${val}) &
+        RunningJobs=$(jobs -r | wc -l | tr -d " ")
+        WriteLog Verbose Info "$RunningJobs jobs running."
+        while [ $(jobs -r | wc -l | tr -d " ") -gt $Procs ] ; do
+          WriteLog Debug Info "More then $Procs jobs running. Waiting for completion"
+          sleep 0.1
+        done
+        let i++
+      else
+         WriteLog Verbose Info "Exploring ${val}"
+         $(Explore${val})
+      fi
+    done < <(jq -r 'to_entries[] | select(.value.Generated == "@logon") | .key' $ExportFile)
+    if [[ "$MultiThreaded" == "1" ]] ; then
+      WriteLog Verbose Info "Waiting for all background explorers to finish"
+      wait 
+    fi
+  else
+     WriteLog Output Info "No FireMotD ExportFile detected. Please generate with \"sudo .\/FireMotD -S\""
+    exit 2
+  fi
+  WriteLog Verbose Info "Logon Data refresh for end"
 }
 
 StartOriginalBlue () {
@@ -1105,6 +1126,9 @@ Options:
    -C | --colortest                     Prints color test to screen
    -M | --colormap                      Prints color test including color numbers
    -S | --save                          Saves data to /usr/share/firemotd/data/FireMotD.json
+   -R | --RenderTime			Time to render FireMotD. Values van be cache (default) or live
+   -G | --GenerateCache			Generates cache for give theme. Values can be 'all' or a theme name
+  -MT | --MultiThreaded			Enable multithreaded Exploring. Experimental feature!
   -HV | --hideversion                   Hides version number (legacy themes)
  -sru | --skiprepoupdate                Skip repository package update (apt only)
 
@@ -1810,7 +1834,7 @@ InitializeArgs () {
         Action="help" ; shift ;;
       -P|--Presentation)
         Action="present" ; shift ;;
-      -G|--GenerateCaches)
+      -G|--GenerateCache)
         shift ; Action="caches" ; Theme="$1" ; shift ;;
       -I|--install|--Install)
         Action="install" ; shift ;;
@@ -1834,6 +1858,8 @@ InitializeArgs () {
         shift ; Action="template" ; Template="$1" ; shift ;;
       -R|--RenderTime)
         shift ; RenderTime="$1" ; shift ;;
+      -MT|--MultiThreaded)
+        MultiThreaded=1 ; shift ;;
       -*) echo "You specified a non-existant option: $1" ; exit 2 ;;
       *) break ;;
     esac
