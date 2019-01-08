@@ -39,7 +39,7 @@ install:
 	mkdir -p $(DDIR)/data
 	mkdir -p $(DDIR)/templates
 	mkdir -p $(DDIR)/themes
-        mkdir -p $(DDIR)/cache
+	mkdir -p $(DDIR)/cache
 	cp templates/* $(DDIR)/templates
 	cp themes/* $(DDIR)/themes
 
