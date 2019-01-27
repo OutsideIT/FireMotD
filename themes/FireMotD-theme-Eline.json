@@ -96,6 +96,21 @@
       "Value": "Processes"
     },
     {
+      "Type" : "Info",
+      "Char": "/",
+      "Value": "Httpd"
+    },
+    {
+      "Type" : "Info",
+      "Char": "\\\\",
+      "Value": "Mysql"
+    },
+    {
+      "Type" : "Info",
+      "Char": "/",
+      "Value": "Php"
+    },
+    {
       "Type" : "Line",
       "Char": "/",
       "CharColor": "\\e[38;5;92m"

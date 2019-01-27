@@ -1763,7 +1763,7 @@ InstallFireMotD () {
   WriteLog Verbose Info "Creating data folder"
   mkdir -p /usr/share/firemotd/data
   WriteLog Verbose Info "Creating cache folder"
-  mkdir -p /usr/share/firemotd/cache  
+  mkdir -m 0777 -p /usr/share/firemotd/cache 
   WriteLog Verbose Info "Downloading themes"
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blanco.json -o /usr/share/firemotd/themes/FireMotD-theme-Blanco.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blue.json -o /usr/share/firemotd/themes/FireMotD-theme-Blue.json

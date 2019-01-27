@@ -1,4 +1,4 @@
-# MotD Generator for displaying custom system information
+# Fire MotD Generator for displaying custom system information
 
 ### Idea
 
@@ -34,18 +34,20 @@ Usage:
  FireMotD [-vhVs]
 
 Options:
-   -h  | --help               			Shows this help and exits
-   -v  | --verbose            			Verbose mode (shows messages)
-   -V  | --version            			Shows version information and exits
-   -T  | --theme <Theme Name> 			Shows Motd info on screen, based on the chosen theme
-   -D  | --Data                  Data template to use (basic or all)
-   -TF | --TemplateFile <Path to template> 	Shows theme based on json templates
-   -C  | --colortest          			Prints color test to screen
-   -M  | --colormap           			Prints color test to screen, with color numbers in it
-   -S  | --save               			Saves data to /var/tmp/FireMotD.json
-   -I  | --install				Installs FireMotD
-  -HV  | --hideversion        			Hides version number
- -sru  | --skiprepoupdate     			Skip the repository package update (apt only)
+   -h | --help                          Shows this help and exits
+   -v | --verbose                       Verbose mode
+   -d | --debug                         Debug mode
+   -V | --version                       Shows version information and exits
+   -t | --theme <Theme Name>            Shows MotD with chosen theme
+  -TF | --TemplateFile <Template Path>  Shows MotD with chosen template file
+   -C | --colortest                     Prints color test to screen
+   -M | --colormap                      Prints color test including color numbers
+   -S | --save                          Saves data to /usr/share/firemotd/data/FireMotD.json
+   -R | --RenderTime                    Time to render FireMotD. Values van be cache (default) or live
+   -G | --GenerateCache                 Generates cache for give theme. Values can be 'all' or a theme name
+  -MT | --MultiThreaded                 Enable multithreaded Exploring. Experimental feature!
+  -HV | --hideversion                   Hides version number (legacy themes)
+ -sru | --skiprepoupdate                Skip repository package update (apt only)
 
 256-color themes:
  Digipolis
@@ -68,18 +70,13 @@ HTML theme:
 Examples:
  sudo FireMotD -I -d
  sudo FireMotD -S -d -D all
+ FireMotD -G all -d
  FireMotD -T Modern
  FireMotD -t html > /tmp/motd.html
  FireMotD -TF FireMotD-theme-Elastic.json
  FireMotD --theme Modern
  FireMotD --colortest
  FireMotD -M
-
-Note:
- Some functionalities may require superuser privileges. Eg. check for updates.
- If you have problems, try something like:
- sudo FireMotD -S
-```
 
 ### Installation
 
@@ -99,7 +96,19 @@ sudo apt-get install bc sysstat jq moreutils
 
 Run this command from you homefolder:
 ```bash
-curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/FireMotD -o ~/FireMotD && chmod 755 ~/FireMotD && sudo ~/FireMotD -I -d
+curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/FireMotD -o ~/tmp/FireMotD && chmod 755 ~/tmp/FireMotD && sudo ~/tmp/FireMotD -I -d && ~/tmp/FireMotD -G all -d
+```
+
+#### Generating caches
+
+To speed up things a bit, you need to generate cache files for the themes you are using. YOu can do this with the '-G' parameter. For example this will generate the cache for the Eline theme:
+```bash
+FireMotD -G Eline
+```
+Or this will generate caches for all available themes:
+
+```bash
+FireMotD -G all -d
 ```
 
 #### Make
@@ -177,6 +186,10 @@ You may also create a initialization script `init.sh` which will call the `FireM
  
 /usr/local/bin/FireMotD -T Digipolis
 ```
+
+### Multi-threading
+
+If you want to try up FireMotD even more, you can use the '-MT' switch, which will enable multi-threading for the Explore functions. THis is still a somehwat experimental feature and will result in the CPU Usage as reported relatively high, as multiple Explore functions are running while mpstat is calculating the average CPU usage.
 
 ### On Nagios Exchange
 

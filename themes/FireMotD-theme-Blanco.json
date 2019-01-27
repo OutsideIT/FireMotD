@@ -69,6 +69,18 @@
       "Value": "Processes"
     },
     {
+      "Type" : "Info",
+      "Value": "Php"
+    },
+    {
+      "Type" : "Info",
+      "Value": "Httpd"
+    },
+    {
+      "Type" : "Info",
+      "Value": "Mysql"
+    },
+    {
       "Type" : "Line"
     }
   ]
