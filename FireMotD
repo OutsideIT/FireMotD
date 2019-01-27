@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v11.02.190106
+# Version:      v11.03.190127
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Thomas Dietrich, Dmitry Romanenko
@@ -538,7 +538,7 @@ ExplorePostgres () {
         PostgresString="$(${PostgresPath} --version 2>/dev/null)"
         PostgresVersion="$(echo "$PostgresString"  | head -n1 | awk '{print $3}')"
     fi
-    jq ".Postgres.Version = \"$NginxVersion\"" $ExportFile | sponge $ExportFile
+    jq ".Postgres.Version = \"$PostgresVersion\"" $ExportFile | sponge $ExportFile
     jq ".Postgres.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
 }
 
