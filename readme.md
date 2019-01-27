@@ -39,6 +39,7 @@ Options:
    -d | --debug                         Debug mode
    -V | --version                       Shows version information and exits
    -t | --theme <Theme Name>            Shows MotD with chosen theme
+   -D | --Data                          Data template to use (basic or all)
   -TF | --TemplateFile <Template Path>  Shows MotD with chosen template file
    -C | --colortest                     Prints color test to screen
    -M | --colormap                      Prints color test including color numbers
