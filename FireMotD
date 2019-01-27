@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v11.02.190106
+# Version:      v11.03.190127
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Thomas Dietrich, Dmitry Romanenko
@@ -538,7 +538,7 @@ ExplorePostgres () {
         PostgresString="$(${PostgresPath} --version 2>/dev/null)"
         PostgresVersion="$(echo "$PostgresString"  | head -n1 | awk '{print $3}')"
     fi
-    jq ".Postgres.Version = \"$NginxVersion\"" $ExportFile | sponge $ExportFile
+    jq ".Postgres.Version = \"$PostgresVersion\"" $ExportFile | sponge $ExportFile
     jq ".Postgres.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
 }
 
@@ -1763,7 +1763,7 @@ InstallFireMotD () {
   WriteLog Verbose Info "Creating data folder"
   mkdir -p /usr/share/firemotd/data
   WriteLog Verbose Info "Creating cache folder"
-  mkdir -p /usr/share/firemotd/cache  
+  mkdir -m 0777 -p /usr/share/firemotd/cache 
   WriteLog Verbose Info "Downloading themes"
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blanco.json -o /usr/share/firemotd/themes/FireMotD-theme-Blanco.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blue.json -o /usr/share/firemotd/themes/FireMotD-theme-Blue.json
