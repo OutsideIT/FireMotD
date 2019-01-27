@@ -78,6 +78,7 @@ Examples:
  FireMotD --theme Modern
  FireMotD --colortest
  FireMotD -M
+```
 
 ### Installation
 
