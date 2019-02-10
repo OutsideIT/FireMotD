@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v11.03.190127
+# Version:      v11.04.190210
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Contributors: Thomas Dietrich, Dmitry Romanenko
@@ -135,7 +135,7 @@ ContainsValidIp () {
 }
 
 VersionComparison () {
-  if [[ $1 == $2 ]] ; then
+  if [[ "$1" == "$2" ]] ; then
     echo "equal"
     return 0
   fi
@@ -166,7 +166,7 @@ IsInstalled () {
     YumExec=$(which yum 2>/dev/null)
     if $YumExec list installed "$@" >/dev/null 2>&1; then true ; else false ; fi
   elif [[ -x "/usr/bin/zypper" ]] ; then
-    WriteLog Verbose Info "No $@ check for zypper available."
+    WriteLog Verbose Info "No install check for zypper available."
     true
   elif [[ -x "/usr/bin/apt-get" ]] ; then
     if dpkg-query -l "$@" >/dev/null 2>&1 ; then true ; else false ; fi
@@ -178,16 +178,16 @@ GetSessions () {
     WriteLog Verbose Info "Output who: $(who | cut -d' ' -f1,14)"
     SessionCount="$(who | cut -d' ' -f1,12 | tr ' ' @ | tr '\n' ',' | tr -d '()' | rev | cut -c 2- | rev)"
     WriteLog Verbose Info "SessionCount 1: f1,12: $SessionCount"
-    CleanSessionHost=$(echo $SessionCount  | cut -d, -f2 | cut -d@ -f2- | cut -d@ -f2- )
+    CleanSessionHost=$(echo "$SessionCount"  | cut -d, -f2 | cut -d@ -f2- | cut -d@ -f2- )
     WriteLog Verbose Info "CleanSessionhost: $CleanSessionHost"
     RegexHost="^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.){6,}*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]){6,}$"
-    if ! ContainsValidIp $SessionCount ; then
+    if ! ContainsValidIp "$SessionCount" ; then
         WriteLog Verbose Info "SessionCount $SessionCount does not contain an ip address. "
         if ! [[ "$CleanSessionHost" =~ $RegexHost ]] ; then
             WriteLog Verbose Info "CleanSessionHost $CleanSessionHost does not contain a hostname. "
             SessionCount="$(who | cut -d' ' -f1,13 | tr ' ' @ | tr '\n' ',' | tr -d '()' | rev | cut -c 2- | rev)"
             WriteLog Verbose Info "SessionCount 2: f1,13: $SessionCount"
-            if ! ContainsValidIp $SessionCount && ! [[ "$CleanSessionHost" =~ $RegexHost ]] ; then
+            if ! ContainsValidIp "$SessionCount" && ! [[ "$CleanSessionHost" =~ $RegexHost ]] ; then
                 SessionCount="$(who | cut -d' ' -f1,14 | tr ' ' @ | tr '\n' ',' | tr -d '()' | rev | cut -c 2- | rev)"
                 WriteLog Verbose Info "SessionCount 3: f1,14: $SessionCount"
             fi
@@ -295,13 +295,13 @@ ExplorePlatform () {
             Platform="Xen Hypervisor v""$(echo "$Xen" | sed -n -e 's/^.*Xen version: //p')"
     elif [[ "$Rasp" = *"Rasp"* ]] ; then
             Platform=${Rasp//*: /}
-    elif [[ $(uname -r) =~ "pine64-longsleep" ]] ; then
+    elif [[ $(uname -r) =~ pine64-longsleep ]] ; then
             Platform="Pine A64"
             _mem="$(< /proc/meminfo grep MemTotal | awk '{print $2}')"
-            if [ $_mem -gt  500000 ] && [ $_mem -gt  503000 ]; then Platform="Pine A64 512MB Rev B Board"; fi
-            if [ $_mem -gt 1000000 ] && [ $_mem -gt 1006000 ]; then Platform="Pine A64+ 1GB Rev B Board"; fi
-            if [ $_mem -gt 2000000 ] && [ $_mem -gt 2012000 ]; then Platform="Pine A64+ 2GB Rev C Board"; fi
-    elif [[ $(uname -r) =~ "Microsoft" ]] ; then
+            if [ "$_mem" -gt  500000 ] && [ "$_mem" -gt  503000 ]; then Platform="Pine A64 512MB Rev B Board"; fi
+            if [ "$_mem" -gt 1000000 ] && [ "$_mem" -gt 1006000 ]; then Platform="Pine A64+ 1GB Rev B Board"; fi
+            if [ "$_mem" -gt 2000000 ] && [ "$_mem" -gt 2012000 ]; then Platform="Pine A64+ 2GB Rev C Board"; fi
+    elif [[ $(uname -r) =~ Microsoft ]] ; then
         Platform="Windows Subsystem for Linux"
     elif [[ "$InitSystem" == "systemd" ]] ; then
         Custom="$(systemd-detect-virt)"
@@ -679,7 +679,7 @@ LoadData () {
     done < <(jq -r 'to_entries[] | select(.value.Generated == "@logon") | .key' $ExportFile)
     if [[ "$MultiThreaded" == "1" ]] ; then
       WriteLog Verbose Info "Waiting for all background explorers to finish"
-      wait 
+      wait
     fi
   else
      WriteLog Output Info "No FireMotD ExportFile detected. Please generate with \"sudo .\/FireMotD -S\""
@@ -1583,7 +1583,7 @@ GenerateInfo () {
     if [[ "$RenderTime" == "live" ]] ; then
       echo -ne "$RenderResult\e[0m"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      if [ "$Debug" = 1 ] ; then 
+      if [ "$Debug" = 1 ] ; then
         echo -ne "$RenderResult\e[0m"
       fi
       echo -ne "$RenderResult\e[0m" >> /usr/share/firemotd/cache/firemotd-${Theme}.motd
@@ -1721,7 +1721,7 @@ CheckTheme () {
       GenerateCache $Theme
       WriteLog Verbose Info "Evaluating cached template \"firemotd-${Theme}.motd\"."
       eval "echo \"$(cat /usr/share/firemotd/cache/firemotd-${Theme}.motd)\""
-    fi 
+    fi
   else
     case "$Theme" in
       original|Original) StartOriginalBlue ; GenerateOriginal256Color ;;
@@ -1729,7 +1729,7 @@ CheckTheme () {
       invader|Invader) GenerateInvader ;;
       *) WriteLog Output Error "You specified a non-existant theme: $1" ; exit 2 ;;
     esac
-  fi 
+  fi
 }
 
 GenerateCaches () {
@@ -1740,7 +1740,7 @@ GenerateCaches () {
     GenerateCache Digipolis
     GenerateCache Elastic
     GenerateCache Eline
-    GenerateCache Gray 
+    GenerateCache Gray
     GenerateCache Orange
     GenerateCache Red
     GenerateCache Zebra
@@ -1763,7 +1763,7 @@ InstallFireMotD () {
   WriteLog Verbose Info "Creating data folder"
   mkdir -p /usr/share/firemotd/data
   WriteLog Verbose Info "Creating cache folder"
-  mkdir -m 0777 -p /usr/share/firemotd/cache 
+  mkdir -m 0777 -p /usr/share/firemotd/cache
   WriteLog Verbose Info "Downloading themes"
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blanco.json -o /usr/share/firemotd/themes/FireMotD-theme-Blanco.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blue.json -o /usr/share/firemotd/themes/FireMotD-theme-Blue.json
@@ -1893,7 +1893,7 @@ CheckAction () {
       ColorTest ;;
     present)
       Present ;;
-    *) 
+    *)
       WriteLog Output Error "Invalid action: \"$Action\"" ; exit 1 ;;
   esac
   return $?
