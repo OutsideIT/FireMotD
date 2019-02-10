@@ -351,8 +351,8 @@ ExploreCpuUsage () {
     CpuUsageAverage="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
     CpuUsageCpuCount="$(< /proc/cpuinfo grep -c processor)"
     if [[ "$(jq -r ".Platform.Value" $ExportFile)" == "OpenVZ" ]] ; then
-        CpuUsageSocketCount="$(cat /proc/cpuinfo | grep "physical id" | sort -u | wc -l)"
-        CpuUsageCoreCount="$(cat /proc/cpuinfo | grep "processor" | sort -u | wc -l)"
+        CpuUsageSocketCount="$(< /proc/cpuinfo grep "physical id" | sort -u | wc -l)"
+        CpuUsageCoreCount="$(< /proc/cpuinfo grep "processor" | sort -u | wc -l)"
     else
         CpuUsageSocketCount="$(lscpu | grep 'Socket(s):' | head -1 | awk -F " " '{print $2}')"
         CpuUsageCoreCount="$(lscpu | grep 'Core(s) per socket:' | head -1 | awk -F " " '{print $4}')"
@@ -648,7 +648,7 @@ v\"."
   ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
   while read -r val ; do
     WriteLog Debug Info "Exploring ${val}"
-    $(Explore${val})
+    "Explore${val}"
   done < <(jq -r 'to_entries[] | select(.value.Generated == "@cron") | .key' $ExportFile)
   WriteLog Verbose Info "Export system data to \"${ExportFile}\" finished."
 }
@@ -664,17 +664,17 @@ LoadData () {
     while read -r val ; do
       if [[ "$MultiThreaded" == "1" ]] ; then
         WriteLog Verbose Info "Exploring ${val} in background job $i"
-        $(Explore${val}) &
+        "Explore${val}" &
         RunningJobs=$(jobs -r | wc -l | tr -d " ")
         WriteLog Verbose Info "$RunningJobs jobs running."
-        while [ $(jobs -r | wc -l | tr -d " ") -gt $Procs ] ; do
+        while [ "$(jobs -r | wc -l | tr -d " ")" -gt "$Procs" ] ; do
           WriteLog Debug Info "More then $Procs jobs running. Waiting for completion"
           sleep 0.1
         done
         let i++
       else
          WriteLog Verbose Info "Exploring ${val}"
-         $(Explore${val})
+         "Explore${val}"
       fi
     done < <(jq -r 'to_entries[] | select(.value.Generated == "@logon") | .key' $ExportFile)
     if [[ "$MultiThreaded" == "1" ]] ; then
@@ -1178,7 +1178,7 @@ CheckSudo () {
     if [ "$EUID" -ne 0 ]; then
         echo "Update check requires root privileges"
         echo "Example:"
-        echo "    sudo $ScriptPath $1"
+        echo "    sudo $ScriptPath"
         exit 1
     fi
     return 0
@@ -1194,10 +1194,10 @@ CheckDependencies () {
 RenderHostIp () {
   HostIp=$(jq -r ".HostIp.Value" $ExportFile)
   if [[ ! -z "$HostIp" ]] && [[ "$HostIp" != "null" ]] && [[ "$HostIp" != "Unknown" ]] ; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="Ip"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
       HostIpRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${HostIp}"
     elif [[ "$RenderTime" == "cache" ]] ; then
@@ -1210,10 +1210,10 @@ RenderHostIp () {
 RenderRelease () {
   Release=$(jq -r ".Release.Value" $ExportFile)
   if [[ ! -z "$Release" ]] && [[ "$Release" != "null" ]] && [[ "$Release" != "Unknown" ]] ; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="Release"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
       ReleaseRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}${Release}"
     elif [[ "$RenderTime" == "cache" ]] ; then
@@ -1226,10 +1226,10 @@ RenderRelease () {
 RenderKernel () {
   Kernel=$(jq -r ".Kernel.Value" $ExportFile)
   if [[ ! -z "$Kernel" ]] && [[ "$Kernel" != "null" ]] && [[ "$Kernel" != "Unknown" ]] ; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="Kernel"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
       KernelRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}${Kernel}"
     elif [[ "$RenderTime" == "cache" ]] ; then
@@ -1565,20 +1565,20 @@ GenerateHeader () {
 }
 
 GenerateInfo () {
-  Value=$(jq -r --arg i "$i" '.Template[$i | tonumber].Value' $Template)
+  Value=$(jq -r --arg i "$i" ".Template[$i | tonumber].Value" "$Template")
   WriteLog Debug Info "Generating \"${Value}\""
-  ValueColor=$(jq -r --arg i "$i" '.Template[$i | tonumber].ValueColor' $Template)
+  ValueColor=$(jq -r --arg i "$i" ".Template[$i | tonumber].ValueColor" "$Template")
   if [[ "$ValueColor" == "null" ]] ; then ValueColor=$DefaultValueColor ; fi
-  KeyColor=$(jq -r --arg i "$i" '.Template[$i | tonumber].KeyColor' $Template)
+  KeyColor=$(jq -r --arg i "$i" ".Template[$i | tonumber].KeyColor" "$Template")
   if [[ "$KeyColor" == "null" ]] ; then KeyColor=$DefaultKeyColor ; fi
-  Separator=$(jq -r --arg i "$i" '.Template[$i | tonumber].Separator' $Template)
+  Separator=$(jq -r --arg i "$i" ".Template[$i | tonumber].Separator" "$Template")
   if [[ "$Separator" == "null" ]] ; then Separator=$DefaultSeparator ; fi
-  SeparatorColor=$(jq -r --arg i "$i" '.Template[$i | tonumber].SeparatorColor' $Template)
+  SeparatorColor=$(jq -r --arg i "$i" ".Template[$i | tonumber].SeparatorColor" "$Template")
   if [[ "$SeparatorColor" == "null" ]] ; then SeparatorColor=$DefaultSeparatorColor ; fi
-  HighlightColor=$(jq -r --arg i "$i" '.Template[$i | tonumber].HighlightColor' $Template)
+  HighlightColor=$(jq -r --arg i "$i" ".Template[$i | tonumber].HighlightColor" "$Template")
   if [[ "$HighlightColor" == "null" ]] ; then HighlightColor=$DefaultHighlightColor ; fi
   WriteLog Debug Info "Rendering $Value"
-  RenderResult="$(Render${Value})"
+  RenderResult="$("Render${Value}")"
   if [[ "$RenderResult" != "" ]] ; then
     if [[ "$RenderTime" == "live" ]] ; then
       echo -ne "$RenderResult\e[0m"
@@ -1586,7 +1586,7 @@ GenerateInfo () {
       if [ "$Debug" = 1 ] ; then
         echo -ne "$RenderResult\e[0m"
       fi
-      echo -ne "$RenderResult\e[0m" >> /usr/share/firemotd/cache/firemotd-${Theme}.motd
+      echo -ne "$RenderResult\e[0m" >> "/usr/share/firemotd/cache/firemotd-${Theme}.motd"
     fi
   fi
 }
@@ -1595,53 +1595,53 @@ PrintChar () {
   str=$1
   num=$2
   col=$3
-  for (( i = 1; i <= $num; i++ )) ; do
+  for (( i = 1; i <= num; i++ )) ; do
     if [[ "$RenderTime" == "live" ]] ; then
       echo -en "$col$str\e[0m"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      echo -en "$col$str\e[0m" >> /usr/share/firemotd/cache/firemotd-${Theme}.motd
+      echo -en "$col$str\e[0m" >> "/usr/share/firemotd/cache/firemotd-${Theme}.motd"
     fi
   done
 }
 
 PrintTemplate () {
   WriteLog Verbose Info "Printing template \"$Template\""
-  DefaultChar=$(jq -r '.DefaultSettings.Char' $Template)
+  DefaultChar=$(jq -r '.DefaultSettings.Char' "$Template")
   if [[ "$DefaultChar" == "null" ]] ; then DefaultChar="" ; fi
-  DefaultCharColor=$(jq -r '.DefaultSettings.CharColor' $Template)
+  DefaultCharColor=$(jq -r '.DefaultSettings.CharColor' "$Template")
   if [[ "$DefaultCharColor" == "null" ]] ; then DefaultCharColor="\e[0m" ; fi
-  DefaultKeyColor=$(jq -r '.DefaultSettings.KeyColor' $Template)
+  DefaultKeyColor=$(jq -r '.DefaultSettings.KeyColor' "$Template")
   if [[ "$DefaultKeyColor" == "null" ]] ; then DefaultKeyColor="\e[0m" ; fi
-  DefaultLength=$(jq -r '.DefaultSettings.Length' $Template)
-  if [[ "$DefaultLenght" == "null" ]] ; then DefaultCharLength="79" ; fi
-  SeparatorSpace=$(jq -r '.DefaultSettings.SeparatorSpace' $Template)
+  DefaultCharLength=$(jq -r '.DefaultSettings.Length' "$Template")
+  if [[ "$DefaultCharLenght" == "null" ]] ; then DefaultCharLength="79" ; fi
+  SeparatorSpace=$(jq -r '.DefaultSettings.SeparatorSpace' "$Template")
   if [[ "$SeparatorSpace" == "null" ]] ; then SeparatorSpace="10" ; fi
-  (( $SeparatorSpace < 8 )) && SeparatorSpace=0
-  (( $SeparatorSpace > 25 )) && SeparatorSpace=25
-  DefaultSeparator=$(jq -r '.DefaultSettings.Separator' $Template)
+  (( SeparatorSpace < 8 )) && SeparatorSpace=0
+  (( SeparatorSpace > 25 )) && SeparatorSpace=25
+  DefaultSeparator=$(jq -r '.DefaultSettings.Separator' "$Template")
   if [[ "$DefaultSeparator" == "null" ]] ; then DefaultSeparator="" ; fi
-  DefaultSeparatorColor=$(jq -r '.DefaultSettings.SeparatorColor' $Template)
+  DefaultSeparatorColor=$(jq -r '.DefaultSettings.SeparatorColor' "$Template")
   if [[ "$DefaultSeparatorColor" == "null" ]] ; then DefaultSeparatorColor="\e[0m" ; fi
-  DefaultValueColor=$(jq -r '.DefaultSettings.ValueColor' $Template)
+  DefaultValueColor=$(jq -r '.DefaultSettings.ValueColor' "$Template")
   if [[ "$DefaultValueColor" == "null" ]] ; then DefaultValueColor="\e[0m" ; fi
-  DefaultHighlightColor=$(jq -r '.DefaultSettings.HighlightColor' $Template)
+  DefaultHighlightColor=$(jq -r '.DefaultSettings.HighlightColor' "$Template")
   if [[ "$DefaultHighlightColor" == "null" ]] ; then DefaultHighlightColor="\e[0m" ; fi
   WriteLog Debug Info "Temlate default Char \"$DefaultChar\" CharColor \"$DefaultCharColor\" Length \"$DefaultLentgh\" Separator \"$DefaultSeparator\" SeparatorColor \"$DefaultSeparatorColor\""
-  if jq '.' $Template >/dev/null 2>&1 ; then
+  if jq '.' "$Template" >/dev/null 2>&1 ; then
     WriteLog Verbose Info "Parsed json file $Template successfully."
-    LineCount=$(jq '.Template | length' $Template)
+    LineCount=$(jq '.Template | length' "$Template")
     WriteLog Verbose Info "Looping through $LineCount lines"
     LineCount=$((LineCount-1))
     for i in $(seq 0 $LineCount) ; do
-      Type=$(jq -r --arg i "$i" '.Template[$i | tonumber].Type' $Template)
-      Char=$(jq -r --arg i "$i" '.Template[$i | tonumber].Char' $Template)
+      Type=$(jq -r --arg i "$i" ".Template[$i | tonumber].Type" "$Template")
+      Char=$(jq -r --arg i "$i" ".Template[$i | tonumber].Char" "$Template")
       if [[ "$Char" == "null" ]] ; then Char=$DefaultChar ; fi
-      CharColor=$(jq -r --arg i "$i" '.Template[$i | tonumber].CharColor' $Template)
+      CharColor=$(jq -r --arg i "$i" ".Template[$i | tonumber].CharColor" "$Template")
       if [[ "$CharColor" == "null" ]] ; then CharColor=$DefaultCharColor ; fi
-      Length=$(jq -r --arg i "$i" '.Template[$i | tonumber].Length' $Template)
+      Length=$(jq -r --arg i "$i" ".Template[$i | tonumber].Length" "$Template")
       if [[ "$Length" == "null" ]] ; then Length=$DefaultLength ; fi
       WriteLog Debug Info "Generating line $i, type \"$Type\", character \"$Char\", color \"$CharColor\", length \"$Length\"."
-      Generate${Type}
+      "Generate${Type}"
     done
   else
     WriteLog Output Error "Failed to parse json file $Template. Please verify with json lint validator"
@@ -1654,48 +1654,48 @@ GenerateCache () {
   Template="/usr/share/firemotd/themes/FireMotD-theme-${Theme}.json"
   WriteLog Debug Info "Template \"${Template}\"."
   Cache="/usr/share/firemotd/cache/firemotd-${Theme}.motd"
-  if [ -f $Cache ] ; then
+  if [ -f "$Cache" ] ; then
     WriteLog Debug Info "Cleaning up old cache \"${Cache}\"."
-    rm $Cache -f
+    rm "$Cache" -f
   fi
-  touch $Cache
-  chmod 0666 $Cache
-  DefaultChar=$(jq -r '.DefaultSettings.Char' $Template)
+  touch "$Cache"
+  chmod 0666 "$Cache"
+  DefaultChar=$(jq -r '.DefaultSettings.Char' "$Template")
   if [[ "$DefaultChar" == "null" ]] ; then DefaultChar="" ; fi
-  DefaultCharColor=$(jq -r '.DefaultSettings.CharColor' $Template)
+  DefaultCharColor=$(jq -r '.DefaultSettings.CharColor' "$Template")
   if [[ "$DefaultCharColor" == "null" ]] ; then DefaultCharColor="\e[0m" ; fi
-  DefaultKeyColor=$(jq -r '.DefaultSettings.KeyColor' $Template)
+  DefaultKeyColor=$(jq -r '.DefaultSettings.KeyColor' "$Template")
   if [[ "$DefaultKeyColor" == "null" ]] ; then DefaultKeyColor="\e[0m" ; fi
-  DefaultLength=$(jq -r '.DefaultSettings.Length' $Template)
-  if [[ "$DefaultLenght" == "null" ]] ; then DefaultCharLength="79" ; fi
-  SeparatorSpace=$(jq -r '.DefaultSettings.SeparatorSpace' $Template)
+  DefaultCharLength=$(jq -r '.DefaultSettings.Length' "$Template")
+  if [[ "$DefaultCharLenght" == "null" ]] ; then DefaultCharLength="79" ; fi
+  SeparatorSpace=$(jq -r '.DefaultSettings.SeparatorSpace' "$Template")
   if [[ "$SeparatorSpace" == "null" ]] ; then SeparatorSpace="10" ; fi
-  (( $SeparatorSpace < 8 )) && SeparatorSpace=0
-  (( $SeparatorSpace > 25 )) && SeparatorSpace=25
-  DefaultSeparator=$(jq -r '.DefaultSettings.Separator' $Template)
+  (( SeparatorSpace < 8 )) && SeparatorSpace=0
+  (( SeparatorSpace > 25 )) && SeparatorSpace=25
+  DefaultSeparator=$(jq -r '.DefaultSettings.Separator' "$Template")
   if [[ "$DefaultSeparator" == "null" ]] ; then DefaultSeparator="" ; fi
-  DefaultSeparatorColor=$(jq -r '.DefaultSettings.SeparatorColor' $Template)
+  DefaultSeparatorColor=$(jq -r '.DefaultSettings.SeparatorColor' "$Template")
   if [[ "$DefaultSeparatorColor" == "null" ]] ; then DefaultSeparatorColor="\e[0m" ; fi
-  DefaultValueColor=$(jq -r '.DefaultSettings.ValueColor' $Template)
+  DefaultValueColor=$(jq -r '.DefaultSettings.ValueColor' "$Template")
   if [[ "$DefaultValueColor" == "null" ]] ; then DefaultValueColor="\e[0m" ; fi
-  DefaultHighlightColor=$(jq -r '.DefaultSettings.HighlightColor' $Template)
+  DefaultHighlightColor=$(jq -r '.DefaultSettings.HighlightColor' "$Template")
   if [[ "$DefaultHighlightColor" == "null" ]] ; then DefaultHighlightColor="\e[0m" ; fi
   WriteLog Debug Info "Default \"$DefaultChar\" CharColor \"$DefaultCharColor\" Length \"$DefaultLentgh\" Separator \"$DefaultSeparator\" SeparatorColor \"$DefaultSeparatorColor\""
-  if jq '.' $Template >/dev/null 2>&1 ; then
+  if jq '.' "$Template" >/dev/null 2>&1 ; then
     WriteLog Verbose Info "Parsed template json for ${Theme} successfully."
-    LineCount=$(jq '.Template | length' $Template)
+    LineCount=$(jq '.Template | length' "$Template")
     WriteLog Debug Info "Looping through $LineCount lines"
     LineCount=$((LineCount-1))
     for i in $(seq 0 $LineCount) ; do
-      Type=$(jq -r --arg i "$i" '.Template[$i | tonumber].Type' $Template)
-      Char=$(jq -r --arg i "$i" '.Template[$i | tonumber].Char' $Template)
+      Type=$(jq -r --arg i "$i" ".Template[$i | tonumber].Type" "$Template")
+      Char=$(jq -r --arg i "$i" ".Template[$i | tonumber].Char" "$Template")
       if [[ "$Char" == "null" ]] ; then Char=$DefaultChar ; fi
-      CharColor=$(jq -r --arg i "$i" '.Template[$i | tonumber].CharColor' $Template)
+      CharColor=$(jq -r --arg i "$i" ".Template[$i | tonumber].CharColor" "$Template")
       if [[ "$CharColor" == "null" ]] ; then CharColor=$DefaultCharColor ; fi
-      Length=$(jq -r --arg i "$i" '.Template[$i | tonumber].Length' $Template)
-      if [[ "$Length" == "null" ]] ; then Length=$DefaultLength ; fi
+      Length=$(jq -r --arg i "$i" ".Template[$i | tonumber].Length" "$Template")
+      if [[ "$Length" == "null" ]] ; then Length=$DefaultCharLength ; fi
       WriteLog Debug Info "Line $i ,type \"$Type\", char \"$Char\", color \"$CharColor\", length \"$Length\""
-      Generate${Type}
+      "Generate${Type}"
     done
   else
     WriteLog Output Error "Failed to parse json file $Template. Please verify with json lint validator"
@@ -1706,28 +1706,28 @@ CheckTheme () {
   WriteLog Debug Info "Normalising theme $Theme"
   Theme="$(echo "$Theme" | tr '[:upper:]' '[:lower:]')"
   Theme="${Theme^}"
-  if [ -f /usr/share/firemotd/themes/FireMotD-theme-${Theme}.json ] ; then
+  if [ -f "/usr/share/firemotd/themes/FireMotD-theme-${Theme}.json" ] ; then
     WriteLog Debug Info "Theme ${Theme} found in FireMotD themes folder"
     Template="/usr/share/firemotd/themes/FireMotD-theme-${Theme}.json"
     if [[ "$RenderTime" == "live" ]] ; then
       WriteLog Verbose Info "Live FireMotD $Theme generation"
       PrintTemplate
-    elif [ -f /usr/share/firemotd/cache/firemotd-${Theme}.motd ] ; then
+    elif [ -f "/usr/share/firemotd/cache/firemotd-${Theme}.motd" ] ; then
       WriteLog Debug Info "Cache for theme ${Theme} found in FireMotD cache folder"
       WriteLog Verbose Info "Evaluating cached template \"firemotd-${Theme}.motd\"."
-      eval "echo \"$(cat /usr/share/firemotd/cache/firemotd-${Theme}.motd)\""
+      eval "echo \"$(cat "/usr/share/firemotd/cache/firemotd-${Theme}.motd")\""
     else
       WriteLog Output Warning "Cache for theme ${Theme} not found in FireMotD cache folder. Generating..."
-      GenerateCache $Theme
+      GenerateCache "$Theme"
       WriteLog Verbose Info "Evaluating cached template \"firemotd-${Theme}.motd\"."
-      eval "echo \"$(cat /usr/share/firemotd/cache/firemotd-${Theme}.motd)\""
+      eval "echo \"$(cat "/usr/share/firemotd/cache/firemotd-${Theme}.motd")\""
     fi
   else
     case "$Theme" in
       original|Original) StartOriginalBlue ; GenerateOriginal256Color ;;
       html|Html) GenerateHtmlTheme ;;
       invader|Invader) GenerateInvader ;;
-      *) WriteLog Output Error "You specified a non-existant theme: $1" ; exit 2 ;;
+      *) WriteLog Output Error "You specified a non-existant theme: $Theme" ; exit 2 ;;
     esac
   fi
 }
@@ -1744,10 +1744,10 @@ GenerateCaches () {
     GenerateCache Orange
     GenerateCache Red
     GenerateCache Zebra
-  elif [ -f /usr/share/firemotd/themes/FireMotD-theme-${Theme}.json ] ; then
+  elif [ -f "/usr/share/firemotd/themes/FireMotD-theme-${Theme}.json" ] ; then
     WriteLog Debug Info "Theme ${Theme} found in FireMotD themes folder"
     WriteLog Verbose Info "Generating $Theme theme cache"
-    GenerateCache $Theme
+    GenerateCache "$Theme"
   else
     WriteLog Output Error "Theme ${Theme} not found in /usr/share/firemotd/themes"
     exit 1
@@ -1778,8 +1778,8 @@ InstallFireMotD () {
   WriteLog Verbose Info "Downloading templates"
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-all.json -o /usr/share/firemotd/templates/FireMotD-template-all.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-basic.json -o /usr/share/firemotd/templates/FireMotD-template-basic.json
-  WriteLog Verbose Info "Copying $(readlink -f $0) to /usr/local/bin/FireMotD"
-  cp "$(readlink -f $0)" "/usr/local/bin/FireMotD"
+  WriteLog Verbose Info "Copying $(readlink -f "$0") to /usr/local/bin/FireMotD"
+  cp "$(readlink -f "$0")" "/usr/local/bin/FireMotD"
   if [[ -x "/usr/bin/yum" ]] ; then
     WriteLog Verbose Info "Installing required yum packages"
     UpdateType="yum"
@@ -1873,10 +1873,10 @@ CheckAction () {
     help)
       PrintHelp ;;
     install)
-      CheckSudo "$@"
+      CheckSudo
       InstallFireMotD ;;
     save)
-      CheckSudo "$@"
+      CheckSudo
       CheckDependencies
       ExportData ;;
     template)
