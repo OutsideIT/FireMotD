@@ -1,11 +1,9 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v11.04.190210
+# Version:      v11.05.190318
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
-# Contributors: Thomas Dietrich, Dmitry Romanenko
-# Purpose:      Bash script that will dynamically generate a message
-#               of they day for users logging in.
+# Purpose:      Bash script which enables dynamic MotD messages
 # On GitHub:    https://github.com/OutsideIT/FireMotD
 # On OutsideIT: https://outsideit.net/FireMotD
 # Copyright:
@@ -1201,9 +1199,9 @@ RenderHostIp () {
     if [[ "$RenderTime" == "live" ]] ; then
       HostIpRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${HostIp}"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      HostIpRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r ".HostIp.Value" $ExportFile)"
+      HostIpRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r .HostIp.Value $ExportFile)"
     fi
-    echo "${HostIpRender}\n"
+    echo "${HostIpRender}"
   fi
 }
 
@@ -1217,9 +1215,9 @@ RenderRelease () {
     if [[ "$RenderTime" == "live" ]] ; then
       ReleaseRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}${Release}"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      ReleaseRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}\$(jq -r ".Release.Value" $ExportFile)"
+      ReleaseRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}\$(jq -r .Release.Value $ExportFile)"
     fi
-    echo "${ReleaseRender}\n"
+    echo "${ReleaseRender}"
   fi
 }
 
@@ -1233,153 +1231,153 @@ RenderKernel () {
     if [[ "$RenderTime" == "live" ]] ; then
       KernelRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}${Kernel}"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      KernelRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}\$(jq -r ".Kernel.Value" $ExportFile)"
+      KernelRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}\$(jq -r .Kernel.Value $ExportFile)"
     fi
-    echo "${KernelRender}\n"
+    echo "${KernelRender}"
   fi
 }
 
 RenderPlatform () {
   Platform=$(jq -r ".Platform.Value" $ExportFile)
   if [[ ! -z "$Platform" ]] && [[ "$Platform" != "null" ]] && [[ "$Platform" != "Unknown" ]] ; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="Platform"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
       PlatformRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}${Platform}"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      PlatformRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}\$(jq -r ".Platform.Value" $ExportFile)"
+      PlatformRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}\$(jq -r .Platform.Value $ExportFile)"
     fi
-    echo "${PlatformRender}\n"
+    echo "${PlatformRender}"
   fi
 }
 
 RenderUptime () {
   UptimeDays=$(jq -r ".Uptime.Days" $ExportFile)
   if [[ ! -z $UptimeDays ]] && [[ "$UptimeDays" != "null" ]] && [[ "$UptimeDays" != "Unknown" ]] ; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="Uptime"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
-     UptimeRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${UptimeDays} ${ValueColor}day(s). ${HighlightColor}$(jq -r ".Uptime.Hours" $ExportFile)${ValueColor}:${HighlightColor}$(jq -r ".Uptime.Minutes" $ExportFile)${ValueColor}:${HighlightColor}$(jq -r ".Uptime.Seconds" $ExportFile)"
+     UptimeRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${UptimeDays} ${ValueColor}day(s). ${HighlightColor}$(jq -r ".Uptime.Hours" $ExportFile)${ValueColor}:${HighlightColor}$(jq -r ".Uptime.Minutes" $ExportFile)${ValueColor}:${HighlightColor}$(jq -r .Uptime.Seconds $ExportFile)"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      UptimeRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r ".Uptime.Days" $ExportFile) ${ValueColor}day(s). ${HighlightColor}\$(jq -r ".Uptime.Hours" $ExportFile)${ValueColor}:${HighlightColor}\$(jq -r ".Uptime.Minutes" $ExportFile)${ValueColor}:${HighlightColor}\$(jq -r ".Uptime.Seconds" $ExportFile)"
+      UptimeRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r .Uptime.Days $ExportFile) ${ValueColor}day(s). ${HighlightColor}\$(jq -r .Uptime.Hours $ExportFile)${ValueColor}:${HighlightColor}\$(jq -r .Uptime.Minutes $ExportFile)${ValueColor}:${HighlightColor}\$(jq -r .Uptime.Seconds $ExportFile)"
     fi
-    echo "${UptimeRender}\n"
+    echo "${UptimeRender}"
   fi
 }
 
 RenderCpuUsage () {
   CpuUsageAverage=$(jq -r ".CpuUsage.Average" $ExportFile)
   if [[ ! -z $CpuUsageAverage ]] && [[ "$CpuUsageAverage" != "null" ]] && [[ "$CpuUsageAverage" != "Unknown" ]] ; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="CPU Usage"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
     CpuUsageRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${CpuUsageAverage}%${ValueColor} avg over ${HighlightColor}$(jq -r ".CpuUsage.CpuCount" $ExportFile) ${ValueColor}cpu(s) (${HighlightColor}$(jq -r ".CpuUsage.CoreCount" $ExportFile) ${ValueColor}core(s) x ${HighlightColor}$(jq -r ".CpuUsage.SocketCount" $ExportFile) ${ValueColor}socket(s))"
     elif [[ "$RenderTime" == "cache" ]] ; then
-    CpuUsageRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r ".CpuUsage.Average" $ExportFile)%${ValueColor} avg over ${HighlightColor}\$(jq -r ".CpuUsage.CpuCount" $ExportFile) ${ValueColor}cpu(s) (${HighlightColor}\$(jq -r ".CpuUsage.CoreCount" $ExportFile) ${ValueColor}core(s) x ${HighlightColor}\$(jq -r ".CpuUsage.SocketCount" $ExportFile) ${ValueColor}socket(s))"
+    CpuUsageRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r .CpuUsage.Average $ExportFile)%${ValueColor} avg over ${HighlightColor}\$(jq -r .CpuUsage.CpuCount $ExportFile) ${ValueColor}cpu(s) (${HighlightColor}\$(jq -r .CpuUsage.CoreCount $ExportFile) ${ValueColor}core(s) x ${HighlightColor}\$(jq -r .CpuUsage.SocketCount $ExportFile) ${ValueColor}socket(s))"
     fi
-    echo "${CpuUsageRender}\n"
+    echo "${CpuUsageRender}"
   fi
 }
 
 RenderCpuLoad () {
   CpuLoad=$(jq -r ".CpuLoad.Value" $ExportFile)
   if [[ ! -z $CpuLoad ]] && [[ "$CpuLoad" != "null" ]] && [[ "$CpuLoad" != "Unknown" ]] ; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="CPU Load"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
       CpuLoadRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${CpuLoad}"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      CpuLoadRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r ".CpuLoad.Value" $ExportFile)"
+      CpuLoadRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r .CpuLoad.Value $ExportFile)"
     fi
-    echo "${CpuLoadRender}\n"
+    echo "${CpuLoadRender}"
   fi
 }
 
 RenderMemory () {
   MemTotalGB=$(jq -r ".Memory.TotalGB" $ExportFile)
   if [[ ! -z $MemTotalGB ]] && [[ "$MemTotalGB" != "null" ]] && [[ "$MemTotalGB" != "Unknown" ]] ; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="Memory"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
-      MemoryRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}$(jq -r ".Memory.FreeGB" $ExportFile)GB${ValueColor} (${HighlightColor}$(jq -r ".Memory.FreePerc" $ExportFile)%${ValueColor}), Used: ${HighlightColor}$(jq -r ".Memory.UsedGB" $ExportFile)GB${ValueColor} (${HighlightColor}$(jq -r ".Memory.UsedPerc" $ExportFile)%${ValueColor}), Total: ${HighlightColor}${MemTotalGB}GB${ValueColor}"
+      MemoryRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}$(jq -r .Memory.FreeGB $ExportFile)GB${ValueColor} (${HighlightColor}$(jq -r .Memory.FreePerc $ExportFile)%${ValueColor}), Used: ${HighlightColor}$(jq -r .Memory.UsedGB $ExportFile)GB${ValueColor} (${HighlightColor}$(jq -r .Memory.UsedPerc $ExportFile)%${ValueColor}), Total: ${HighlightColor}$(jq -r .Memory.TotalGB $ExportFile)GB${ValueColor}"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      MemoryRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}\$(jq -r ".Memory.FreeGB" $ExportFile)GB${ValueColor} (${HighlightColor}\$(jq -r ".Memory.FreePerc" $ExportFile)%${ValueColor}), Used: ${HighlightColor}\$(jq -r ".Memory.UsedGB" $ExportFile)GB${ValueColor} (${HighlightColor}\$(jq -r ".Memory.UsedPerc" $ExportFile)%${ValueColor}), Total: ${HighlightColor}\$(jq -r ".Memory.TotalGB" $ExportFile)GB${ValueColor}"
+      MemoryRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}\$(jq -r .Memory.FreeGB ${ExportFile})GB${ValueColor} (${HighlightColor}\$(jq -r .Memory.FreePerc ${ExportFile})%${ValueColor}), Used: ${HighlightColor}\$(jq -r .Memory.UsedG ${ExportFile})GB${ValueColor} (${HighlightColor}\$(jq -r .Memory.UsedPerc ${ExportFile})%${ValueColor}), Total: ${HighlightColor}\$(jq -r .Memory.TotalGB ${ExportFile})GB${ValueColor}"
     fi
-    echo "${MemoryRender}\n"
+    echo "${MemoryRender}"
   fi
 }
 
 RenderSwap () {
   SwapTotalGB=$(jq -r ".Swap.TotalGB" $ExportFile)
   if [[ ! -z $SwapTotalGB ]] && [[ "$SwapTotalGB" != "null" ]] && [[ "$SwapTotalGB" != "Unknown" ]] ; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="Swap"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
-      SwapRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}$(jq -r ".Swap.FreeGB" $ExportFile)GB ${ValueColor}(${HighlightColor}$(jq -r ".Swap.FreePerc" $ExportFile)%${ValueColor}), Used: ${HighlightColor}$(jq -r ".Swap.UsedGB" $ExportFile)GB ${ValueColor}(${HighlightColor}$(jq -r ".Swap.UsedPerc" $ExportFile)%${ValueColor}), Total: ${HighlightColor}${SwapTotalGB}GB"
+      SwapRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}$(jq -r .Swap.FreeGB ${ExportFile})GB ${ValueColor}(${HighlightColor}$(jq -r .Swap.FreePerc ${ExportFile})%${ValueColor}), Used: ${HighlightColor}$(jq -r .Swap.UsedGB ${ExportFile})GB ${ValueColor}(${HighlightColor}$(jq -r .Swap.UsedPerc ${ExportFile})%${ValueColor}), Total: ${HighlightColor}$(jq -r .Swap.TotalGB ${ExportFile})GB"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      SwapRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}\$(jq -r ".Swap.FreeGB" $ExportFile)GB ${ValueColor}(${HighlightColor}\$(jq -r ".Swap.FreePerc" $ExportFile)%${ValueColor}), Used: ${HighlightColor}\$(jq -r ".Swap.UsedGB" $ExportFile)GB ${ValueColor}(${HighlightColor}\$(jq -r ".Swap.UsedPerc" $ExportFile)%${ValueColor}), Total: ${HighlightColor}\$(jq -r ".Swap.TotalGB" $ExportFile)GB"
+      SwapRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}\$(jq -r .Swap.FreeGB ${ExportFile})GB ${ValueColor}(${HighlightColor}\$(jq -r .Swap.FreePerc ${ExportFile})%${ValueColor}), Used: ${HighlightColor}\$(jq -r .Swap.UsedGB ${ExportFile})GB ${ValueColor}(${HighlightColor}\$(jq -r .Swap.UsedPerc ${ExportFile})%${ValueColor}), Total: ${HighlightColor}\$(jq -r .Swap.TotalGB ${ExportFile})GB"
     fi
-    echo "${SwapRender}\n"
+    echo "${SwapRender}"
   fi
 }
 
 RenderRoot () {
   DiskRootTotalGB=$(jq -r ".DiskRoot.TotalGB" $ExportFile)
   if [[ ! -z $DiskRootTotalGB ]] && [[ "$DiskRootTotalGB" != "null" ]] && [[ "$DiskRootTotalGB" != "Unknown" ]] ; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="Root"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
-      DiskRootRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}$(jq -r ".DiskRoot.FreeGB" $ExportFile)GB ${ValueColor}(${HighlightColor}$(jq -r ".DiskRoot.FreePerc" $ExportFile)%${ValueColor}), Used: ${HighlightColor}$(jq -r ".DiskRoot.UsedGB" $ExportFile)GB ${ValueColor}(${HighlightColor}$(jq -r ".DiskRoot.UsedPerc" $ExportFile)%${ValueColor}), Total: ${HighlightColor}${DiskRootTotalGB}GB"
+      DiskRootRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}$(jq -r .DiskRoot.FreeGB ${ExportFile})GB ${ValueColor}(${HighlightColor}$(jq -r .DiskRoot.FreePerc ${ExportFile})%${ValueColor}), Used: ${HighlightColor}$(jq -r .DiskRoot.UsedGB ${ExportFile})GB ${ValueColor}(${HighlightColor}$(jq -r .DiskRoot.UsedPerc ${ExportFile})%${ValueColor}), Total: ${HighlightColor}$(jq -r .DiskRoot.TotalGB ${ExportFile})GB"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      DiskRootRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}\$(jq -r ".DiskRoot.FreeGB" $ExportFile)GB ${ValueColor}(${HighlightColor}\$(jq -r ".DiskRoot.FreePerc" $ExportFile)%${ValueColor}), Used: ${HighlightColor}\$(jq -r ".DiskRoot.UsedGB" $ExportFile)GB ${ValueColor}(${HighlightColor}\$(jq -r ".DiskRoot.UsedPerc" $ExportFile)%${ValueColor}), Total: ${HighlightColor}\$(jq -r ".DiskRoot.TotalGB" $ExportFile)GB"
+      DiskRootRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}\$(jq -r .DiskRoot.FreeGB ${ExportFile})GB ${ValueColor}(${HighlightColor}\$(jq -r .DiskRoot.FreePerc ${ExportFile})%${ValueColor}), Used: ${HighlightColor}\$(jq -r .DiskRoot.UsedGB ${ExportFile})GB ${ValueColor}(${HighlightColor}\$(jq -r .DiskRoot.UsedPerc ${ExportFile})%${ValueColor}), Total: ${HighlightColor}\$(jq -r .DiskRoot.TotalGB ${ExportFile})GB"
     fi
-    echo "${DiskRootRender}\n"
+    echo "${DiskRootRender}"
   fi
 }
 
 RenderUpdates () {
   UpdateCount=$(jq -r ".Updates.Count" $ExportFile)
   if [[ ! -z $UpdateCount ]] && [[ "$UpdateCount" != "null" ]] && [[ "$UpdateCount" != "Unknown" ]] ; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="Updates"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
-      UpdatesRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${UpdateCount} $(jq -r ".Updates.Type" $ExportFile) ${ValueColor}updates available."
+      UpdatesRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}$(jq -r .Updates.Count ${ExportFile}) $(jq -r .Updates.Type ${ExportFile}) ${ValueColor}updates available."
     elif [[ "$RenderTime" == "cache" ]] ; then
-      UpdatesRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r ".Updates.Count" $ExportFile) \$(jq -r ".Updates.Type" $ExportFile) ${ValueColor}updates available."
+      UpdatesRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r .Updates.Count ${ExportFile}) \$(jq -r .Updates.Type ${ExportFile}) ${ValueColor}updates available."
     fi
-    echo "${UpdatesRender}\n"
+    echo "${UpdatesRender}"
   fi
 }
 
 RenderSessions () {
   SessionCount=$(jq -r ".Sessions.Count" $ExportFile)
   if [[ ! -z $SessionCount ]] && [[ "$SessionCount" != "null" ]] && [[ "$SessionCount" != "Unknown" ]] ; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="Sessions"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
-      SessionsRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${SessionCount} session(s)"
+      SessionsRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}$(jq -r .Sessions.Count ${ExportFile}) session(s)"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      SessionsRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r ".Sessions.Count" $ExportFile) session(s)"
+      SessionsRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r .Sessions.Count ${ExportFile}) session(s)"
     fi
-    echo "${SessionsRender}\n"
+    echo "${SessionsRender}"
   fi
 }
 
@@ -1387,80 +1385,80 @@ RenderProcesses () {
   ProcessCount=$(jq -r ".Processes.Count" $ExportFile)
   ProcessMax=$(jq -r ".Processes.Max" $ExportFile)
   if [[ ! -z $ProcessCount ]] && [[ "$ProcessCount" != "null" ]] && [[ "$ProcessCount" != "Unknown" ]] ; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="Processes"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
-      ProcessesRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${ProcessCount} ${ValueColor}running processes of ${HighlightColor}$(jq -r ".Processes.Max" $ExportFile) ${ValueColor}maximum processes"
+      ProcessesRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}$(jq -r .Processes.Count ${ExportFile}) ${ValueColor}running processes of ${HighlightColor}$(jq -r .Processes.Max ${ExportFile}) ${ValueColor}maximum processes"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      ProcessesRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r ".Processes.Count" $ExportFile) ${ValueColor}running processes of ${HighlightColor}\$(jq -r ".Processes.Max" $ExportFile) ${ValueColor}maximum processes"
+      ProcessesRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r .Processes.Count ${ExportFile}) ${ValueColor}running processes of ${HighlightColor}\$(jq -r .Processes.Max ${ExportFile}) ${ValueColor}maximum processes"
     fi
-    echo "${ProcessesRender}\n"
+    echo "${ProcessesRender}"
   fi
 }
 
 RenderHttpd () {
   HttpdVersion=$(jq -r ".Httpd.Version" $ExportFile)
   if [[ ! -z $HttpdVersion ]] && [[ "$HttpdVersion" != "null" ]] && [[ "$HttpdVersion" != "Unknown" ]] ; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="Apache"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
-      HttpdRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${HttpdVersion}\n"
+      HttpdRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: $(jq -r .Httpd.Version ${ExportFile})"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      HttpdRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: \$(jq -r ".Httpd.Version" $ExportFile)"
+      HttpdRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: \$(jq -r .Httpd.Version ${ExportFile})"
     fi
-    echo "${HttpdRender}\n"
+    echo "${HttpdRender}"
   fi
 }
 
 RenderNginx () {
   NginxVersion=$(jq -r ".Nginx.Version" $ExportFile)
   if [[ ! -z $NginxVersion ]] && [[ "$NginxVersion" != "null" ]] && [[ "$NginxVersion" != "Unknown" ]] ; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="Nginx"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
-      NginxRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${NginxVersion}"
+      NginxRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: $(jq -r .Nginx.Version ${ExportFile})"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      NginxRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: \$(jq -r ".Nginx.Version" $ExportFile)"
+      NginxRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: \$(jq -r .Nginx.Version ${ExportFile})"
     fi
-    echo "${NginxRender}\n"
+    echo "${NginxRender}"
   fi
 }
 
 RenderMysql () {
   MysqlVersion=$(jq -r ".Mysql.Version" $ExportFile)
   if [[ ! -z $MysqlVersion ]] && [[ "$MysqlVersion" != "null" ]] && [[ "$MysqlVersion" != "Unknown" ]] ; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="MySQL"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
-      MysqlRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${MysqlVersion} Distribution: $(jq -r ".Mysql.Distribution" $ExportFile)"
+      MysqlRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: $(jq -r .Mysql.Version ${ExportFile}), Distribution: $(jq -r .Mysql.Distribution ${ExportFile})"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      MysqlRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: \$(jq -r ".Mysql.Version" $ExportFile) Distribution: \$(jq -r ".Mysql.Distribution" $ExportFile)"
+      MysqlRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: \$(jq -r .Mysql.Version ${ExportFile}), Distribution: \$(jq -r .Mysql.Distribution ${ExportFile})"
     fi
-    echo "${MysqlRender}\n"
+    echo "${MysqlRender}"
   fi
 }
 
 RenderPostgres () {
   PostgresVersion=$(jq -r ".Postgres.Version" $ExportFile)
   if [[ ! -z $PostgresVersion ]] && [[ "$PostgresVersion" != "null" ]]  && [[ "$PostgresVersion" != "Unknown" ]]; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="PostgresQL"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
-    PostgresRender=echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${PostgresVersion}"
+    PostgresRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: $(jq -r .Postgres.Version ${ExportFile})"
     elif [[ "$RenderTime" == "cache" ]] ; then
-    PostgresRender=echo "${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: \$(jq -r ".Postgres.Version" $ExportFile)"
+    PostgresRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: \$(jq -r .Postgres.Version ${ExportFile})"
     fi
-    echo "${PostgresRender}\n"
+    echo "${PostgresRender}"
   fi
 }
 
@@ -1468,81 +1466,80 @@ RenderPhp () {
   PhpVersion=$(jq -r ".Php.Version" $ExportFile)
   PhpMaxMemory=$(jq -r ".Php.MaxMemory" $ExportFile)
   if [[ ! -z $PhpVersion ]] && [[ "$PhpVersion" != "null" ]] && [[ "$PhpVersion" != "Unknown" ]] ; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="PHP"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
-      PhpRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${HighlightColor}${PhpVersion}${ValueColor}, Memory Limit: ${HighlightColor}$(jq -r ".Php.MaxMemory" $ExportFile)"
+      PhpRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${HighlightColor}$(jq -r .Php.Version ${ExportFile})${ValueColor}, Memory Limit: ${HighlightColor}$(jq -r .Php.MaxMemory ${ExportFile})"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      PhpRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${HighlightColor}\$(jq -r ".Php.Version" $ExportFile)${ValueColor}, Memory Limit: ${HighlightColor}\$(jq -r ".Php.MaxMemory" $ExportFile)"
+      PhpRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${HighlightColor}\$(jq -r .Php.Version ${ExportFile})${ValueColor}, Memory Limit: ${HighlightColor}\$(jq -r .Php.MaxMemory ${ExportFile})"
     fi
-    echo "${PhpRender}\n"
+    echo "${PhpRender}"
   fi
 }
 
 RenderElasticsearch () {
   ElasticsearchVersion=$(jq -r ".Elasticsearch.Version" $ExportFile)
   if [[ ! -z $ElasticsearchVersion ]] && [[ "$ElasticsearchVersion" != "Unknown" ]] && [[ "$ElasticsearchVersion" != "null" ]] ; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="Elasticsearch"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
-    ElasticsearchRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${ElasticsearchVersion}"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
-      ElasticsearchRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${ElasticsearchVersion}"
+      ElasticsearchRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: $(jq -r .Elasticsearch.Version ${ExportFile})"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      ElasticsearchRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: \$(jq -r ".Elasticsearch.Version" $ExportFile)"
+      ElasticsearchRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: \$(jq -r .Elasticsearch.Version ${ExportFile})"
     fi
-    echo "${ElasticsearchRender}\n"
+    echo "${ElasticsearchRender}"
   fi
 }
 
 RenderLogstash () {
   LogstashVersion=$(jq -r ".Logstash.Version" $ExportFile)
   if [[ ! -z $LogstashVersion ]] && [[ "$LogstashVersion" != "Unknown" ]] && [[ "$LogstashVersion" != "null" ]] ; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="Logstash"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
-      LogstashRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${LogstashVersion}"
+      LogstashRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: $(jq -r .Logstash.Version ${ExportFile})"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      LogstashRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: \$(jq -r ".Logstash.Version" $ExportFile)"
+      LogstashRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: \$(jq -r .Logstash.Version ${ExportFile})"
     fi
-    echo "${LogstashRender}\n"
+    echo "${LogstashRender}"
   fi
 }
 
 RenderKibana () {
   KibanaVersion=$(jq -r ".Kibana.Version" $ExportFile)
   if [[ ! -z $KibanaVersion ]] && [[ "$KibanaVersion" != "Unknown" ]] && [[ "$KibanaVersion" != "null" ]] ; then
-    PrintChar "$Char" 2 $CharColor
+    PrintChar "$Char" 2 "$CharColor"
     InfoKey="Kibana"
-    PreKeySpace=$((${SeparatorSpace} - ${#InfoKey}))
-    PreKeyString="$(PrintChar " " $PreKeySpace $CharColor)"
+    PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
+    PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
-      KibanaRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${KibanaVersion}"
+      KibanaRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: $(jq -r .Kibana.Version ${ExportFile})"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      KibanaRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: $(jq -r ".Kibana.Version" $ExportFile)"
+      KibanaRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: \$(jq -r .Kibana.Version ${ExportFile})"
     fi
-    echo "${KibanaRender}\n"
+    echo "${KibanaRender}"
   fi
 }
 
 GenerateLine () {
   WriteLog Debug Info "Generating \"${Type}\""
-  PrintChar "$Char" $Length $CharColor
+  PrintChar "$Char" "$Length" "$CharColor"
   if [[ "$RenderTime" == "live" ]] ; then
     echo -en "\n"
   elif [[ "$RenderTime" == "cache" ]] ; then
-    echo -en "\n" >> /usr/share/firemotd/cache/firemotd-${Theme}.motd
+    echo -en "\n" >> "/usr/share/firemotd/cache/firemotd-${Theme}.motd"
   fi
 }
 
 GenerateHeader () {
   WriteLog Debug Info "Generating \"${Type}\""
-  ValueColor=$(jq -r --arg i "$i" '.Template[$i | tonumber].ValueColor' $Template)
+  ValueColor=$(jq -r --arg i "$i" ".Template[$i | tonumber].ValueColor" "$Template")
   if [[ "$ValueColor" == "null" ]] ; then ValueColor=$DefaultValueColor ; fi
   HostNameHeader="$(hostname)"
   HostChars=$((${#HostNameHeader} + 9))
@@ -1550,17 +1547,17 @@ GenerateHeader () {
     HostNameHeader=${HostNameHeader:0:39}
     HostChars=47
   fi
-  LeftoverChars=$((Length - HostChars -10))
-  (( $LeftoverChars <= 0 )) && LeftoverChars=0
-  PrintChar "$Char" 15 $CharColor
-  PrintChar " " 2 $CharColor
-  PrintChar "$HostNameHeader" 1 $ValueColor
-  PrintChar " " 2 $CharColor
-  PrintChar "$Char" $LeftoverChars $CharColor
+  LeftoverChars=$(( Length - HostChars -10 ))
+  (( LeftoverChars <= 0 )) && LeftoverChars=0
+  PrintChar "$Char" 15 "$CharColor"
+  PrintChar " " 2 "$CharColor"
+  PrintChar "$HostNameHeader" 1 "$ValueColor"
+  PrintChar " " 2 "$CharColor"
+  PrintChar "$Char" "$LeftoverChars" "$CharColor"
   if [[ "$RenderTime" == "live" ]] ; then
     echo -en "\n"
   elif [[ "$RenderTime" == "cache" ]] ; then
-    echo -en "\n" >> /usr/share/firemotd/cache/firemotd-${Theme}.motd
+    echo -en "\n" >> "/usr/share/firemotd/cache/firemotd-${Theme}.motd"
   fi
 }
 
@@ -1581,12 +1578,12 @@ GenerateInfo () {
   RenderResult="$("Render${Value}")"
   if [[ "$RenderResult" != "" ]] ; then
     if [[ "$RenderTime" == "live" ]] ; then
-      echo -ne "$RenderResult\e[0m"
+      echo -ne "$RenderResult\n\e[0m"
     elif [[ "$RenderTime" == "cache" ]] ; then
       if [ "$Debug" = 1 ] ; then
-        echo -ne "$RenderResult\e[0m"
+        echo -ne "$RenderResult\n\e[0m"
       fi
-      echo -ne "$RenderResult\e[0m" >> "/usr/share/firemotd/cache/firemotd-${Theme}.motd"
+      echo -ne "$RenderResult\n\e[0m" >> "/usr/share/firemotd/cache/firemotd-${Theme}.motd"
     fi
   fi
 }
@@ -1626,7 +1623,7 @@ PrintTemplate () {
   if [[ "$DefaultValueColor" == "null" ]] ; then DefaultValueColor="\e[0m" ; fi
   DefaultHighlightColor=$(jq -r '.DefaultSettings.HighlightColor' "$Template")
   if [[ "$DefaultHighlightColor" == "null" ]] ; then DefaultHighlightColor="\e[0m" ; fi
-  WriteLog Debug Info "Temlate default Char \"$DefaultChar\" CharColor \"$DefaultCharColor\" Length \"$DefaultLentgh\" Separator \"$DefaultSeparator\" SeparatorColor \"$DefaultSeparatorColor\""
+  WriteLog Debug Info "Temlate default Char \"$DefaultChar\" CharColor \"$DefaultCharColor\" Length \"$DefaultCharLentgh\" Separator \"$DefaultSeparator\" SeparatorColor \"$DefaultSeparatorColor\""
   if jq '.' "$Template" >/dev/null 2>&1 ; then
     WriteLog Verbose Info "Parsed json file $Template successfully."
     LineCount=$(jq '.Template | length' "$Template")
@@ -1639,8 +1636,8 @@ PrintTemplate () {
       CharColor=$(jq -r --arg i "$i" ".Template[$i | tonumber].CharColor" "$Template")
       if [[ "$CharColor" == "null" ]] ; then CharColor=$DefaultCharColor ; fi
       Length=$(jq -r --arg i "$i" ".Template[$i | tonumber].Length" "$Template")
-      if [[ "$Length" == "null" ]] ; then Length=$DefaultLength ; fi
-      WriteLog Debug Info "Generating line $i, type \"$Type\", character \"$Char\", color \"$CharColor\", length \"$Length\"."
+      if [[ "$Length" == "null" ]] ; then Length=$DefaultCharLength ; fi
+      WriteLog Debug Info "Generating line \"$i\", type \"$Type\", character \"$Char\", color \"$CharColor\", length \"$Length\"."
       "Generate${Type}"
     done
   else
@@ -1680,7 +1677,7 @@ GenerateCache () {
   if [[ "$DefaultValueColor" == "null" ]] ; then DefaultValueColor="\e[0m" ; fi
   DefaultHighlightColor=$(jq -r '.DefaultSettings.HighlightColor' "$Template")
   if [[ "$DefaultHighlightColor" == "null" ]] ; then DefaultHighlightColor="\e[0m" ; fi
-  WriteLog Debug Info "Default \"$DefaultChar\" CharColor \"$DefaultCharColor\" Length \"$DefaultLentgh\" Separator \"$DefaultSeparator\" SeparatorColor \"$DefaultSeparatorColor\""
+  WriteLog Debug Info "Default \"$DefaultChar\" CharColor \"$DefaultCharColor\" Length \"$DefaultCharLentgh\" Separator \"$DefaultSeparator\" SeparatorColor \"$DefaultSeparatorColor\""
   if jq '.' "$Template" >/dev/null 2>&1 ; then
     WriteLog Verbose Info "Parsed template json for ${Theme} successfully."
     LineCount=$(jq '.Template | length' "$Template")
@@ -1694,7 +1691,7 @@ GenerateCache () {
       if [[ "$CharColor" == "null" ]] ; then CharColor=$DefaultCharColor ; fi
       Length=$(jq -r --arg i "$i" ".Template[$i | tonumber].Length" "$Template")
       if [[ "$Length" == "null" ]] ; then Length=$DefaultCharLength ; fi
-      WriteLog Debug Info "Line $i ,type \"$Type\", char \"$Char\", color \"$CharColor\", length \"$Length\""
+      WriteLog Debug Info "Generating line \"$i\" ,type \"$Type\", char \"$Char\", color \"$CharColor\", length \"$Length\"."
       "Generate${Type}"
     done
   else
