@@ -1124,7 +1124,7 @@ Options:
    -C | --colortest                     Prints color test to screen
    -M | --colormap                      Prints color test including color numbers
    -S | --save                          Saves data to /usr/share/firemotd/data/FireMotD.json
-   -R | --RenderTime			Time to render FireMotD. Values van be cache (default) or live
+   -R | --RenderTime			Time to render FireMotD. Values can be cache (default) or live
    -G | --GenerateCache			Generates cache for give theme. Values can be 'all' or a theme name
   -MT | --MultiThreaded			Enable multithreaded Exploring. Experimental feature!
   -HV | --hideversion                   Hides version number (legacy themes)
