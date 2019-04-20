@@ -217,7 +217,7 @@ ExploreHostIp () {
             WriteLog Verbose Warning "Path doesn't contain ip tool"
         fi
     fi
-    if [ -n $IpPath ] ; then
+    if [[ -n $IpPath ]] ; then
         HostIp="$(${IpPath} route get 8.8.8.8 | head -1 | grep -Po '(?<=src )(\d{1,3}.){4}' | xargs)"
         if [[ ! $HostIp =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             HostIp="Unable to parse ip $HostIp. Please debug."
@@ -657,7 +657,7 @@ LoadData () {
     i=0
     if [[ "$MultiThreaded" == "1" ]] ; then
       Procs=$(nproc --all)
-      let Procs++
+      (( Procs++ ))
     fi
     while read -r val ; do
       if [[ "$MultiThreaded" == "1" ]] ; then
@@ -669,7 +669,7 @@ LoadData () {
           WriteLog Debug Info "More then $Procs jobs running. Waiting for completion"
           sleep 0.1
         done
-        let i++
+        (( i++ ))
       else
          WriteLog Verbose Info "Exploring ${val}"
          "Explore${val}"
@@ -987,7 +987,7 @@ read -d '' HtmlCode <<EOF
             </tr>
             <tr>
                 <td>CPU Usage</td>
-                <td><span>${CpuUtil}</span> average CPU usage over <span>$CpuProc</span> core(s)</td>
+                <td><span>${CpuUsageAverage}</span> average CPU usage over <span>$CpuUsageCpuCount</span> core(s)</td>
             </tr>
             <tr>
                 <td>CPU Load</td>
@@ -995,15 +995,15 @@ read -d '' HtmlCode <<EOF
             </tr>
             <tr>
                 <td>Memory</td>
-                <td>Free: <span>${MemFree}</span>GB (<span>$MemFreePerc</span>%), Used: <span>${MemUsed}</span>GB (<span>$MemUsedPerc</span>%), Total: <span>${MemTotal}</span>GB</td>
+                <td>Free: <span>${MemFreeGB}</span>GB (<span>$MemFreePerc</span>%), Used: <span>${MemUsedGB}</span>GB (<span>$MemUsedPerc</span>%), Total: <span>${MemTotalGB}</span>GB</td>
             </tr>
             <tr>
                 <td>Swap</td>
-                <td>Free: <span>${SwapFree}</span>GB (<span>$SwapFreePerc</span>%), Used: <span>${SwapUsed}</span>GB (<span>$SwapUsedPerc</span>%), Total: <span>${SwapTotal}</span>GB</td>
+                <td>Free: <span>${SwapFreeGB}</span>GB (<span>$SwapFreePerc</span>%), Used: <span>${SwapUsedGB}</span>GB (<span>$SwapUsedPerc</span>%), Total: <span>${SwapTotalGB}</span>GB</td>
             </tr>
             <tr>
                 <td>Root</td>
-                <td>Free: <span>${RootFree}</span>GB (<span>$RootFreePerc</span>%), Used: <span>${RootUsed}</span>GB (<span>$RootUsedPerc</span>%), Total: <span>${RootTotal}</span>GB</td>
+                <td>Free: <span>${DiskRootFreeGB}</span>GB (<span>$DiskRootFreePerc</span>%), Used: <span>${DiskRootUsedGB}</span>GB (<span>$DiskRootUsedPerc</span>%), Total: <span>${DiskRootTotalGB}</span>GB</td>
             </tr>
             <tr>
                 <td>Updates</td>
@@ -1029,20 +1029,20 @@ EOF
                 <td>Apache Info</td>
                 <td>Version: <span>$HttpdVersion</span></td>
             </tr>"
-    [[ -n $nginxVersion ]] && HtmlCode+="
+    [[ -n $NginxVersion ]] && HtmlCode+="
             <tr>
                 <td>nginx Info</td>
-                <td>Version: <span>$nginxVersion</span></td>
+                <td>Version: <span>$NginxVersion</span></td>
             </tr>"
-    [[ -n $MySqlVersion ]] && HtmlCode+="
+    [[ -n $MysqlVersion ]] && HtmlCode+="
             <tr>
                 <td>MySQL Info</td>
-                <td>Version: <span>$MySqlVersion</span>, Distribution: <span>$MySqlDistribution</span></td>
+                <td>Version: <span>$MysqlVersion</span>, Distribution: <span>$MysqlDistribution</span></td>
             </tr>"
-    [[ -n $PostgreSqlVersion ]] && HtmlCode+="
+    [[ -n $PostgresVersion ]] && HtmlCode+="
             <tr>
                 <td>PostgreSQL Info</td>
-                <td>Version: <span>$PostgreSqlVersion</span></td>
+                <td>Version: <span>$PostgresVersion</span></td>
             </tr>"
 
     HtmlCode+="
@@ -1610,7 +1610,7 @@ PrintTemplate () {
   DefaultKeyColor=$(jq -r '.DefaultSettings.KeyColor' "$Template")
   if [[ "$DefaultKeyColor" == "null" ]] ; then DefaultKeyColor="\e[0m" ; fi
   DefaultCharLength=$(jq -r '.DefaultSettings.Length' "$Template")
-  if [[ "$DefaultCharLenght" == "null" ]] ; then DefaultCharLength="79" ; fi
+  if [[ "$DefaultCharLength" == "null" ]] ; then DefaultCharLength="79" ; fi
   SeparatorSpace=$(jq -r '.DefaultSettings.SeparatorSpace' "$Template")
   if [[ "$SeparatorSpace" == "null" ]] ; then SeparatorSpace="10" ; fi
   (( SeparatorSpace < 8 )) && SeparatorSpace=0
@@ -1623,7 +1623,7 @@ PrintTemplate () {
   if [[ "$DefaultValueColor" == "null" ]] ; then DefaultValueColor="\e[0m" ; fi
   DefaultHighlightColor=$(jq -r '.DefaultSettings.HighlightColor' "$Template")
   if [[ "$DefaultHighlightColor" == "null" ]] ; then DefaultHighlightColor="\e[0m" ; fi
-  WriteLog Debug Info "Temlate default Char \"$DefaultChar\" CharColor \"$DefaultCharColor\" Length \"$DefaultCharLentgh\" Separator \"$DefaultSeparator\" SeparatorColor \"$DefaultSeparatorColor\""
+  WriteLog Debug Info "Temlate default Char \"$DefaultChar\" CharColor \"$DefaultCharColor\" Length \"$DefaultCharLength\" Separator \"$DefaultSeparator\" SeparatorColor \"$DefaultSeparatorColor\""
   if jq '.' "$Template" >/dev/null 2>&1 ; then
     WriteLog Verbose Info "Parsed json file $Template successfully."
     LineCount=$(jq '.Template | length' "$Template")
@@ -1664,7 +1664,7 @@ GenerateCache () {
   DefaultKeyColor=$(jq -r '.DefaultSettings.KeyColor' "$Template")
   if [[ "$DefaultKeyColor" == "null" ]] ; then DefaultKeyColor="\e[0m" ; fi
   DefaultCharLength=$(jq -r '.DefaultSettings.Length' "$Template")
-  if [[ "$DefaultCharLenght" == "null" ]] ; then DefaultCharLength="79" ; fi
+  if [[ "$DefaultCharLength" == "null" ]] ; then DefaultCharLength="79" ; fi
   SeparatorSpace=$(jq -r '.DefaultSettings.SeparatorSpace' "$Template")
   if [[ "$SeparatorSpace" == "null" ]] ; then SeparatorSpace="10" ; fi
   (( SeparatorSpace < 8 )) && SeparatorSpace=0
@@ -1677,7 +1677,7 @@ GenerateCache () {
   if [[ "$DefaultValueColor" == "null" ]] ; then DefaultValueColor="\e[0m" ; fi
   DefaultHighlightColor=$(jq -r '.DefaultSettings.HighlightColor' "$Template")
   if [[ "$DefaultHighlightColor" == "null" ]] ; then DefaultHighlightColor="\e[0m" ; fi
-  WriteLog Debug Info "Default \"$DefaultChar\" CharColor \"$DefaultCharColor\" Length \"$DefaultCharLentgh\" Separator \"$DefaultSeparator\" SeparatorColor \"$DefaultSeparatorColor\""
+  WriteLog Debug Info "Default \"$DefaultChar\" CharColor \"$DefaultCharColor\" Length \"$DefaultCharLength\" Separator \"$DefaultSeparator\" SeparatorColor \"$DefaultSeparatorColor\""
   if jq '.' "$Template" >/dev/null 2>&1 ; then
     WriteLog Verbose Info "Parsed template json for ${Theme} successfully."
     LineCount=$(jq '.Template | length' "$Template")
@@ -1760,6 +1760,8 @@ InstallFireMotD () {
   WriteLog Verbose Info "Creating data folder"
   mkdir -p /usr/share/firemotd/data
   WriteLog Verbose Info "Creating cache folder"
+  # 0777 will only be granted to "cache" folder - expected behaviour (refer to SC2174)
+  # shellcheck disable=SC2174
   mkdir -m 0777 -p /usr/share/firemotd/cache
   WriteLog Verbose Info "Downloading themes"
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blanco.json -o /usr/share/firemotd/themes/FireMotD-theme-Blanco.json
