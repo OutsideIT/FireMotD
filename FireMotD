@@ -34,7 +34,7 @@ LANG="C"
 RenderTime="cache"
 
 WriteLog () {
-  if [ ! -z "$ScriptName" ] ; then
+  if [ -n "$ScriptName" ] ; then
     ScriptName="$(basename "$(readlink -f "$0")")"
   fi
   if [ -z "$1" ] ; then
@@ -61,7 +61,7 @@ WriteLog () {
   elif [ -f "$1" ] ; then
     echo "${Now}: $ScriptName: $2: $3" >> "$1"
   fi
-  if [ ! -z "$LogLocal" ] ; then
+  if [ -n "$LogLocal" ] ; then
     if [ "$1" = "Debug" ] && [ "$Debug" = 1 ] ; then
       echo "$Now: $ScriptName: $2: $3 " >> "$LogLocal"
     elif [ "$1" = "Verbose" ] && [ "$Verbose" = 1 ] ; then
@@ -73,7 +73,7 @@ WriteLog () {
 }
 
 ColorTest () {
-    ColorMap=1; [[ (! -z $1) && ($1 -eq 0) ]] && ColorMap=0
+    ColorMap=1; [[ (-n $1) && ($1 -eq 0) ]] && ColorMap=0
     echo -n -e "\n\e[1mYour terminal \e[4mdoes not\e[24m support 256 colors if:\e[0m\n"
     echo " * The Color Cube colors are the same as System Colors"
     echo " * Your gray scale ramp has only 3 variations"
@@ -161,7 +161,7 @@ VersionComparison () {
 
 IsInstalled () {
   if [[ -x "/usr/bin/yum" ]] ; then
-    YumExec=$(which yum 2>/dev/null)
+    YumExec=$(command -v yum 2>/dev/null)
     if $YumExec list installed "$@" >/dev/null 2>&1; then true ; else false ; fi
   elif [[ -x "/usr/bin/zypper" ]] ; then
     WriteLog Verbose Info "No install check for zypper available."
@@ -207,7 +207,7 @@ ExploreHostName () {
 
 ExploreHostIp () {
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
-    IpPath="$(which ip 2>/dev/null)"
+    IpPath="$(command -v ip 2>/dev/null)"
     if [ -z "$IpPath" ] ; then
         if [ -f /usr/sbin/ip ] ; then
             IpPath="/usr/sbin/ip"
@@ -217,7 +217,7 @@ ExploreHostIp () {
             WriteLog Verbose Warning "Path doesn't contain ip tool"
         fi
     fi
-    if [ ! -z $IpPath ] ; then
+    if [[ -n $IpPath ]] ; then
         HostIp="$(${IpPath} route get 8.8.8.8 | head -1 | grep -Po '(?<=src )(\d{1,3}.){4}' | xargs)"
         if [[ ! $HostIp =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             HostIp="Unable to parse ip $HostIp. Please debug."
@@ -226,8 +226,8 @@ ExploreHostIp () {
         HostIp="Unable to use ip route. Please debug."
     fi
     if [ -f /sys/hypervisor/uuid ] && [ "$(head -c 3 /sys/hypervisor/uuid)" == ec2 ]; then
-        CurlExec=$(which curl 2>/dev/null)
-        WgetExec=$(which wget 2>/dev/null)
+        CurlExec=$(command -v curl 2>/dev/null)
+        WgetExec=$(command -v wget 2>/dev/null)
         if [[ (-f $CurlExec) && (-x $CurlExec) ]]; then
             HostIp=$($CurlExec -s http://instance-data/latest/meta-data/public-ipv4)
         elif [[ (-f $WgetExec) && (-x $WgetExec) ]]; then
@@ -242,9 +242,9 @@ ExploreRelease () {
   ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
   ReleaseFull="$(cat /etc/*release)"
   Release="$(echo "$ReleaseFull" | head -n 1)"
-  if echo "$ReleaseFull" | egrep '(^CentOS*|^Red Hat*)' >/dev/null ; then
+  if echo "$ReleaseFull" | grep -E '(^CentOS*|^Red Hat*)' >/dev/null ; then
     Release="$(echo "$ReleaseFull" | tail -1)"
-  elif echo "$ReleaseFull" | egrep '(Debian)' >/dev/null ; then
+  elif echo "$ReleaseFull" | grep -E '(Debian)' >/dev/null ; then
     Release="$(echo "$ReleaseFull" | grep 'PRETTY_NAME' | cut -f2 -d'"')"
   elif [[ "$Release" == "SUSE"* ]] ; then
     Release=${Release%% \(*}
@@ -303,7 +303,7 @@ ExplorePlatform () {
         Platform="Windows Subsystem for Linux"
     elif [[ "$InitSystem" == "systemd" ]] ; then
         Custom="$(systemd-detect-virt)"
-        if [[ ! -z $Custom ]] ; then
+        if [[ -n $Custom ]] ; then
             if [[ "$Custom" = *"openvz"* ]] ; then
                 Platform="OpenVZ"
             elif [[ "$Custom" = *"vmware"* ]] ; then
@@ -336,7 +336,7 @@ ExploreUptime () {
 
 ExploreInstallDate () {
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
-    RpmPath="$(which rpm 2>/dev/null)"
+    RpmPath="$(command -v rpm 2>/dev/null)"
     if [[ (-f $RpmPath) && (-x $RpmPath) ]] ; then
         InstallDate=$(rpm -qi basesystem | grep "Install Date" | sed 's/Install Date: //g' | sed 's/Build Host: .*//g')
     fi
@@ -438,7 +438,7 @@ ExploreUpdates () {
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     if [[ -x "/usr/bin/yum" ]] ; then
         UpdateType="yum"
-        YumExec=$(which yum 2>/dev/null)
+        YumExec=$(command -v yum 2>/dev/null)
         UpdateCount=$(($($YumExec -d 0 check-update 2>/dev/null | wc -l)-1))
         if [ $UpdateCount == -1 ]; then
             UpdateCount=0
@@ -473,7 +473,7 @@ ExploreSessions () {
 ExploreProcesses () {
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     ProcessCount="$(ps -A --no-headers | wc -l)"
-    SysctlPath="$(which sysctl 2>/dev/null)"
+    SysctlPath="$(command -v sysctl 2>/dev/null)"
     if [ -z "$SysctlPath" ] ; then
         if [ -f /usr/sbin/sysctl ] ; then
             SysctlPath="/usr/sbin/sysctl"
@@ -491,7 +491,7 @@ ExploreProcesses () {
 
 ExploreHttpd () {
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
-    HttpdPath="$(which httpd 2>/dev/null)"
+    HttpdPath="$(command -v httpd 2>/dev/null)"
     [[ ! -f $HttpdPath ]] && HttpdPath="/usr/sbin/apache2ctl"
     [[ ! -f $HttpdPath ]] && HttpdPath="/usr/sbin/apache2"
     if [[ (-f $HttpdPath) && (-x $HttpdPath) ]] ; then
@@ -504,7 +504,7 @@ ExploreHttpd () {
 ExploreNginx () {
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     NginxVersion=""
-    NginxPath="$(which nginx 2>/dev/null)"
+    NginxPath="$(command -v nginx 2>/dev/null)"
     if [[ (-f $NginxPath) && (-x $NginxPath) ]] ; then
         NginxString="$(${NginxPath} -v 2>&1)"
         NginxVersion="$(echo "$NginxString" | awk -F"/" '{print $2}')"
@@ -517,7 +517,7 @@ ExploreMysql () {
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     MysqlVersion=""
     MysqlDistribution=""
-    MysqlPath="$(which mysql 2>/dev/null)"
+    MysqlPath="$(command -v mysql 2>/dev/null)"
     if [[ (-f $MysqlPath) && (-x $MysqlPath) ]] ; then
         MysqlString="$(${MysqlPath} --version 2>/dev/null)"
         MysqlVersion="$(echo "$MysqlString" | awk '{print $3}')"
@@ -531,7 +531,7 @@ ExploreMysql () {
 ExplorePostgres () {
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     PostgresVersion=""
-    PostgresPath="$(which psql 2>/dev/null)"
+    PostgresPath="$(command -v psql 2>/dev/null)"
     if [[ (-f $PostgresPath) && (-x $PostgresPath) ]] ; then
         PostgresString="$(${PostgresPath} --version 2>/dev/null)"
         PostgresVersion="$(echo "$PostgresString"  | head -n1 | awk '{print $3}')"
@@ -657,7 +657,7 @@ LoadData () {
     i=0
     if [[ "$MultiThreaded" == "1" ]] ; then
       Procs=$(nproc --all)
-      let Procs++
+      (( Procs++ ))
     fi
     while read -r val ; do
       if [[ "$MultiThreaded" == "1" ]] ; then
@@ -669,7 +669,7 @@ LoadData () {
           WriteLog Debug Info "More then $Procs jobs running. Waiting for completion"
           sleep 0.1
         done
-        let i++
+        (( i++ ))
       else
          WriteLog Verbose Info "Exploring ${val}"
          "Explore${val}"
@@ -714,41 +714,41 @@ $BlueScheme \e[38;5;93m $HostName $ShortBlueScheme $Space\e[38;5;98m$SVC$ShownVe
 $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme"
     fi
     HostIp=$(jq -r ".HostIp.Value" $ExportFile)
-    if [[ ! -z $HostIp ]] && [[ "$HostIp" != "null" ]] ; then
+    if [[ -n $HostIp ]] && [[ "$HostIp" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto            \e[38;5;39mIp \e[38;5;93m= \e[38;5;33m$HostIp"
     fi
     Release=$(jq -r ".Release.Value" $ExportFile)
-    if [[ ! -z $Release ]] && [[ "$Release" != "null" ]] ; then
+    if [[ -n $Release ]] && [[ "$Release" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto       \e[38;5;39mRelease \e[38;5;93m= \e[38;5;27m$Release"
     fi
     Kernel=$(jq -r ".Kernel.Value" $ExportFile)
-    if [[ ! -z $Kernel ]] && [[ "$Kernel" != "null" ]] ; then
+    if [[ -n $Kernel ]] && [[ "$Kernel" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto        \e[38;5;39mKernel \e[38;5;93m= \e[38;5;27m$Kernel"
     fi
     Platform=$(jq -r ".Platform.Value" $ExportFile)
-    if [[ ! -z $Platform ]] && [[ "$Platform" != "null" ]] ; then
+    if [[ -n $Platform ]] && [[ "$Platform" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto      \e[38;5;39mPlatform \e[38;5;93m= \e[38;5;27m$Platform"
     fi
     UptimeDays=$(jq -r ".Uptime.Days" $ExportFile)
     UptimeHours=$(jq -r ".Uptime.Hours" $ExportFile)
     UptimeMinutes=$(jq -r ".Uptime.Minutes" $ExportFile)
     UptimeSeconds=$(jq -r ".Uptime.Seconds" $ExportFile)
-    if [[ ! -z $UptimeDays ]] && [[ "$UptimeDays" != "null" ]] ; then
+    if [[ -n $UptimeDays ]] && [[ "$UptimeDays" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto        \e[38;5;39mUptime \e[38;5;93m= \e[38;5;33m${UptimeDays} \e[38;5;27mday(s). \e[38;5;33m${UptimeHours}\e[38;5;27m:\e[38;5;33m${UptimeMinutes}\e[38;5;27m:\e[38;5;33m${UptimeSeconds}"
     fi
     InstallDate=$(jq -r ".InstallDate.Value" $ExportFile)
-    if [[ ! -z $InstallDate ]] && [[ "$InstallDate" != "null" ]] ; then
+    if [[ -n $InstallDate ]] && [[ "$InstallDate" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto     \e[38;5;39mInstalled \e[38;5;93m= \e[38;5;27m$InstallDate"
     fi
     CpuUsageAverage=$(jq -r ".CpuUsage.Average" $ExportFile)
     CpuUsageCpuCount=$(jq -r ".CpuUsage.CpuCount" $ExportFile)
     CpuUsageCoreCount=$(jq -r ".CpuUsage.CoreCount" $ExportFile)
     CpuUsageSocketCount=$(jq -r ".CpuUsage.SocketCount" $ExportFile)
-    if [[ ! -z $CpuUsageAverage ]] && [[ "$CpuUsageAverage" != "null" ]] ; then
+    if [[ -n $CpuUsageAverage ]] && [[ "$CpuUsageAverage" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto     \e[38;5;39mCPU Usage \e[38;5;93m= \e[38;5;33m${CpuUsageAverage}\e[38;5;27m% avg over \e[38;5;33m$CpuUsageCpuCount \e[38;5;27mcpu(s) ($CpuUsageCoreCount core(s) x $CpuUsageSocketCount socket(s))"
     fi
     CpuLoad=$(jq -r ".CpuLoad.Value" $ExportFile)
-    if [[ ! -z $CpuLoad ]] && [[ "$CpuLoad" != "null" ]] ; then
+    if [[ -n $CpuLoad ]] && [[ "$CpuLoad" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto      \e[38;5;39mCPU Load \e[38;5;93m= \e[38;5;27m$CpuLoad"
     fi
     MemTotalGB=$(jq -r ".Memory.TotalGB" $ExportFile)
@@ -756,7 +756,7 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme"
     MemUsedGB=$(jq -r ".Memory.UsedGB" $ExportFile)
     MemFreePerc=$(jq -r ".Memory.FreePerc" $ExportFile)
     MemUsedPerc=$(jq -r ".Memory.UsedPerc" $ExportFile)
-    if [[ ! -z $MemTotalGB ]] && [[ "$MemTotalGB" != "null" ]] ; then
+    if [[ -n $MemTotalGB ]] && [[ "$MemTotalGB" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto        \e[38;5;39mMemory \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${MemFreeGB}\e[38;5;27mGB (\e[38;5;33m${MemFreePerc}\e[38;5;27m%), Used: \e[38;5;33m${MemUsedGB}\e[38;5;27mGB (\e[38;5;33m${MemUsedPerc}\e[38;5;27m%), Total: \e[38;5;33m${MemTotalGB}\e[38;5;27mGB"
     fi
     SwapTotalGB=$(jq -r ".Swap.TotalGB" $ExportFile)
@@ -764,7 +764,7 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme"
     SwapUsedGB=$(jq -r ".Swap.UsedGB" $ExportFile)
     SwapFreePerc=$(jq -r ".Swap.FreePerc" $ExportFile)
     SwapUsedPerc=$(jq -r ".Swap.UsedPerc" $ExportFile)
-    if [[ ! -z $SwapTotalGB ]] && [[ "$SwapTotalGB" != "null" ]] ; then
+    if [[ -n $SwapTotalGB ]] && [[ "$SwapTotalGB" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto          \e[38;5;39mSwap \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${SwapFreeGB}\e[38;5;27mGB (\e[38;5;33m$SwapFreePerc\e[38;5;27m%), Used: \e[38;5;33m${SwapUsedGB}\e[38;5;27mGB (\e[38;5;33m$SwapUsedPerc\e[38;5;27m%), Total: \e[38;5;33m${SwapTotalGB}\e[38;5;27mGB"
     fi
     DiskRootTotalGB=$(jq -r ".DiskRoot.TotalGB" $ExportFile)
@@ -772,51 +772,51 @@ $BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme"
     DiskRootUsedGB=$(jq -r ".DiskRoot.UsedGB" $ExportFile)
     DiskRootFreePerc=$(jq -r ".DiskRoot.FreePerc" $ExportFile)
     DiskRootUsedPerc=$(jq -r ".DiskRoot.UsedPerc" $ExportFile)
-    if [[ ! -z $DiskRootTotalGB ]] && [[ "$DiskRootTotalGB" != "null" ]] ; then
+    if [[ -n $DiskRootTotalGB ]] && [[ "$DiskRootTotalGB" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto          \e[38;5;39mRoot \e[38;5;93m= \e[38;5;27mFree: \e[38;5;33m${DiskRootFreeGB}\e[38;5;27mGB (\e[38;5;33m$DiskRootFreePerc\e[38;5;27m%), Used: \e[38;5;33m${DiskRootUsedGB}\e[38;5;27mGB (\e[38;5;33m$DiskRootUsedPerc\e[38;5;27m%), Total: \e[38;5;33m${DiskRootTotalGB}\e[38;5;27mGB"
     fi
     UpdateCount=$(jq -r ".Updates.Count" $ExportFile)
     UpdateType=$(jq -r ".Updates.Type" $ExportFile)
-    if [[ ! -z $UpdateCount ]] && [[ "$UpdateCount" != "null" ]] ; then
+    if [[ -n $UpdateCount ]] && [[ "$UpdateCount" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto       \e[38;5;39mUpdates \e[38;5;93m= \e[38;5;33m$UpdateCount\e[38;5;27m ${UpdateType} updates available"
     fi
     SessionCount=$(jq -r ".Sessions.Count" $ExportFile)
-    if [[ ! -z $SessionCount ]] && [[ "$SessionCount" != "null" ]] ; then
+    if [[ -n $SessionCount ]] && [[ "$SessionCount" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto      \e[38;5;39mSessions \e[38;5;93m= \e[38;5;33m$SessionCount\e[38;5;27m"
     fi
     ProcessCount=$(jq -r ".Processes.Count" $ExportFile)
     ProcessMax=$(jq -r ".Processes.Max" $ExportFile)
-    if [[ ! -z $ProcessCount ]] && [[ "$ProcessCount" != "null" ]] ; then
+    if [[ -n $ProcessCount ]] && [[ "$ProcessCount" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto     \e[38;5;39mProcesses \e[38;5;93m= \e[38;5;33m$ProcessCount\e[38;5;27m running processes of \e[38;5;33m$ProcessMax\e[38;5;27m maximum processes"
     fi
     HttpdVersion=$(jq -r ".Httpd.Version" $ExportFile)
-    if [[ ! -z $HttpdVersion ]] && [[ "$HttpdVersion" != "null" ]] ; then
+    if [[ -n $HttpdVersion ]] && [[ "$HttpdVersion" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto        \e[38;5;39mApache \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$HttpdVersion"
     fi
     NginxVersion=$(jq -r ".Nginx.Version" $ExportFile)
-    if [[ ! -z $NginxVersion ]] && [[ "$NginxVersion" != "null" ]] ; then
+    if [[ -n $NginxVersion ]] && [[ "$NginxVersion" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto         \e[38;5;39mnginx \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$NginxVersion"
     fi
     MysqlVersion=$(jq -r ".Mysql.Version" $ExportFile)
     MysqlDistribution=$(jq -r ".Mysql.Distribution" $ExportFile)
-    if [[ ! -z $MysqlVersion ]] && [[ "$MysqlVersion" != "null" ]] ; then
+    if [[ -n $MysqlVersion ]] && [[ "$MysqlVersion" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto         \e[38;5;39mMySQL \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$MysqlVersion \e[38;5;27mDistribution: \e[38;5;33m$MysqlDistribution"
     fi
     PostgresVersion=$(jq -r ".Postgres.Version" $ExportFile)
-    if [[ ! -z $PostgresVersion ]] && [[ "$PostgresVersion" != "null" ]] ; then
+    if [[ -n $PostgresVersion ]] && [[ "$PostgresVersion" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto    \e[38;5;39mPostgreSQL \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PostgresVersion"
     fi
     PhpVersion=$(jq -r ".Php.Version" $ExportFile)
     PhpMaxMemory=$(jq -r ".Php.MaxMemory" $ExportFile)
-    if [[ ! -z $PhpVersion ]] && [[ "$PhpVersion" != "null" ]] ; then
+    if [[ -n $PhpVersion ]] && [[ "$PhpVersion" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto           \e[38;5;39mPHP \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$PhpVersion, \e[38;5;27mMemory Limit: \e[38;5;33m$PhpMaxMemory"
     fi
     ElasticsearchVersion=$(jq -r ".Elasticsearch.Version" $ExportFile)
-    if [[ ! -z $ElasticsearchVersion ]] && [[ "$ElasticsearchVersion" != "Unknown" ]] && [[ "$ElasticsearchVersion" != "null" ]] ; then
+    if [[ -n $ElasticsearchVersion ]] && [[ "$ElasticsearchVersion" != "Unknown" ]] && [[ "$ElasticsearchVersion" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto \e[38;5;39mElasticsearch \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$ElasticsearchVersion"
     fi
     LogstashVersion=$(jq -r ".Logstash.Version" $ExportFile)
-    if [[ ! -z $LogstashVersion ]] && [[ "$LogstashVersion" != "Unknown" ]] && [[ "$LogstashVersion" != "null" ]] ; then
+    if [[ -n $LogstashVersion ]] && [[ "$LogstashVersion" != "Unknown" ]] && [[ "$LogstashVersion" != "null" ]] ; then
         echo -e "\e[0;38;5;17m$Fto      \e[38;5;39mLogstash \e[38;5;93m= \e[38;5;27mVersion: \e[38;5;33m$LogstashVersion"
     fi
     echo -e "$BlueScheme$LongBlueScheme$BlueScheme$ShortBlueScheme\e[0;37m"
@@ -987,7 +987,7 @@ read -d '' HtmlCode <<EOF
             </tr>
             <tr>
                 <td>CPU Usage</td>
-                <td><span>${CpuUtil}</span> average CPU usage over <span>$CpuProc</span> core(s)</td>
+                <td><span>${CpuUsageAverage}</span> average CPU usage over <span>$CpuUsageCpuCount</span> core(s)</td>
             </tr>
             <tr>
                 <td>CPU Load</td>
@@ -995,15 +995,15 @@ read -d '' HtmlCode <<EOF
             </tr>
             <tr>
                 <td>Memory</td>
-                <td>Free: <span>${MemFree}</span>GB (<span>$MemFreePerc</span>%), Used: <span>${MemUsed}</span>GB (<span>$MemUsedPerc</span>%), Total: <span>${MemTotal}</span>GB</td>
+                <td>Free: <span>${MemFreeGB}</span>GB (<span>$MemFreePerc</span>%), Used: <span>${MemUsedGB}</span>GB (<span>$MemUsedPerc</span>%), Total: <span>${MemTotalGB}</span>GB</td>
             </tr>
             <tr>
                 <td>Swap</td>
-                <td>Free: <span>${SwapFree}</span>GB (<span>$SwapFreePerc</span>%), Used: <span>${SwapUsed}</span>GB (<span>$SwapUsedPerc</span>%), Total: <span>${SwapTotal}</span>GB</td>
+                <td>Free: <span>${SwapFreeGB}</span>GB (<span>$SwapFreePerc</span>%), Used: <span>${SwapUsedGB}</span>GB (<span>$SwapUsedPerc</span>%), Total: <span>${SwapTotalGB}</span>GB</td>
             </tr>
             <tr>
                 <td>Root</td>
-                <td>Free: <span>${RootFree}</span>GB (<span>$RootFreePerc</span>%), Used: <span>${RootUsed}</span>GB (<span>$RootUsedPerc</span>%), Total: <span>${RootTotal}</span>GB</td>
+                <td>Free: <span>${DiskRootFreeGB}</span>GB (<span>$DiskRootFreePerc</span>%), Used: <span>${DiskRootUsedGB}</span>GB (<span>$DiskRootUsedPerc</span>%), Total: <span>${DiskRootTotalGB}</span>GB</td>
             </tr>
             <tr>
                 <td>Updates</td>
@@ -1029,20 +1029,20 @@ EOF
                 <td>Apache Info</td>
                 <td>Version: <span>$HttpdVersion</span></td>
             </tr>"
-    [[ ! -z $nginxVersion ]] && HtmlCode+="
+    [[ -n $NginxVersion ]] && HtmlCode+="
             <tr>
                 <td>nginx Info</td>
-                <td>Version: <span>$nginxVersion</span></td>
+                <td>Version: <span>$NginxVersion</span></td>
             </tr>"
-    [[ ! -z $MySqlVersion ]] && HtmlCode+="
+    [[ -n $MysqlVersion ]] && HtmlCode+="
             <tr>
                 <td>MySQL Info</td>
-                <td>Version: <span>$MySqlVersion</span>, Distribution: <span>$MySqlDistribution</span></td>
+                <td>Version: <span>$MysqlVersion</span>, Distribution: <span>$MysqlDistribution</span></td>
             </tr>"
-    [[ ! -z $PostgreSqlVersion ]] && HtmlCode+="
+    [[ -n $PostgresVersion ]] && HtmlCode+="
             <tr>
                 <td>PostgreSQL Info</td>
-                <td>Version: <span>$PostgreSqlVersion</span></td>
+                <td>Version: <span>$PostgresVersion</span></td>
             </tr>"
 
     HtmlCode+="
@@ -1191,7 +1191,7 @@ CheckDependencies () {
 
 RenderHostIp () {
   HostIp=$(jq -r ".HostIp.Value" $ExportFile)
-  if [[ ! -z "$HostIp" ]] && [[ "$HostIp" != "null" ]] && [[ "$HostIp" != "Unknown" ]] ; then
+  if [[ -n "$HostIp" ]] && [[ "$HostIp" != "null" ]] && [[ "$HostIp" != "Unknown" ]] ; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="Ip"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1207,7 +1207,7 @@ RenderHostIp () {
 
 RenderRelease () {
   Release=$(jq -r ".Release.Value" $ExportFile)
-  if [[ ! -z "$Release" ]] && [[ "$Release" != "null" ]] && [[ "$Release" != "Unknown" ]] ; then
+  if [[ -n "$Release" ]] && [[ "$Release" != "null" ]] && [[ "$Release" != "Unknown" ]] ; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="Release"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1223,7 +1223,7 @@ RenderRelease () {
 
 RenderKernel () {
   Kernel=$(jq -r ".Kernel.Value" $ExportFile)
-  if [[ ! -z "$Kernel" ]] && [[ "$Kernel" != "null" ]] && [[ "$Kernel" != "Unknown" ]] ; then
+  if [[ -n "$Kernel" ]] && [[ "$Kernel" != "null" ]] && [[ "$Kernel" != "Unknown" ]] ; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="Kernel"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1239,7 +1239,7 @@ RenderKernel () {
 
 RenderPlatform () {
   Platform=$(jq -r ".Platform.Value" $ExportFile)
-  if [[ ! -z "$Platform" ]] && [[ "$Platform" != "null" ]] && [[ "$Platform" != "Unknown" ]] ; then
+  if [[ -n "$Platform" ]] && [[ "$Platform" != "null" ]] && [[ "$Platform" != "Unknown" ]] ; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="Platform"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1255,7 +1255,7 @@ RenderPlatform () {
 
 RenderUptime () {
   UptimeDays=$(jq -r ".Uptime.Days" $ExportFile)
-  if [[ ! -z $UptimeDays ]] && [[ "$UptimeDays" != "null" ]] && [[ "$UptimeDays" != "Unknown" ]] ; then
+  if [[ -n $UptimeDays ]] && [[ "$UptimeDays" != "null" ]] && [[ "$UptimeDays" != "Unknown" ]] ; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="Uptime"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1271,7 +1271,7 @@ RenderUptime () {
 
 RenderCpuUsage () {
   CpuUsageAverage=$(jq -r ".CpuUsage.Average" $ExportFile)
-  if [[ ! -z $CpuUsageAverage ]] && [[ "$CpuUsageAverage" != "null" ]] && [[ "$CpuUsageAverage" != "Unknown" ]] ; then
+  if [[ -n $CpuUsageAverage ]] && [[ "$CpuUsageAverage" != "null" ]] && [[ "$CpuUsageAverage" != "Unknown" ]] ; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="CPU Usage"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1287,7 +1287,7 @@ RenderCpuUsage () {
 
 RenderCpuLoad () {
   CpuLoad=$(jq -r ".CpuLoad.Value" $ExportFile)
-  if [[ ! -z $CpuLoad ]] && [[ "$CpuLoad" != "null" ]] && [[ "$CpuLoad" != "Unknown" ]] ; then
+  if [[ -n $CpuLoad ]] && [[ "$CpuLoad" != "null" ]] && [[ "$CpuLoad" != "Unknown" ]] ; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="CPU Load"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1303,7 +1303,7 @@ RenderCpuLoad () {
 
 RenderMemory () {
   MemTotalGB=$(jq -r ".Memory.TotalGB" $ExportFile)
-  if [[ ! -z $MemTotalGB ]] && [[ "$MemTotalGB" != "null" ]] && [[ "$MemTotalGB" != "Unknown" ]] ; then
+  if [[ -n $MemTotalGB ]] && [[ "$MemTotalGB" != "null" ]] && [[ "$MemTotalGB" != "Unknown" ]] ; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="Memory"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1319,7 +1319,7 @@ RenderMemory () {
 
 RenderSwap () {
   SwapTotalGB=$(jq -r ".Swap.TotalGB" $ExportFile)
-  if [[ ! -z $SwapTotalGB ]] && [[ "$SwapTotalGB" != "null" ]] && [[ "$SwapTotalGB" != "Unknown" ]] ; then
+  if [[ -n $SwapTotalGB ]] && [[ "$SwapTotalGB" != "null" ]] && [[ "$SwapTotalGB" != "Unknown" ]] ; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="Swap"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1335,7 +1335,7 @@ RenderSwap () {
 
 RenderRoot () {
   DiskRootTotalGB=$(jq -r ".DiskRoot.TotalGB" $ExportFile)
-  if [[ ! -z $DiskRootTotalGB ]] && [[ "$DiskRootTotalGB" != "null" ]] && [[ "$DiskRootTotalGB" != "Unknown" ]] ; then
+  if [[ -n $DiskRootTotalGB ]] && [[ "$DiskRootTotalGB" != "null" ]] && [[ "$DiskRootTotalGB" != "Unknown" ]] ; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="Root"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1351,7 +1351,7 @@ RenderRoot () {
 
 RenderUpdates () {
   UpdateCount=$(jq -r ".Updates.Count" $ExportFile)
-  if [[ ! -z $UpdateCount ]] && [[ "$UpdateCount" != "null" ]] && [[ "$UpdateCount" != "Unknown" ]] ; then
+  if [[ -n $UpdateCount ]] && [[ "$UpdateCount" != "null" ]] && [[ "$UpdateCount" != "Unknown" ]] ; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="Updates"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1367,7 +1367,7 @@ RenderUpdates () {
 
 RenderSessions () {
   SessionCount=$(jq -r ".Sessions.Count" $ExportFile)
-  if [[ ! -z $SessionCount ]] && [[ "$SessionCount" != "null" ]] && [[ "$SessionCount" != "Unknown" ]] ; then
+  if [[ -n $SessionCount ]] && [[ "$SessionCount" != "null" ]] && [[ "$SessionCount" != "Unknown" ]] ; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="Sessions"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1384,7 +1384,7 @@ RenderSessions () {
 RenderProcesses () {
   ProcessCount=$(jq -r ".Processes.Count" $ExportFile)
   ProcessMax=$(jq -r ".Processes.Max" $ExportFile)
-  if [[ ! -z $ProcessCount ]] && [[ "$ProcessCount" != "null" ]] && [[ "$ProcessCount" != "Unknown" ]] ; then
+  if [[ -n $ProcessCount ]] && [[ "$ProcessCount" != "null" ]] && [[ "$ProcessCount" != "Unknown" ]] ; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="Processes"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1400,7 +1400,7 @@ RenderProcesses () {
 
 RenderHttpd () {
   HttpdVersion=$(jq -r ".Httpd.Version" $ExportFile)
-  if [[ ! -z $HttpdVersion ]] && [[ "$HttpdVersion" != "null" ]] && [[ "$HttpdVersion" != "Unknown" ]] ; then
+  if [[ -n $HttpdVersion ]] && [[ "$HttpdVersion" != "null" ]] && [[ "$HttpdVersion" != "Unknown" ]] ; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="Apache"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1416,7 +1416,7 @@ RenderHttpd () {
 
 RenderNginx () {
   NginxVersion=$(jq -r ".Nginx.Version" $ExportFile)
-  if [[ ! -z $NginxVersion ]] && [[ "$NginxVersion" != "null" ]] && [[ "$NginxVersion" != "Unknown" ]] ; then
+  if [[ -n $NginxVersion ]] && [[ "$NginxVersion" != "null" ]] && [[ "$NginxVersion" != "Unknown" ]] ; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="Nginx"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1432,7 +1432,7 @@ RenderNginx () {
 
 RenderMysql () {
   MysqlVersion=$(jq -r ".Mysql.Version" $ExportFile)
-  if [[ ! -z $MysqlVersion ]] && [[ "$MysqlVersion" != "null" ]] && [[ "$MysqlVersion" != "Unknown" ]] ; then
+  if [[ -n $MysqlVersion ]] && [[ "$MysqlVersion" != "null" ]] && [[ "$MysqlVersion" != "Unknown" ]] ; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="MySQL"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1448,7 +1448,7 @@ RenderMysql () {
 
 RenderPostgres () {
   PostgresVersion=$(jq -r ".Postgres.Version" $ExportFile)
-  if [[ ! -z $PostgresVersion ]] && [[ "$PostgresVersion" != "null" ]]  && [[ "$PostgresVersion" != "Unknown" ]]; then
+  if [[ -n $PostgresVersion ]] && [[ "$PostgresVersion" != "null" ]]  && [[ "$PostgresVersion" != "Unknown" ]]; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="PostgresQL"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1465,7 +1465,7 @@ RenderPostgres () {
 RenderPhp () {
   PhpVersion=$(jq -r ".Php.Version" $ExportFile)
   PhpMaxMemory=$(jq -r ".Php.MaxMemory" $ExportFile)
-  if [[ ! -z $PhpVersion ]] && [[ "$PhpVersion" != "null" ]] && [[ "$PhpVersion" != "Unknown" ]] ; then
+  if [[ -n $PhpVersion ]] && [[ "$PhpVersion" != "null" ]] && [[ "$PhpVersion" != "Unknown" ]] ; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="PHP"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1481,7 +1481,7 @@ RenderPhp () {
 
 RenderElasticsearch () {
   ElasticsearchVersion=$(jq -r ".Elasticsearch.Version" $ExportFile)
-  if [[ ! -z $ElasticsearchVersion ]] && [[ "$ElasticsearchVersion" != "Unknown" ]] && [[ "$ElasticsearchVersion" != "null" ]] ; then
+  if [[ -n $ElasticsearchVersion ]] && [[ "$ElasticsearchVersion" != "Unknown" ]] && [[ "$ElasticsearchVersion" != "null" ]] ; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="Elasticsearch"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1497,7 +1497,7 @@ RenderElasticsearch () {
 
 RenderLogstash () {
   LogstashVersion=$(jq -r ".Logstash.Version" $ExportFile)
-  if [[ ! -z $LogstashVersion ]] && [[ "$LogstashVersion" != "Unknown" ]] && [[ "$LogstashVersion" != "null" ]] ; then
+  if [[ -n $LogstashVersion ]] && [[ "$LogstashVersion" != "Unknown" ]] && [[ "$LogstashVersion" != "null" ]] ; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="Logstash"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1513,7 +1513,7 @@ RenderLogstash () {
 
 RenderKibana () {
   KibanaVersion=$(jq -r ".Kibana.Version" $ExportFile)
-  if [[ ! -z $KibanaVersion ]] && [[ "$KibanaVersion" != "Unknown" ]] && [[ "$KibanaVersion" != "null" ]] ; then
+  if [[ -n $KibanaVersion ]] && [[ "$KibanaVersion" != "Unknown" ]] && [[ "$KibanaVersion" != "null" ]] ; then
     PrintChar "$Char" 2 "$CharColor"
     InfoKey="Kibana"
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
@@ -1610,7 +1610,7 @@ PrintTemplate () {
   DefaultKeyColor=$(jq -r '.DefaultSettings.KeyColor' "$Template")
   if [[ "$DefaultKeyColor" == "null" ]] ; then DefaultKeyColor="\e[0m" ; fi
   DefaultCharLength=$(jq -r '.DefaultSettings.Length' "$Template")
-  if [[ "$DefaultCharLenght" == "null" ]] ; then DefaultCharLength="79" ; fi
+  if [[ "$DefaultCharLength" == "null" ]] ; then DefaultCharLength="79" ; fi
   SeparatorSpace=$(jq -r '.DefaultSettings.SeparatorSpace' "$Template")
   if [[ "$SeparatorSpace" == "null" ]] ; then SeparatorSpace="10" ; fi
   (( SeparatorSpace < 8 )) && SeparatorSpace=0
@@ -1623,7 +1623,7 @@ PrintTemplate () {
   if [[ "$DefaultValueColor" == "null" ]] ; then DefaultValueColor="\e[0m" ; fi
   DefaultHighlightColor=$(jq -r '.DefaultSettings.HighlightColor' "$Template")
   if [[ "$DefaultHighlightColor" == "null" ]] ; then DefaultHighlightColor="\e[0m" ; fi
-  WriteLog Debug Info "Temlate default Char \"$DefaultChar\" CharColor \"$DefaultCharColor\" Length \"$DefaultCharLentgh\" Separator \"$DefaultSeparator\" SeparatorColor \"$DefaultSeparatorColor\""
+  WriteLog Debug Info "Temlate default Char \"$DefaultChar\" CharColor \"$DefaultCharColor\" Length \"$DefaultCharLength\" Separator \"$DefaultSeparator\" SeparatorColor \"$DefaultSeparatorColor\""
   if jq '.' "$Template" >/dev/null 2>&1 ; then
     WriteLog Verbose Info "Parsed json file $Template successfully."
     LineCount=$(jq '.Template | length' "$Template")
@@ -1664,7 +1664,7 @@ GenerateCache () {
   DefaultKeyColor=$(jq -r '.DefaultSettings.KeyColor' "$Template")
   if [[ "$DefaultKeyColor" == "null" ]] ; then DefaultKeyColor="\e[0m" ; fi
   DefaultCharLength=$(jq -r '.DefaultSettings.Length' "$Template")
-  if [[ "$DefaultCharLenght" == "null" ]] ; then DefaultCharLength="79" ; fi
+  if [[ "$DefaultCharLength" == "null" ]] ; then DefaultCharLength="79" ; fi
   SeparatorSpace=$(jq -r '.DefaultSettings.SeparatorSpace' "$Template")
   if [[ "$SeparatorSpace" == "null" ]] ; then SeparatorSpace="10" ; fi
   (( SeparatorSpace < 8 )) && SeparatorSpace=0
@@ -1677,7 +1677,7 @@ GenerateCache () {
   if [[ "$DefaultValueColor" == "null" ]] ; then DefaultValueColor="\e[0m" ; fi
   DefaultHighlightColor=$(jq -r '.DefaultSettings.HighlightColor' "$Template")
   if [[ "$DefaultHighlightColor" == "null" ]] ; then DefaultHighlightColor="\e[0m" ; fi
-  WriteLog Debug Info "Default \"$DefaultChar\" CharColor \"$DefaultCharColor\" Length \"$DefaultCharLentgh\" Separator \"$DefaultSeparator\" SeparatorColor \"$DefaultSeparatorColor\""
+  WriteLog Debug Info "Default \"$DefaultChar\" CharColor \"$DefaultCharColor\" Length \"$DefaultCharLength\" Separator \"$DefaultSeparator\" SeparatorColor \"$DefaultSeparatorColor\""
   if jq '.' "$Template" >/dev/null 2>&1 ; then
     WriteLog Verbose Info "Parsed template json for ${Theme} successfully."
     LineCount=$(jq '.Template | length' "$Template")
@@ -1760,6 +1760,8 @@ InstallFireMotD () {
   WriteLog Verbose Info "Creating data folder"
   mkdir -p /usr/share/firemotd/data
   WriteLog Verbose Info "Creating cache folder"
+  # 0777 will only be granted to "cache" folder - expected behaviour (refer to SC2174)
+  # shellcheck disable=SC2174
   mkdir -m 0777 -p /usr/share/firemotd/cache
   WriteLog Verbose Info "Downloading themes"
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blanco.json -o /usr/share/firemotd/themes/FireMotD-theme-Blanco.json
@@ -1780,13 +1782,13 @@ InstallFireMotD () {
   if [[ -x "/usr/bin/yum" ]] ; then
     WriteLog Verbose Info "Installing required yum packages"
     UpdateType="yum"
-    YumExec=$(which yum 2>/dev/null)
+    YumExec=$(command -v yum 2>/dev/null)
     InstallResult=$($YumExec install jq moreutils sysstat -y)
     WriteLog Debug Info "Install result: $InstallResult"
   elif [[ -x "/usr/bin/apt" ]] ; then
     WriteLog Verbose Info "Installing required apt-get packages"
     UpdateType="apt"
-    AptExec=$(which apt-get 2>/dev/null)
+    AptExec=$(command -v apt-get 2>/dev/null)
     InstallResult=$($AptExec install jq moreutils sysstat -y)
     WriteLog Debug Info "Install result: $InstallResult"
   fi
