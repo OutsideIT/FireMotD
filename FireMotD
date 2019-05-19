@@ -1311,7 +1311,7 @@ RenderMemory () {
     if [[ "$RenderTime" == "live" ]] ; then
       MemoryRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}$(jq -r .Memory.FreeGB $ExportFile)GB${ValueColor} (${HighlightColor}$(jq -r .Memory.FreePerc $ExportFile)%${ValueColor}), Used: ${HighlightColor}$(jq -r .Memory.UsedGB $ExportFile)GB${ValueColor} (${HighlightColor}$(jq -r .Memory.UsedPerc $ExportFile)%${ValueColor}), Total: ${HighlightColor}$(jq -r .Memory.TotalGB $ExportFile)GB${ValueColor}"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      MemoryRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}\$(jq -r .Memory.FreeGB ${ExportFile})GB${ValueColor} (${HighlightColor}\$(jq -r .Memory.FreePerc ${ExportFile})%${ValueColor}), Used: ${HighlightColor}\$(jq -r .Memory.UsedG ${ExportFile})GB${ValueColor} (${HighlightColor}\$(jq -r .Memory.UsedPerc ${ExportFile})%${ValueColor}), Total: ${HighlightColor}\$(jq -r .Memory.TotalGB ${ExportFile})GB${ValueColor}"
+      MemoryRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}\$(jq -r .Memory.FreeGB ${ExportFile})GB${ValueColor} (${HighlightColor}\$(jq -r .Memory.FreePerc ${ExportFile})%${ValueColor}), Used: ${HighlightColor}\$(jq -r .Memory.UsedGB ${ExportFile})GB${ValueColor} (${HighlightColor}\$(jq -r .Memory.UsedPerc ${ExportFile})%${ValueColor}), Total: ${HighlightColor}\$(jq -r .Memory.TotalGB ${ExportFile})GB${ValueColor}"
     fi
     echo "${MemoryRender}"
   fi
