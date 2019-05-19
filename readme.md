@@ -98,7 +98,7 @@ sudo apt-get install bc sysstat jq moreutils
 
 Run this command from you homefolder:
 ```bash
-curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/FireMotD -o ~/tmp/FireMotD && chmod 755 ~/tmp/FireMotD && sudo ~/tmp/FireMotD -I -d && ~/tmp/FireMotD -G all -d
+curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/FireMotD -o /tmp/FireMotD && chmod 755 /tmp/FireMotD && sudo /tmp/FireMotD -I -d && /tmp/FireMotD -G all -d
 ```
 
 #### Generating caches
