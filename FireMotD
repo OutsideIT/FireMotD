@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v11.05.190318
+# Version:      v12.01.191006
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script which enables dynamic MotD messages
@@ -201,8 +201,9 @@ GetSessions () {
 ExploreHostName () {
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     HostName="$(hostname)"
-    jq ".HostName.Value = \"$HostName\"" $ExportFile | sponge $ExportFile
-    jq ".HostName.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    tmp=$(mktemp)
+    jq ".HostName.Value = \"$HostName\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".HostName.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExploreHostIp () {
@@ -234,8 +235,8 @@ ExploreHostIp () {
             HostIp=$($WgetExec -qO- http://instance-data/latest/meta-data/public-ipv4)
         fi
     fi
-    jq ".HostIp.Value = \"$HostIp\"" $ExportFile | sponge $ExportFile
-    jq ".HostIp.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    jq ".HostIp.Value = \"$HostIp\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".HostIp.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExploreRelease () {
@@ -257,15 +258,15 @@ ExploreRelease () {
   elif [[ "$ReleaseFull" == *"DISTRIB_DESCRIPTION"* ]] ; then
     Release="$(echo "$ReleaseFull" | grep 'DISTRIB_DESCRIPTION' | cut -f2 -d'"')"
   fi
-  jq ".Release.Value = \"$Release\"" $ExportFile | sponge $ExportFile
-  jq ".Release.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+  jq ".Release.Value = \"$Release\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".Release.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExploreKernel () {
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     Kernel="$(uname -rs)"
-    jq ".Kernel.Value = \"$Kernel\"" $ExportFile | sponge $ExportFile
-    jq ".Kernel.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    jq ".Kernel.Value = \"$Kernel\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Kernel.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExplorePlatform () {
@@ -317,8 +318,8 @@ ExplorePlatform () {
     else
         Platform="Unknown"
     fi
-    jq ".Platform.Value = \"$Platform\"" $ExportFile | sponge $ExportFile
-    jq ".Platform.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    jq ".Platform.Value = \"$Platform\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Platform.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExploreUptime () {
@@ -327,11 +328,11 @@ ExploreUptime () {
   UptimeHours=$(awk '{print int($1%86400/3600)}' /proc/uptime)
   UptimeMinutes=$(awk '{print int(($1%3600)/60)}' /proc/uptime)
   UptimeSeconds=$(awk '{print int($1%60)}' /proc/uptime)
-  jq ".Uptime.Days = \"$UptimeDays\"" $ExportFile | sponge $ExportFile
-  jq ".Uptime.Hours = \"$UptimeHours\"" $ExportFile | sponge $ExportFile
-  jq ".Uptime.Minutes = \"$UptimeMinutes\"" $ExportFile | sponge $ExportFile
-  jq ".Uptime.Seconds = \"$UptimeSeconds\"" $ExportFile | sponge $ExportFile
-  jq ".Uptime.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+  jq ".Uptime.Days = \"$UptimeDays\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".Uptime.Hours = \"$UptimeHours\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".Uptime.Minutes = \"$UptimeMinutes\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".Uptime.Seconds = \"$UptimeSeconds\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".Uptime.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExploreInstallDate () {
@@ -340,8 +341,8 @@ ExploreInstallDate () {
     if [[ (-f $RpmPath) && (-x $RpmPath) ]] ; then
         InstallDate=$(rpm -qi basesystem | grep "Install Date" | sed 's/Install Date: //g' | sed 's/Build Host: .*//g')
     fi
-    jq ".InstallDate.Value = \"$InstallDate\"" $ExportFile | sponge $ExportFile
-    jq ".InstallDate.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    jq ".InstallDate.Value = \"$InstallDate\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".InstallDate.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExploreCpuUsage () {
@@ -355,18 +356,18 @@ ExploreCpuUsage () {
         CpuUsageSocketCount="$(lscpu | grep 'Socket(s):' | head -1 | awk -F " " '{print $2}')"
         CpuUsageCoreCount="$(lscpu | grep 'Core(s) per socket:' | head -1 | awk -F " " '{print $4}')"
     fi
-    jq ".CpuUsage.Average = \"$CpuUsageAverage\"" $ExportFile | sponge $ExportFile
-    jq ".CpuUsage.CpuCount = \"$CpuUsageCpuCount\"" $ExportFile | sponge $ExportFile
-    jq ".CpuUsage.CoreCount = \"$CpuUsageCoreCount\"" $ExportFile | sponge $ExportFile
-    jq ".CpuUsage.SocketCount = \"$CpuUsageSocketCount\"" $ExportFile | sponge $ExportFile
-    jq ".CpuUsage.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    jq ".CpuUsage.Average = \"$CpuUsageAverage\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".CpuUsage.CpuCount = \"$CpuUsageCpuCount\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".CpuUsage.CoreCount = \"$CpuUsageCoreCount\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".CpuUsage.SocketCount = \"$CpuUsageSocketCount\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".CpuUsage.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExploreCpuLoad () {
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     CpuLoad="$(uptime | grep -ohe '[s:][: ].*' | awk '{print "1m: "$2 " 5m: "$3 " 15m: " $4}')"
-    jq ".CpuLoad.Value = \"$CpuLoad\"" $ExportFile | sponge $ExportFile
-    jq ".CpuLoad.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    jq ".CpuLoad.Value = \"$CpuLoad\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".CpuLoad.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExploreMemory () {
@@ -389,12 +390,12 @@ ExploreMemory () {
     MemFreePerc=$(echo "scale=2; $MemFreeB*100/$MemTotalB" | bc)
     MemFreePerc="$(LC_NUMERIC=C printf "%.0f" "$MemFreePerc")"
     MemUsedPerc=$(echo "100-$MemFreePerc" | bc)
-    jq ".Memory.TotalGB = \"$MemTotalGB\"" $ExportFile | sponge $ExportFile
-    jq ".Memory.FreeGB = \"$MemFreeGB\"" $ExportFile | sponge $ExportFile
-    jq ".Memory.UsedGB = \"$MemUsedGB\"" $ExportFile | sponge $ExportFile
-    jq ".Memory.FreePerc = \"$MemFreePerc\"" $ExportFile | sponge $ExportFile
-    jq ".Memory.UsedPerc = \"$MemUsedPerc\"" $ExportFile | sponge $ExportFile
-    jq ".Memory.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    jq ".Memory.TotalGB = \"$MemTotalGB\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Memory.FreeGB = \"$MemFreeGB\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Memory.UsedGB = \"$MemUsedGB\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Memory.FreePerc = \"$MemFreePerc\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Memory.UsedPerc = \"$MemUsedPerc\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Memory.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExploreSwap () {
@@ -408,12 +409,12 @@ ExploreSwap () {
     SwapFreePerc=$(echo "scale=2; $SwapFreeB*100/$SwapTotalB" | bc  2> /dev/null)
     SwapFreePerc="$(LC_NUMERIC=C printf "%.0f" "$SwapFreePerc")"
     SwapUsedPerc=$(echo "100-$SwapFreePerc" | bc)
-    jq ".Swap.TotalGB = \"$SwapTotalGB\"" $ExportFile | sponge $ExportFile
-    jq ".Swap.FreeGB = \"$SwapFreeGB\"" $ExportFile | sponge $ExportFile
-    jq ".Swap.UsedGB = \"$SwapUsedGB\"" $ExportFile | sponge $ExportFile
-    jq ".Swap.FreePerc = \"$SwapFreePerc\"" $ExportFile | sponge $ExportFile
-    jq ".Swap.UsedPerc = \"$SwapUsedPerc\"" $ExportFile | sponge $ExportFile
-    jq ".Swap.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    jq ".Swap.TotalGB = \"$SwapTotalGB\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Swap.FreeGB = \"$SwapFreeGB\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Swap.UsedGB = \"$SwapUsedGB\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Swap.FreePerc = \"$SwapFreePerc\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Swap.UsedPerc = \"$SwapUsedPerc\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Swap.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExploreDiskRoot () {
@@ -426,12 +427,12 @@ ExploreDiskRoot () {
     DiskRootUsedGB="$(printf "%0.2f\n" "$(bc -q <<< scale=2\;"$DiskRootUsedB"/1024/1024)")"
     DiskRootUsedPerc="$(df -kP / | tail -1 | awk '{print $5}'| sed s'/%$//')"
     DiskRootFreePerc="$((100 - DiskRootUsedPerc))"
-    jq ".DiskRoot.TotalGB = \"$DiskRootTotalGB\"" $ExportFile | sponge $ExportFile
-    jq ".DiskRoot.FreeGB = \"$DiskRootFreeGB\"" $ExportFile | sponge $ExportFile
-    jq ".DiskRoot.UsedGB = \"$DiskRootUsedGB\"" $ExportFile | sponge $ExportFile
-    jq ".DiskRoot.FreePerc = \"$DiskRootFreePerc\"" $ExportFile | sponge $ExportFile
-    jq ".DiskRoot.UsedPerc = \"$DiskRootUsedPerc\"" $ExportFile | sponge $ExportFile
-    jq ".DiskRoot.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    jq ".DiskRoot.TotalGB = \"$DiskRootTotalGB\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".DiskRoot.FreeGB = \"$DiskRootFreeGB\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".DiskRoot.UsedGB = \"$DiskRootUsedGB\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".DiskRoot.FreePerc = \"$DiskRootFreePerc\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".DiskRoot.UsedPerc = \"$DiskRootUsedPerc\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".DiskRoot.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExploreUpdates () {
@@ -458,16 +459,16 @@ ExploreUpdates () {
             UpdateCount=$(apt-get update > /dev/null; apt-get upgrade -u -s | grep -c -P "^Inst")
         fi
     fi
-    jq ".Updates.Type = \"$UpdateType\"" $ExportFile | sponge $ExportFile
-    jq ".Updates.Count = \"$UpdateCount\"" $ExportFile | sponge $ExportFile
-    jq ".Updates.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    jq ".Updates.Type = \"$UpdateType\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Updates.Count = \"$UpdateCount\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Updates.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExploreSessions () {
     ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
     SessionCount="$(who | grep -c "$USER")"
-    jq ".Sessions.Count = \"$SessionCount\"" $ExportFile | sponge $ExportFile
-    jq ".Sessions.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    jq ".Sessions.Count = \"$SessionCount\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Sessions.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExploreProcesses () {
@@ -484,9 +485,9 @@ ExploreProcesses () {
         fi
     fi
     ProcessMax="$($SysctlPath -n kernel.pid_max)"
-    jq ".Processes.Count = \"$ProcessCount\"" $ExportFile | sponge $ExportFile
-    jq ".Processes.Max = \"$ProcessMax\"" $ExportFile | sponge $ExportFile
-    jq ".Processes.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    jq ".Processes.Count = \"$ProcessCount\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Processes.Max = \"$ProcessMax\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Processes.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExploreHttpd () {
@@ -497,8 +498,8 @@ ExploreHttpd () {
     if [[ (-f $HttpdPath) && (-x $HttpdPath) ]] ; then
         HttpdVersion="$(${HttpdPath} -v 2>/dev/null | grep "Server version" | sed -e 's/.*[^0-9]\([0-9].[0-9]\+.[0-9]\+\)[^0-9]*$/\1/')"
     fi
-    jq ".Httpd.Version = \"$HttpdVersion\"" $ExportFile | sponge $ExportFile
-    jq ".Httpd.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    jq ".Httpd.Version = \"$HttpdVersion\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Httpd.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExploreNginx () {
@@ -509,8 +510,8 @@ ExploreNginx () {
         NginxString="$(${NginxPath} -v 2>&1)"
         NginxVersion="$(echo "$NginxString" | awk -F"/" '{print $2}')"
     fi
-    jq ".Nginx.Version = \"$NginxVersion\"" $ExportFile | sponge $ExportFile
-    jq ".Nginx.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    jq ".Nginx.Version = \"$NginxVersion\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Nginx.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExploreMysql () {
@@ -523,9 +524,9 @@ ExploreMysql () {
         MysqlVersion="$(echo "$MysqlString" | awk '{print $3}')"
         MysqlDistribution="$(echo "$MysqlString" | awk '{print $5}' | tr -d ',')"
     fi
-    jq ".Mysql.Version = \"$MysqlVersion\"" $ExportFile | sponge $ExportFile
-    jq ".Mysql.Distribution = \"$MysqlDistribution\"" $ExportFile | sponge $ExportFile
-    jq ".Mysql.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    jq ".Mysql.Version = \"$MysqlVersion\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Mysql.Distribution = \"$MysqlDistribution\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Mysql.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExplorePostgres () {
@@ -536,8 +537,8 @@ ExplorePostgres () {
         PostgresString="$(${PostgresPath} --version 2>/dev/null)"
         PostgresVersion="$(echo "$PostgresString"  | head -n1 | awk '{print $3}')"
     fi
-    jq ".Postgres.Version = \"$PostgresVersion\"" $ExportFile | sponge $ExportFile
-    jq ".Postgres.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    jq ".Postgres.Version = \"$PostgresVersion\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Postgres.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExplorePhp () {
@@ -554,9 +555,9 @@ ExplorePhp () {
             PhpMaxMemory="Unlimited"
         fi
     fi
-    jq ".Php.Version = \"$PhpVersion\"" $ExportFile | sponge $ExportFile
-    jq ".Php.MaxMemory = \"$PhpMaxMemory\"" $ExportFile | sponge $ExportFile
-    jq ".Php.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    jq ".Php.Version = \"$PhpVersion\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Php.MaxMemory = \"$PhpMaxMemory\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Php.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExploreElasticsearch () {
@@ -569,8 +570,8 @@ ExploreElasticsearch () {
     if [ -z $ElasticsearchVersion ] || [[ $ElasticsearchVersion == *"Error: No matching Packages"* ]] ; then
       ElasticsearchVersion="Unknown"
     fi
-    jq ".Elasticsearch.Version = \"$ElasticsearchVersion\"" $ExportFile | sponge $ExportFile
-    jq ".Elasticsearch.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    jq ".Elasticsearch.Version = \"$ElasticsearchVersion\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Elasticsearch.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExploreLogstash () {
@@ -583,8 +584,8 @@ ExploreLogstash () {
     if [ -z $LogstashVersion ] || [[ $LogstashVersion == *"Error: No matching Packages"* ]] ; then
       LogstashVersion="Unknown"
     fi
-    jq ".Logstash.Version = \"$LogstashVersion\"" $ExportFile | sponge $ExportFile
-    jq ".Logstash.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    jq ".Logstash.Version = \"$LogstashVersion\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Logstash.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExploreKibana () {
@@ -597,8 +598,8 @@ ExploreKibana () {
     if [ -z $KibanaVersion ] || [[ $KibanaVersion == *"Error: No matching Packages"* ]] ; then
       KibanaVersion="Unknown"
     fi
-    jq ".Kibana.Version = \"$KibanaVersion\"" $ExportFile | sponge $ExportFile
-    jq ".Kibana.LastRun = \"$ExportTime\"" $ExportFile | sponge $ExportFile
+    jq ".Kibana.Version = \"$KibanaVersion\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".Kibana.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
 }
 
 ExportData () {
@@ -611,7 +612,7 @@ ExportData () {
       if [[ -s "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" ]] ; then
         WriteLog Verbose Info "Template type set to ${TemplateType}. Overwriting.."
         cp "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" $ExportFile
-        chmod 766 $ExportFile
+        chmod 776 $ExportFile
       else
         WriteLog Output Error "Template ${TemplateType} does not exist. Try running the install function \"FireMotD -I -v\"."
         exit 2
@@ -620,7 +621,7 @@ ExportData () {
       if [[ ! -f "/usr/share/firemotd/data/FireMotD.json" ]] ; then
         TemplateType="basic"
         cp "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" $ExportFile
-        chmod 766 $ExportFile
+        chmod 776 $ExportFile
       fi
     fi
   else
@@ -629,7 +630,7 @@ ExportData () {
       if [[ -s "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" ]] ; then
         WriteLog Verbose Info "Template type set to ${TemplateType}. Overwriting.."
         cp "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" $ExportFile
-        chmod 766 $ExportFile
+        chmod 776 $ExportFile
       else
         WriteLog Output Error "Template ${TemplateType} does not exist. Try running the install function \"FireMotD -I -
 v\"."
@@ -639,7 +640,7 @@ v\"."
       if [[ ! -f "/usr/share/firemotd/data/FireMotD.json" ]] ; then
         TemplateType="basic"
         cp "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" $ExportFile
-        chmod 766 $ExportFile
+        chmod 776 $ExportFile
       fi
     fi
   fi
@@ -1186,7 +1187,6 @@ CheckDependencies () {
   command -v bc >/dev/null 2>&1 || { WriteLog Output Error "Unable to detect bc. Please install manually or run \"FireMotD -I -v\"." >&2 ; exit 1 ; }
   command -v jq >/dev/null 2>&1 || { WriteLog Output Error "Unable to detect jq. Please install manually or run \"FireMotD -I -v\"." >&2 ; exit 1 ; }
   command -v mpstat >/dev/null 2>&1 || { WriteLog Output Error "Unable to detect mpstat. Please install sysstat package manually or run \"FireMotD -I -v\"." >&2 ; exit 1 ; }
-  command -v sponge >/dev/null 2>&1 || { WriteLog Output Error "Unable to detect sponge. Please install moreutils package manually or run \"FireMotD -I -v\"." >&2 ; exit 1 ; }
 }
 
 RenderHostIp () {
