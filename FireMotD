@@ -634,16 +634,14 @@ ExportData () {
       if [[ -s "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" ]] ; then
         WriteLog Verbose Info "Template type set to ${TemplateType}. Overwriting.."
         cp "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" $ExportFile
-        chmod 776 $ExportFile
       else
         WriteLog Output Error "Template ${TemplateType} does not exist. Try running the install function \"FireMotD -I -v\"."
         exit 2
       fi
     else
-      if [[ ! -f "/usr/share/firemotd/data/FireMotD.json" ]] ; then
+      if [[ ! -f "$ExportFile" ]] ; then
         TemplateType="basic"
         cp "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" $ExportFile
-        chmod 776 $ExportFile
       fi
     fi
   else
@@ -652,17 +650,15 @@ ExportData () {
       if [[ -s "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" ]] ; then
         WriteLog Verbose Info "Template type set to ${TemplateType}. Overwriting.."
         cp "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" $ExportFile
-        chmod 776 $ExportFile
       else
         WriteLog Output Error "Template ${TemplateType} does not exist. Try running the install function \"FireMotD -I -
 v\"."
         exit 2
       fi
     else
-      if [[ ! -f "/usr/share/firemotd/data/FireMotD.json" ]] ; then
+      if [[ ! -f "$ExportFile" ]] ; then
         TemplateType="basic"
         cp "/usr/share/firemotd/templates/FireMotD-template-${TemplateType}.json" $ExportFile
-        chmod 776 $ExportFile
       fi
     fi
   fi
@@ -672,6 +668,7 @@ v\"."
     "Explore${val}"
   done < <(jq -r 'to_entries[] | select(.value.Generated == "@cron") | .key' $ExportFile)
   WriteLog Verbose Info "Export system data to \"${ExportFile}\" finished."
+  chmod 776 $ExportFile
 }
 
 LoadData () {
@@ -1779,6 +1776,7 @@ InstallFireMotD () {
   mkdir -p /usr/share/firemotd/templates
   WriteLog Verbose Info "Creating data folder"
   mkdir -p /usr/share/firemotd/data
+  chmod 755 -R /usr/share/firemotd
   chmod 777 /usr/share/firemotd/data
   WriteLog Verbose Info "Creating cache folder"
   # 0777 will only be granted to "cache" folder - expected behaviour (refer to SC2174)
