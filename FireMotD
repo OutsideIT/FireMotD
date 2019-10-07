@@ -668,7 +668,9 @@ v\"."
     "Explore${val}"
   done < <(jq -r 'to_entries[] | select(.value.Generated == "@cron") | .key' $ExportFile)
   WriteLog Verbose Info "Export system data to \"${ExportFile}\" finished."
-  chmod 776 $ExportFile
+  chmod 0766 ${ExportFile}
+  LsExport=$(ls -la ${ExportFile})
+  WriteLog Verbose Info "ExportFile: $LsExport"
 }
 
 LoadData () {
@@ -693,6 +695,9 @@ LoadData () {
       else
          WriteLog Verbose Info "Exploring ${val}"
          "Explore${val}"
+         chmod 0766 ${ExportFile}
+         LsExport=$(ls -la ${ExportFile})
+         WriteLog Verbose Info "ExportFile: $LsExport"
       fi
     done < <(jq -r 'to_entries[] | select(.value.Generated == "@logon") | .key' $ExportFile)
     if [[ "$MultiThreaded" == "1" ]] ; then
@@ -1741,6 +1746,7 @@ CheckTheme () {
       original|Original) StartOriginalBlue ; GenerateOriginal256Color ;;
       html|Html) GenerateHtmlTheme ;;
       invader|Invader) GenerateInvader ;;
+      all|All) WriteLog Output Info "Action $Action on $Theme themes" ;;
       *) WriteLog Output Error "You specified a non-existant theme: $Theme" ; exit 2 ;;
     esac
   fi
@@ -1770,28 +1776,35 @@ GenerateCaches () {
 
 InstallFireMotD () {
   WriteLog Output Info "Attempting FireMotD installation"
+  WriteLog Verbose Info "Creating firemotd folder"
+  chmod 755 -R /usr/share/firemotd
   WriteLog Verbose Info "Creating themes directory folder"
   mkdir -p /usr/share/firemotd/themes
   WriteLog Verbose Info "Creating templates folder"
   mkdir -p /usr/share/firemotd/templates
   WriteLog Verbose Info "Creating data folder"
-  mkdir -p /usr/share/firemotd/data
-  chmod 755 -R /usr/share/firemotd
-  chmod 777 /usr/share/firemotd/data
+  mkdir -m 0777 -p /usr/share/firemotd/data
   WriteLog Verbose Info "Creating cache folder"
-  # 0777 will only be granted to "cache" folder - expected behaviour (refer to SC2174)
-  # shellcheck disable=SC2174
   mkdir -m 0777 -p /usr/share/firemotd/cache
-  WriteLog Verbose Info "Downloading themes"
+  WriteLog Output Info "Downloading themes"
+  rm /usr/share/firemotd/themes/FireMotD-theme-Blanco.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blanco.json -o /usr/share/firemotd/themes/FireMotD-theme-Blanco.json
+  rm /usr/share/firemotd/themes/FireMotD-theme-Blue.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blue.json -o /usr/share/firemotd/themes/FireMotD-theme-Blue.json
+  rm /usr/share/firemotd/themes/FireMotD-theme-Digipolis.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Digipolis.json -o /usr/share/firemotd/themes/FireMotD-theme-Digipolis.json
+  rm /usr/share/firemotd/themes/FireMotD-theme-Elastic.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Elastic.json -o /usr/share/firemotd/themes/FireMotD-theme-Elastic.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Eline.json -o /usr/share/firemotd/themes/FireMotD-theme-Eline.json
+  rm /usr/share/firemotd/themes/FireMotD-theme-Gray.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Gray.json -o /usr/share/firemotd/themes/FireMotD-theme-Gray.json
+  rm /usr/share/firemotd/themes/FireMotD-theme-Modern.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Modern.json -o /usr/share/firemotd/themes/FireMotD-theme-Modern.json
+  rm /usr/share/firemotd/themes/FireMotD-theme-Red.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Red.json -o /usr/share/firemotd/themes/FireMotD-theme-Red.json
+  rm /usr/share/firemotd/themes/FireMotD-theme-Orange.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Orange.json -o /usr/share/firemotd/themes/FireMotD-theme-Orange.json
+  rm /usr/share/firemotd/themes/FireMotD-theme-Zebra.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Zebra.json -o /usr/share/firemotd/themes/FireMotD-theme-Zebra.json
   WriteLog Verbose Info "Downloading templates"
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-all.json -o /usr/share/firemotd/templates/FireMotD-template-all.json
@@ -1802,21 +1815,21 @@ InstallFireMotD () {
     WriteLog Verbose Info "Installing required yum packages"
     UpdateType="yum"
     YumExec=$(command -v yum 2>/dev/null)
-    InstallResult=$($YumExec install jq moreutils sysstat -y)
+    InstallResult=$($YumExec install jq sysstat -y)
     WriteLog Debug Info "Install result: $InstallResult"
   elif [[ -x "/usr/bin/apt" ]] ; then
     WriteLog Verbose Info "Installing required apt-get packages"
     UpdateType="apt"
     AptExec=$(command -v apt-get 2>/dev/null)
-    InstallResult=$($AptExec install jq moreutils sysstat -y)
+    InstallResult=$($AptExec install jq sysstat -y)
     WriteLog Debug Info "Install result: $InstallResult"
   fi
   WriteLog Output Info "Generating information"
   /usr/local/bin/FireMotD -S -d -D all
-  WriteLog Output Info "Generating FireMotD"
-  /usr/local/bin/FireMotD -t Digipolis
   WriteLog Output Info "Generating caches"
   /usr/local/bin/FireMotD -G
+  WriteLog Output Info "Generating FireMotD"
+  /usr/local/bin/FireMotD -t Digipolis
 }
 
 Present () {
@@ -1885,6 +1898,7 @@ InitializeArgs () {
 }
 
 CheckAction () {
+  WriteLog Output Info "Action \"$Action\""
   case "$Action" in
     version)
       PrintVersion ;;
