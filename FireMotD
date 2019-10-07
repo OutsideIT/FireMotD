@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v12.01.191006
+# Version:      v12.01.191007
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script which enables dynamic MotD messages
@@ -670,7 +670,7 @@ v\"."
   WriteLog Verbose Info "Export system data to \"${ExportFile}\" finished."
   chmod 0766 ${ExportFile}
   LsExport=$(ls -la ${ExportFile})
-  WriteLog Verbose Info "ExportFile: $LsExport"
+  WriteLog Debug Info "ExportFile: $LsExport"
 }
 
 LoadData () {
@@ -697,7 +697,7 @@ LoadData () {
          "Explore${val}"
          chmod 0766 ${ExportFile}
          LsExport=$(ls -la ${ExportFile})
-         WriteLog Verbose Info "ExportFile: $LsExport"
+         WriteLog Debug Info "ExportFile: $LsExport"
       fi
     done < <(jq -r 'to_entries[] | select(.value.Generated == "@logon") | .key' $ExportFile)
     if [[ "$MultiThreaded" == "1" ]] ; then
@@ -1827,7 +1827,7 @@ InstallFireMotD () {
   WriteLog Output Info "Generating information"
   /usr/local/bin/FireMotD -S -d -D all
   WriteLog Output Info "Generating caches"
-  /usr/local/bin/FireMotD -G
+  /usr/local/bin/FireMot D-G all
   WriteLog Output Info "Generating FireMotD"
   /usr/local/bin/FireMotD -t Digipolis
 }
