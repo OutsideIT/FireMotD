@@ -695,7 +695,7 @@ LoadData () {
       else
          WriteLog Verbose Info "Exploring ${val}"
          "Explore${val}"
-         if [[ $EUID -eq 0 ]]; then
+         if [[ $(id -u) == 0 ]] ; then
            chmod 0766 ${ExportFile}
          fi
          LsExport=$(ls -la ${ExportFile})
