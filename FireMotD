@@ -1827,7 +1827,7 @@ InstallFireMotD () {
   WriteLog Output Info "Generating information"
   /usr/local/bin/FireMotD -S -d -D all
   WriteLog Output Info "Generating caches"
-  /usr/local/bin/FireMot D-G all
+  /usr/local/bin/FireMotD -G all
   WriteLog Output Info "Generating FireMotD"
   /usr/local/bin/FireMotD -t Digipolis
 }
