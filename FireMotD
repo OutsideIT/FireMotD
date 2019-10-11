@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v12.01.191007
+# Version:      v12.02.191011
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script which enables dynamic MotD messages
@@ -695,7 +695,9 @@ LoadData () {
       else
          WriteLog Verbose Info "Exploring ${val}"
          "Explore${val}"
-         chmod 0766 ${ExportFile}
+         if [[ $EUID -eq 0 ]]; then
+           chmod 0766 ${ExportFile}
+         fi
          LsExport=$(ls -la ${ExportFile})
          WriteLog Debug Info "ExportFile: $LsExport"
       fi
@@ -1777,15 +1779,17 @@ GenerateCaches () {
 InstallFireMotD () {
   WriteLog Output Info "Attempting FireMotD installation"
   WriteLog Verbose Info "Creating firemotd folder"
-  chmod 755 -R /usr/share/firemotd
+  chmod 0755 -R /usr/share/firemotd
   WriteLog Verbose Info "Creating themes directory folder"
   mkdir -p /usr/share/firemotd/themes
   WriteLog Verbose Info "Creating templates folder"
   mkdir -p /usr/share/firemotd/templates
   WriteLog Verbose Info "Creating data folder"
   mkdir -m 0777 -p /usr/share/firemotd/data
+  chmod 0777 /usr/share/firemotd/data
   WriteLog Verbose Info "Creating cache folder"
   mkdir -m 0777 -p /usr/share/firemotd/cache
+  chmod 0777 /usr/share/firemotd/cache
   WriteLog Output Info "Downloading themes"
   rm /usr/share/firemotd/themes/FireMotD-theme-Blanco.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blanco.json -o /usr/share/firemotd/themes/FireMotD-theme-Blanco.json
@@ -1898,7 +1902,7 @@ InitializeArgs () {
 }
 
 CheckAction () {
-  WriteLog Output Info "Action \"$Action\""
+  WriteLog Verbose Info "Action \"$Action\""
   case "$Action" in
     version)
       PrintVersion ;;
