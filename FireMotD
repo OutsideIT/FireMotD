@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v12.03.191013
+# Version:      v12.04.191013
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script which enables dynamic MotD messages
@@ -1864,6 +1864,7 @@ InstallFireMotD () {
   /usr/local/bin/FireMotD -G all
   WriteLog Output Info "Generating FireMotD"
   /usr/local/bin/FireMotD -t Digipolis
+  chmod 0775 /usr/share/firemotd
   chmod 0776 $ExportFile
 }
 
