@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v12.02.191011
+# Version:      v12.03.191013
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script which enables dynamic MotD messages
@@ -199,11 +199,12 @@ GetSessions () {
 }
 
 ExploreHostName () {
-    ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
-    HostName="$(hostname)"
-    tmp=$(mktemp)
-    jq ".HostName.Value = \"$HostName\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-    jq ".HostName.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+  HostName="$(hostname)"
+  tmp=$(mktemp)
+  jq ".HostName.Value = \"$HostName\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".HostName.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExploreHostIp () {
@@ -237,7 +238,8 @@ ExploreHostIp () {
     fi
     tmp=$(mktemp)
     jq ".HostIp.Value = \"$HostIp\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-    jq ".HostIp.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+    jq ".HostIp.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+    rm $tmp
 }
 
 ExploreRelease () {
@@ -261,7 +263,8 @@ ExploreRelease () {
   fi
   tmp=$(mktemp)
   jq ".Release.Value = \"$Release\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Release.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".Release.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExploreKernel () {
@@ -269,7 +272,8 @@ ExploreKernel () {
   Kernel="$(uname -rs)"
   tmp=$(mktemp)
   jq ".Kernel.Value = \"$Kernel\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Kernel.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".Kernel.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExplorePlatform () {
@@ -323,7 +327,8 @@ ExplorePlatform () {
   fi
   tmp=$(mktemp)
   jq ".Platform.Value = \"$Platform\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Platform.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".Platform.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExploreUptime () {
@@ -337,7 +342,10 @@ ExploreUptime () {
   jq ".Uptime.Hours = \"$UptimeHours\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   jq ".Uptime.Minutes = \"$UptimeMinutes\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   jq ".Uptime.Seconds = \"$UptimeSeconds\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Uptime.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+#  jq --arg us "$UptimeSeconds" ".Uptime.Seconds = $us" < $ExportFile
+#  UpdateUptimeLastRun=$(cat $ExportFile | jq ".Uptime.LastRun = [\"$ExportTime\"]")
+  jq ".Uptime.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExploreInstallDate () {
@@ -348,7 +356,8 @@ ExploreInstallDate () {
   fi
   tmp=$(mktemp)
   jq ".InstallDate.Value = \"$InstallDate\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".InstallDate.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".InstallDate.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExploreCpuUsage () {
@@ -367,7 +376,8 @@ ExploreCpuUsage () {
   jq ".CpuUsage.CpuCount = \"$CpuUsageCpuCount\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   jq ".CpuUsage.CoreCount = \"$CpuUsageCoreCount\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   jq ".CpuUsage.SocketCount = \"$CpuUsageSocketCount\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".CpuUsage.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".CpuUsage.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExploreCpuLoad () {
@@ -375,7 +385,8 @@ ExploreCpuLoad () {
   CpuLoad="$(uptime | grep -ohe '[s:][: ].*' | awk '{print "1m: "$2 " 5m: "$3 " 15m: " $4}')"
   tmp=$(mktemp)
   jq ".CpuLoad.Value = \"$CpuLoad\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".CpuLoad.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".CpuLoad.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExploreMemory () {
@@ -405,6 +416,7 @@ ExploreMemory () {
   jq ".Memory.FreePerc = \"$MemFreePerc\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   jq ".Memory.UsedPerc = \"$MemUsedPerc\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   jq ".Memory.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExploreSwap () {
@@ -424,7 +436,8 @@ ExploreSwap () {
   jq ".Swap.UsedGB = \"$SwapUsedGB\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   jq ".Swap.FreePerc = \"$SwapFreePerc\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   jq ".Swap.UsedPerc = \"$SwapUsedPerc\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Swap.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".Swap.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExploreDiskRoot () {
@@ -443,7 +456,8 @@ ExploreDiskRoot () {
   jq ".DiskRoot.UsedGB = \"$DiskRootUsedGB\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   jq ".DiskRoot.FreePerc = \"$DiskRootFreePerc\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   jq ".DiskRoot.UsedPerc = \"$DiskRootUsedPerc\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".DiskRoot.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".DiskRoot.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExploreUpdates () {
@@ -473,7 +487,8 @@ ExploreUpdates () {
   tmp=$(mktemp)
   jq ".Updates.Type = \"$UpdateType\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   jq ".Updates.Count = \"$UpdateCount\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Updates.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".Updates.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExploreSessions () {
@@ -481,7 +496,8 @@ ExploreSessions () {
   SessionCount="$(who | grep -c "$USER")"
   tmp=$(mktemp)
   jq ".Sessions.Count = \"$SessionCount\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Sessions.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".Sessions.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExploreProcesses () {
@@ -501,7 +517,8 @@ ExploreProcesses () {
   tmp=$(mktemp)
   jq ".Processes.Count = \"$ProcessCount\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   jq ".Processes.Max = \"$ProcessMax\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Processes.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".Processes.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExploreHttpd () {
@@ -514,7 +531,8 @@ ExploreHttpd () {
   fi
   tmp=$(mktemp)
   jq ".Httpd.Version = \"$HttpdVersion\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Httpd.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".Httpd.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExploreNginx () {
@@ -527,7 +545,8 @@ ExploreNginx () {
   fi
   tmp=$(mktemp)
   jq ".Nginx.Version = \"$NginxVersion\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Nginx.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".Nginx.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExploreMysql () {
@@ -543,7 +562,8 @@ ExploreMysql () {
   tmp=$(mktemp)
   jq ".Mysql.Version = \"$MysqlVersion\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   jq ".Mysql.Distribution = \"$MysqlDistribution\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Mysql.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".Mysql.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExplorePostgres () {
@@ -556,7 +576,8 @@ ExplorePostgres () {
   fi
   tmp=$(mktemp)
   jq ".Postgres.Version = \"$PostgresVersion\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Postgres.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".Postgres.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExplorePhp () {
@@ -576,7 +597,8 @@ ExplorePhp () {
   tmp=$(mktemp)
   jq ".Php.Version = \"$PhpVersion\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   jq ".Php.MaxMemory = \"$PhpMaxMemory\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Php.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".Php.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExploreElasticsearch () {
@@ -591,7 +613,8 @@ ExploreElasticsearch () {
   fi
   tmp=$(mktemp)
   jq ".Elasticsearch.Version = \"$ElasticsearchVersion\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Elasticsearch.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".Elasticsearch.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExploreLogstash () {
@@ -606,7 +629,8 @@ ExploreLogstash () {
   fi
   tmp=$(mktemp)
   jq ".Logstash.Version = \"$LogstashVersion\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Logstash.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".Logstash.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExploreKibana () {
@@ -621,7 +645,8 @@ ExploreKibana () {
   fi
   tmp=$(mktemp)
   jq ".Kibana.Version = \"$KibanaVersion\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Kibana.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && mv "$tmp" $ExportFile
+  jq ".Kibana.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  rm $tmp
 }
 
 ExportData () {
@@ -1680,7 +1705,7 @@ GenerateCache () {
     rm "$Cache" -f
   fi
   touch "$Cache"
-  chmod 0666 "$Cache"
+  chmod 0664 "$Cache"
   DefaultChar=$(jq -r '.DefaultSettings.Char' "$Template")
   if [[ "$DefaultChar" == "null" ]] ; then DefaultChar="" ; fi
   DefaultCharColor=$(jq -r '.DefaultSettings.CharColor' "$Template")
@@ -1779,7 +1804,7 @@ GenerateCaches () {
 InstallFireMotD () {
   WriteLog Output Info "Attempting FireMotD installation"
   WriteLog Verbose Info "Creating firemotd folder"
-  chmod 0755 -R /usr/share/firemotd
+  chmod 0775 -R /usr/share/firemotd
   WriteLog Verbose Info "Creating themes directory folder"
   mkdir -p /usr/share/firemotd/themes
   WriteLog Verbose Info "Creating templates folder"
@@ -1787,9 +1812,13 @@ InstallFireMotD () {
   WriteLog Verbose Info "Creating data folder"
   mkdir -m 0777 -p /usr/share/firemotd/data
   chmod 0777 /usr/share/firemotd/data
+  WriteLog Verbose Info "Creating public data folder"
+  mkdir -m 0777 -p /usr/share/firemotd/data/rw
+  WriteLog Verbose Info "Creating private data folder"
+  mkdir -m 0775 -p /usr/share/firemotd/data/ro
   WriteLog Verbose Info "Creating cache folder"
-  mkdir -m 0777 -p /usr/share/firemotd/cache
-  chmod 0777 /usr/share/firemotd/cache
+  mkdir -m 0775 -p /usr/share/firemotd/cache
+  chmod 0775 /usr/share/firemotd/cache
   WriteLog Output Info "Downloading themes"
   rm /usr/share/firemotd/themes/FireMotD-theme-Blanco.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blanco.json -o /usr/share/firemotd/themes/FireMotD-theme-Blanco.json
@@ -1815,6 +1844,7 @@ InstallFireMotD () {
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-basic.json -o /usr/share/firemotd/templates/FireMotD-template-basic.json
   WriteLog Verbose Info "Copying $(readlink -f "$0") to /usr/local/bin/FireMotD"
   cp "$(readlink -f "$0")" "/usr/local/bin/FireMotD"
+  chmod 0775 "/usr/local/bin/FireMotD"
   if [[ -x "/usr/bin/yum" ]] ; then
     WriteLog Verbose Info "Installing required yum packages"
     UpdateType="yum"
