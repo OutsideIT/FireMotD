@@ -1864,6 +1864,7 @@ InstallFireMotD () {
   /usr/local/bin/FireMotD -G all
   WriteLog Output Info "Generating FireMotD"
   /usr/local/bin/FireMotD -t Digipolis
+  chmod 0776 $ExportFile
 }
 
 Present () {
