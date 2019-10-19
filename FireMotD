@@ -1805,23 +1805,27 @@ GenerateCaches () {
 
 InstallFireMotD () {
   WriteLog Output Info "Attempting FireMotD installation"
-  WriteLog Verbose Info "Creating firemotd folder"
+  WriteLog Verbose Info "Creating firemotd folder structure and permissions"
+  WriteLog Debug Info "Creating firemotd folder"
+  mkdir -m 0775 /usr/share/firemotd
+  WriteLog Debug Info "Cleaning up existing /usr/share/firemotd permissions"
   chmod 0775 -R /usr/share/firemotd
-  WriteLog Verbose Info "Creating themes directory folder"
-  mkdir -p /usr/share/firemotd/themes
-  WriteLog Verbose Info "Creating templates folder"
-  mkdir -p /usr/share/firemotd/templates
-  WriteLog Verbose Info "Creating data folder"
+  WriteLog Debug Info "Creating themes directory folder"
+  mkdir -m 0775  /usr/share/firemotd/themes
+  WriteLog Debug Info "Creating templates folder"
+  mkdir -m 0775 /usr/share/firemotd/templates
+  WriteLog Debug Info "Creating data folder"
   mkdir -m 0777 -p /usr/share/firemotd/data
+  WriteLog Debug Info "Making data writable"
   chmod 0777 /usr/share/firemotd/data
-  WriteLog Verbose Info "Creating public data folder"
+  WriteLog Debug Info "Creating public data folder (poc)"
   mkdir -m 0777 -p /usr/share/firemotd/data/rw
-  WriteLog Verbose Info "Creating private data folder"
+  WriteLog Debug Info "Creating private data folder (poc)"
   mkdir -m 0775 -p /usr/share/firemotd/data/ro
-  WriteLog Verbose Info "Creating cache folder"
+  WriteLog Debug Info "Creating cache folder"
   mkdir -m 0775 -p /usr/share/firemotd/cache
   chmod 0775 /usr/share/firemotd/cache
-  WriteLog Output Info "Downloading themes"
+  WriteLog Verbose Info "Downloading themes"
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blanco.json > /usr/share/firemotd/themes/FireMotD-theme-Blanco.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blue.json > /usr/share/firemotd/themes/FireMotD-theme-Blue.json
   curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Digipolis.json > /usr/share/firemotd/themes/FireMotD-theme-Digipolis.json
@@ -1860,7 +1864,7 @@ InstallFireMotD () {
   WriteLog Debug Info "Chmod 0775 /usr/share/firemotd"
   chmod 0775 /usr/share/firemotd
   WriteLog Debug Info "Chmod 0776 $ExportFile"
-  chmod 0776 $ExportFile
+  chmod 0776 "$ExportFile"
 }
 
 Present () {
