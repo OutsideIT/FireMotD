@@ -1822,28 +1822,19 @@ InstallFireMotD () {
   mkdir -m 0775 -p /usr/share/firemotd/cache
   chmod 0775 /usr/share/firemotd/cache
   WriteLog Output Info "Downloading themes"
-  rm /usr/share/firemotd/themes/FireMotD-theme-Blanco.json
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blanco.json -o /usr/share/firemotd/themes/FireMotD-theme-Blanco.json
-  rm /usr/share/firemotd/themes/FireMotD-theme-Blue.json
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blue.json -o /usr/share/firemotd/themes/FireMotD-theme-Blue.json
-  rm /usr/share/firemotd/themes/FireMotD-theme-Digipolis.json
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Digipolis.json -o /usr/share/firemotd/themes/FireMotD-theme-Digipolis.json
-  rm /usr/share/firemotd/themes/FireMotD-theme-Elastic.json
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Elastic.json -o /usr/share/firemotd/themes/FireMotD-theme-Elastic.json
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Eline.json -o /usr/share/firemotd/themes/FireMotD-theme-Eline.json
-  rm /usr/share/firemotd/themes/FireMotD-theme-Gray.json
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Gray.json -o /usr/share/firemotd/themes/FireMotD-theme-Gray.json
-  rm /usr/share/firemotd/themes/FireMotD-theme-Modern.json
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Modern.json -o /usr/share/firemotd/themes/FireMotD-theme-Modern.json
-  rm /usr/share/firemotd/themes/FireMotD-theme-Red.json
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Red.json -o /usr/share/firemotd/themes/FireMotD-theme-Red.json
-  rm /usr/share/firemotd/themes/FireMotD-theme-Orange.json
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Orange.json -o /usr/share/firemotd/themes/FireMotD-theme-Orange.json
-  rm /usr/share/firemotd/themes/FireMotD-theme-Zebra.json
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Zebra.json -o /usr/share/firemotd/themes/FireMotD-theme-Zebra.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blanco.json > /usr/share/firemotd/themes/FireMotD-theme-Blanco.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Blue.json > /usr/share/firemotd/themes/FireMotD-theme-Blue.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Digipolis.json > /usr/share/firemotd/themes/FireMotD-theme-Digipolis.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Elastic.json > /usr/share/firemotd/themes/FireMotD-theme-Elastic.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Eline.json > /usr/share/firemotd/themes/FireMotD-theme-Eline.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Gray.json > /usr/share/firemotd/themes/FireMotD-theme-Gray.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Modern.json > /usr/share/firemotd/themes/FireMotD-theme-Modern.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Red.json > /usr/share/firemotd/themes/FireMotD-theme-Red.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Orange.json > /usr/share/firemotd/themes/FireMotD-theme-Orange.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/themes/FireMotD-theme-Zebra.json > /usr/share/firemotd/themes/FireMotD-theme-Zebra.json
   WriteLog Verbose Info "Downloading templates"
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-all.json -o /usr/share/firemotd/templates/FireMotD-template-all.json
-  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-basic.json -o /usr/share/firemotd/templates/FireMotD-template-basic.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-all.json > /usr/share/firemotd/templates/FireMotD-template-all.json
+  curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/templates/FireMotD-template-basic.json > /usr/share/firemotd/templates/FireMotD-template-basic.json
   WriteLog Verbose Info "Copying $(readlink -f "$0") to /usr/local/bin/FireMotD"
   cp "$(readlink -f "$0")" "/usr/local/bin/FireMotD"
   chmod 0775 "/usr/local/bin/FireMotD"
