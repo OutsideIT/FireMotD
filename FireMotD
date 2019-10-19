@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  FireMotD
-# Version:      v12.04.191013
+# Version:      v12.05.191019
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash script which enables dynamic MotD messages
@@ -1704,7 +1704,9 @@ GenerateCache () {
     WriteLog Debug Info "Cleaning up old cache \"${Cache}\"."
     rm "$Cache" -f
   fi
+  WriteLog Debug Info "Creating \"${Cache}\""
   touch "$Cache"
+  WriteLog Debug Info "Chmod 0664 \"${Cache}\""
   chmod 0664 "$Cache"
   DefaultChar=$(jq -r '.DefaultSettings.Char' "$Template")
   if [[ "$DefaultChar" == "null" ]] ; then DefaultChar="" ; fi
@@ -1864,7 +1866,9 @@ InstallFireMotD () {
   /usr/local/bin/FireMotD -G all
   WriteLog Output Info "Generating FireMotD"
   /usr/local/bin/FireMotD -t Digipolis
+  WriteLog Debug Info "Chmod 0775 /usr/share/firemotd"
   chmod 0775 /usr/share/firemotd
+  WriteLog Debug Info "Chmod 0776 $ExportFile"
   chmod 0776 $ExportFile
 }
 
@@ -1951,6 +1955,7 @@ CheckAction () {
       LoadData
       PrintTemplate ;;
     caches)
+      CheckSudo
       GenerateCaches ;;
     theme)
       LoadData
