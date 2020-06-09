@@ -1,0 +1,30 @@
+{
+  "host": {
+    "properties": {
+      "name": {
+        "properties": {
+          "generated": "@logon",
+          "value": "c01",
+          "lastrun": "2020-06-09 21:30:42,215",
+          "type": "keyword"
+        }
+      },
+      "ip": {
+        "properties": {
+          "generated": "@logon",
+          "value": "${host.ip}",
+          "lastrun": "never",
+          "type": "keyword"
+        }
+      },
+      "architecture": {
+        "properties": {
+          "generated": "@logon",
+          "value": "${host.architecture}",
+          "lastrun": "never",
+          "type": "keyword"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+			"host": {
+				"properties": {
+					"name": {
+						"generated": "@logon",
+						"value": "${host.name}",
+						"lastrun": "never",
+						"type": "keyword"
+					},
+					"ip": {
+						"generated": "@logon",
+						"value": "${host.ip}",
+						"lastrun": "never",
+						"type": "keyword"
+					},
+					"architecture": {
+						"generated": "@logon",
+						"value": "${host.architecture}",
+						"lastrun": "never",
+						"type": "keyword"
+					}
+				}
+			}
+}

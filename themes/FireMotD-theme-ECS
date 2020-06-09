@@ -1,0 +1,43 @@
+{
+  "firemotd": {
+    "properties": {
+      "theme": {
+        "properties": {
+          "name": "ECS Host Basic",
+          "creator": "Willem D'Haese",
+          "created": "2020-06-08",
+          "description": "A basic ECS host template"
+        },
+        "defaults": {
+          "character": "#",
+          "charcolor": "\\e[38;5;93m",
+          "length": 79,
+          "keycolor": "\\e[38;5;164m",
+          "separator": "=>",
+          "separatorcolor": "\\e[38;5;57m",
+          "valuecolor": "\\e[38;5;207m",
+          "highlightcolor": "\\e[38;5;219m"
+        }
+      }
+    },
+    "data": [
+      {
+        "row": {
+          "properties": {
+            "character": "/",
+            "charcolor": "\\e[38;5;54m"
+          }
+        }
+      },
+      {
+        "row": {
+          "properties": {
+            "character": "/",
+            "charcolor": "\\e[38;5;54m"
+            "data": "${host.name}"
+          }
+        }
+      }
+		}
+	]
+}
