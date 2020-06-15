@@ -1,0 +1,56 @@
+{
+  "host": {
+    "properties": {
+      "name": {
+        "properties": {
+          "value": "undefined",
+          "lastrun": "never",
+          "type": "keyword"
+        }
+      },
+      "ip": {
+        "properties": {
+          "value": "undefined",
+          "lastrun": "never",
+          "type": "ip"
+        }
+      },
+      "architecture": {
+        "properties": {
+          "value": "undefined",
+          "lastrun": "never",
+          "type": "keyword"
+        }
+      }
+    }
+  },
+  "os": {
+    "properties": {
+      "updates": {
+        "properties": {
+          "type": {
+            "properties": {
+              "value": "undefined",
+              "lastrun": "never",
+              "type": "keyword"
+            }
+          },
+          "path": {
+            "properties": {
+              "value": "undefined",
+              "lastrun": "never",
+              "type": "keyword"
+            }
+          },
+          "count": {
+            "properties": {
+              "value": "undefined",
+              "lastrun": "never",
+              "type": "keyword"
+            }
+          }
+        }
+      }
+    }
+  }
+}
