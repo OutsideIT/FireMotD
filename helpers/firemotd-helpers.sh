@@ -127,7 +127,7 @@ source_file () {
 }
 
 source_group () {
-  group="*$1*.sh"
+  group="*-explore-$1*.sh"
   findstring="$(find explorers/. -maxdepth 1 -name $group -print)"
   array=( $findstring )
   for f in "${array[@]}"; do
