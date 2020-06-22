@@ -15,6 +15,7 @@
           "charstart": 1,
           "length": 79,
           "keycolor": "\\e[38;5;164m",
+          "keystart": 4,
           "separator": "=>",
           "separatorcolor": "\\e[38;5;57m",
           "valuecolor": "\\e[38;5;207m",

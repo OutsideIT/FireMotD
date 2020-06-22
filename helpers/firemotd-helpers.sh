@@ -179,5 +179,24 @@ load_theme_defaults () {
   write_log verbose info "Loading theme $firemotd_theme defaults"
   firemotd_theme_path="${script_directory}/themes/firemotd-theme-${firemotd_theme}.json"
   firemotd_theme_default_character=$(jq -r '.firemotd.properties.theme.defaults.character' "$firemotd_theme_path")
-  write_log verbose info "FireMotD default character: $firemotd_theme_default_character"
+  write_log debug info "FireMotD default character: $firemotd_theme_default_character"
+  firemotd_theme_default_charcolor=$(jq -r '.firemotd.properties.theme.defaults.charcolor' "$firemotd_theme_path")
+  write_log debug info "FireMotD default charcolor: $firemotd_theme_default_charcolor"
+  firemotd_theme_default_charstart=$(jq -r '.firemotd.properties.theme.defaults.charstart' "$firemotd_theme_path")
+  write_log debug info "FireMotD default charstart: $firemotd_theme_default_charstart"
+  firemotd_theme_default_length=$(jq -r '.firemotd.properties.theme.defaults.length' "$firemotd_theme_path")
+  write_log debug info "FireMotD default length: $firemotd_theme_default_length"
+  firemotd_theme_default_keycolor=$(jq -r '.firemotd.properties.theme.defaults.keycolor' "$firemotd_theme_path")
+  write_log debug info "FireMotD default keycolor: $firemotd_theme_default_keycolor"
+  firemotd_theme_default_keystart=$(jq -r '.firemotd.properties.theme.defaults.keystart' "$firemotd_theme_path")
+  write_log debug info "FireMotD default keystart: $firemotd_theme_default_keystart"
+  firemotd_theme_default_separator=$(jq -r '.firemotd.properties.theme.defaults.separator' "$firemotd_theme_path")
+  write_log debug info "FireMotD default separator: $firemotd_theme_default_separator"
+  firemotd_theme_default_separatorcolor=$(jq -r '.firemotd.properties.theme.defaults.separatorcolor' "$firemotd_theme_path")
+  write_log debug info "FireMotD default separatorcolor: $firemotd_theme_default_separatorcolor"
+  firemotd_theme_default_valuecolor=$(jq -r '.firemotd.properties.theme.defaults.valuecolor' "$firemotd_theme_path")
+  write_log debug info "FireMotD default valuecolor: $firemotd_theme_default_valuecolor"
+  firemotd_theme_default_highlightcolor=$(jq -r '.firemotd.properties.theme.defaults.highlightcolor' "$firemotd_theme_path")
+  write_log debug info "FireMotD default heighlightcolor: $firemotd_theme_default_highlightcolor"
+# Optimize with https://unix.stackexchange.com/questions/413878/json-array-to-bash-variables-using-jq
 }
