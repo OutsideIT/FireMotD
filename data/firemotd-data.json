@@ -4,21 +4,21 @@
       "name": {
         "properties": {
           "value": "c01",
-          "lastrun": "2020-06-22 10:02:21,987",
+          "lastrun": "2020-06-22 15:55:05,183",
           "type": "keyword"
         }
       },
       "ip": {
         "properties": {
           "value": "172.104.242.86",
-          "lastrun": "2020-06-22 10:02:21,963",
+          "lastrun": "2020-06-22 15:55:05,163",
           "type": "ip"
         }
       },
       "architecture": {
         "properties": {
           "value": "x86_64",
-          "lastrun": "2020-06-22 10:02:21,945",
+          "lastrun": "2020-06-22 15:55:05,149",
           "type": "keyword"
         }
       }

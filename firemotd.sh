@@ -63,6 +63,7 @@ case "$firemotd_action" in
   theme)
     firemotd_explore="host"
     explore_data
+    load_theme_defaults
     print_theme ;;
   present)
     present_themes ;;

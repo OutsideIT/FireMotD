@@ -156,10 +156,8 @@ explore_data () {
   write_log verbose info "Exploring explorers \"$firemotd_explore\""
   verify_json "$script_directory/data/firemotd-data.json"
   write_log verbose info "Found valid data json $script_directory/data/firemotd-data.json"
-
   for explorer in ${firemotd_explore//,/ } ; do
     write_log debug info "Exploring $explorer"
-    # source_file "$script_directory/explorers/firemotd-explore-$explorer"
     source_group $explorer
   done
 }
@@ -175,4 +173,11 @@ print_theme () {
 restore_item () {
   write_log verbose info "Restoring $firemotd_restore"
   cp "$script_directory/templates/firemotd-template.json" "$script_directory/data/firemotd-data.json"
+}
+
+load_theme_defaults () {
+  write_log verbose info "Loading theme $firemotd_theme defaults"
+  firemotd_theme_path="${script_directory}/themes/firemotd-theme-${firemotd_theme}.json"
+  firemotd_theme_default_character=$(jq -r '.firemotd.properties.theme.defaults.character' "$firemotd_theme_path")
+  write_log verbose info "FireMotD default character: $firemotd_theme_default_character"
 }
