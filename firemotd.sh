@@ -61,6 +61,7 @@ case "$firemotd_action" in
   restore)
     restore_item ;;
   theme)
+    firemotd_explore="host"
     explore_data
     print_theme ;;
   present)

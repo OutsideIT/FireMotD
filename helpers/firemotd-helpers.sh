@@ -126,6 +126,16 @@ source_file () {
   fi
 }
 
+source_group () {
+  group="*$1*.sh"
+  findstring="$(find explorers/. -maxdepth 1 -name $group -print)"
+  array=( $findstring )
+  for f in "${array[@]}"; do
+    write_log debug info "Sourcing $f"
+    [[ -f $f ]] && . $f --source-only || echo "$f not found"
+  done
+}
+
 verify_sudo () {
   if [ "$EUID" -ne 0 ]; then
     write_log output error "FireMotD action $firemotd_action requires root privileges"
@@ -133,16 +143,33 @@ verify_sudo () {
   fi
 }
 
+verify_json () {
+  jq_result=$( { cat "$1" | jq empty ; } 2>&1 )
+  exitcode=$?
+  if [ $exitcode -ne 0 ] ; then
+    write_log output error "Invalid json file ${1}: ${jq_result}"
+    exit $exitcode
+  fi
+}
+
 explore_data () {
   write_log verbose info "Exploring explorers \"$firemotd_explore\""
+  verify_json "$script_directory/data/firemotd-data.json"
+  write_log verbose info "Found valid data json $script_directory/data/firemotd-data.json"
+
   for explorer in ${firemotd_explore//,/ } ; do
-    write_log output info "Exploring \"$explorer\""
-    source_file "$script_directory/explorers/firemotd-explore-$explorer.sh"
+    write_log debug info "Exploring $explorer"
+    # source_file "$script_directory/explorers/firemotd-explore-$explorer"
+    source_group $explorer
   done
 }
 
 print_theme () {
   write_log verbose info "Printing theme $firemotd_theme"
+  verify_json "${script_directory}/themes/firemotd-theme-${firemotd_theme}.json"
+  firemotd_theme_name=$(jq -r '.firemotd.properties.theme.properties.name' "${script_directory}/themes/firemotd-theme-${firemotd_theme}.json")
+  firemotd_theme_version=$(jq -r '.firemotd.properties.theme.properties.version' "${script_directory}/themes/firemotd-theme-${firemotd_theme}.json")
+  write_log verbose info "Found valid theme $firemotd_theme_name $firemotd_theme_version"
 }
 
 restore_item () {

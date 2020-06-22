@@ -6,11 +6,13 @@
           "name": "ECS Host Basic",
           "creator": "Willem D'Haese",
           "created": "2020-06-08",
-          "description": "A basic ECS host template"
+          "description": "A basic ECS host template",
+          "version": "0.1"
         },
         "defaults": {
           "character": "#",
           "charcolor": "\\e[38;5;93m",
+          "charstart": 1,
           "length": 79,
           "keycolor": "\\e[38;5;164m",
           "separator": "=>",
@@ -33,11 +35,36 @@
         "row": {
           "properties": {
             "character": "/",
-            "charcolor": "\\e[38;5;54m"
+            "charcolor": "\\e[38;5;54m",
             "data": "${host.name}"
           }
         }
+      },
+      {
+        "row": {
+          "properties": {
+            "character": "/",
+            "charcolor": "\\e[38;5;54m"
+          }
+        }
+      },
+      {
+        "row": {
+          "properties": {
+            "character": "/",
+            "charcolor": "\\e[38;5;54m",
+            "data": "${os.updates.count} ${os.updates.type} updates."
+          }
+        }
+      },
+      {
+        "row": {
+          "properties": {
+            "character": "/",
+            "charcolor": "\\e[38;5;54m"
+          }
+        }
       }
-		}
-	]
+    ]
+	}
 }

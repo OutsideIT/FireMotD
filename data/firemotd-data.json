@@ -24,28 +24,21 @@
       }
     }
   },
-  "os": {
+  "package": {
     "properties": {
       "updates": {
         "properties": {
           "type": {
             "properties": {
               "value": "dnf",
-              "lastrun": "2020-06-15 20:50:37,356",
-              "type": "keyword"
-            }
-          },
-          "path": {
-            "properties": {
-              "value": "/bin/dnf",
-              "lastrun": "2020-06-15 20:50:37,356",
+              "lastrun": "2020-06-20 15:40:51,136",
               "type": "keyword"
             }
           },
           "count": {
             "properties": {
-              "value": "0",
-              "lastrun": "2020-06-15 20:50:37,356",
+              "value": "283",
+              "lastrun": "2020-06-20 15:40:51,136",
               "type": "keyword"
             }
           }
