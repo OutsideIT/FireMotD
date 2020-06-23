@@ -1,45 +1,53 @@
 {
-  "host": {
+  "firemotd": {
     "properties": {
-      "name": {
+      "data": {
         "properties": {
-          "value": "undefined",
-          "lastrun": "never",
-          "type": "keyword"
-        }
-      },
-      "ip": {
-        "properties": {
-          "value": "undefined",
-          "lastrun": "never",
-          "type": "ip"
-        }
-      },
-      "architecture": {
-        "properties": {
-          "value": "undefined",
-          "lastrun": "never",
-          "type": "keyword"
-        }
-      }
-    }
-  },
-  "package": {
-    "properties": {
-      "updates": {
-        "properties": {
-          "type": {
+          "host": {
             "properties": {
-              "value": "undefined",
-              "lastrun": "never",
-              "type": "keyword"
+              "name": {
+                "properties": {
+                  "value": "undefined",
+                  "lastrun": "never",
+                  "type": "keyword"
+                }
+              },
+              "ip": {
+                "properties": {
+                  "value": "undefined",
+                  "lastrun": "never",
+                  "type": "ip"
+                }
+              },
+              "architecture": {
+                "properties": {
+                  "value": "undefined",
+                  "lastrun": "never",
+                  "type": "keyword"
+                }
+              }
             }
           },
-          "count": {
+          "package": {
             "properties": {
-              "value": "undefined",
-              "lastrun": "never",
-              "type": "keyword"
+              "updates": {
+                "properties": {
+                  "type": {
+                    "properties": {
+                      "value": "undefined",
+                      "lastrun": "never",
+                      "type": "keyword"
+                    }
+                  },
+                  "count": {
+                    "properties": {
+                      "value": "undefined",
+                      "lastrun": "never",
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
             }
           }
         }

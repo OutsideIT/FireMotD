@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  firemotd-explore-host-ip.sh
-# Version:      v0.02.200620
+# Version:      v0.03.200623
 # Created on:   09/06/2020
 # Author:       Willem D'Haese
 # Purpose:      Explore Host Information
@@ -27,7 +27,7 @@ explore_host_ip () {
     host_ip_value="Unable to use ip route. Please debug."
   fi
   host_ip_result=$(jq --arg host_ip_value "$host_ip_value" --arg host_ip_lastrun "$host_ip_lastrun" \
-    '.host.properties.ip.properties.value = $host_ip_value | .host.properties.ip.properties.lastrun = $host_ip_lastrun' \
+    '.firemotd.properties.data.properties.host.properties.ip.properties.value = $host_ip_value | .firemotd.properties.data.properties.host.properties.ip.properties.lastrun = $host_ip_lastrun' \
     data/firemotd-data.json)
   echo "${host_ip_result}" > data/firemotd-data.json
 }

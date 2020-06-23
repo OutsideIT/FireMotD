@@ -1,45 +1,53 @@
 {
-  "host": {
+  "firemotd": {
     "properties": {
-      "name": {
+      "data": {
         "properties": {
-          "value": "c01",
-          "lastrun": "2020-06-23 22:06:07,605",
-          "type": "keyword"
-        }
-      },
-      "ip": {
-        "properties": {
-          "value": "172.104.242.86",
-          "lastrun": "2020-06-23 22:06:07,623",
-          "type": "ip"
-        }
-      },
-      "architecture": {
-        "properties": {
-          "value": "x86_64",
-          "lastrun": "2020-06-23 21:41:20,491",
-          "type": "keyword"
-        }
-      }
-    }
-  },
-  "package": {
-    "properties": {
-      "updates": {
-        "properties": {
-          "type": {
+          "host": {
             "properties": {
-              "value": "dnf",
-              "lastrun": "2020-06-22 10:02:31,579",
-              "type": "keyword"
+              "name": {
+                "properties": {
+                  "value": "undefined",
+                  "lastrun": "never",
+                  "type": "keyword"
+                }
+              },
+              "ip": {
+                "properties": {
+                  "value": "undefined",
+                  "lastrun": "never",
+                  "type": "ip"
+                }
+              },
+              "architecture": {
+                "properties": {
+                  "value": "undefined",
+                  "lastrun": "never",
+                  "type": "keyword"
+                }
+              }
             }
           },
-          "count": {
+          "package": {
             "properties": {
-              "value": "0",
-              "lastrun": "2020-06-22 10:02:31,579",
-              "type": "keyword"
+              "updates": {
+                "properties": {
+                  "type": {
+                    "properties": {
+                      "value": "undefined",
+                      "lastrun": "never",
+                      "type": "keyword"
+                    }
+                  },
+                  "count": {
+                    "properties": {
+                      "value": "undefined",
+                      "lastrun": "never",
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
             }
           }
         }

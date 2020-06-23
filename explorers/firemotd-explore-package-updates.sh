@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  firemotd-explore-package-updates.sh
-# Version:      v0.02.200620
+# Version:      v0.03.200623
 # Created on:   09/06/2020
 # Author:       Willem D'Haese
 # Purpose:      Explore Updates Information
@@ -36,10 +36,10 @@ explore_package_updates () {
     package_update_count_value=$($package_updates_path_value update > /dev/null; $package_updates_path_value upgrade -u -s | grep -c -P "^Inst")
   fi
   package_updates_result=$(jq --arg package_updates_type_value "$package_updates_type_value" --arg package_updates_lastrun "$package_updates_lastrun" --arg package_updates_count_value "$package_updates_count_value" \
-    '.package.properties.updates.properties.type.properties.value = $package_updates_type_value | .package.properties.updates.properties.type.properties.lastrun = $package_updates_lastrun | .package.properties.updates.properties.count.properties.value = $package_updates_count_value | .package.properties.updates.properties.count.properties.lastrun = $package_updates_lastrun' \
+    '.firemotd.properties.data.properties.package.properties.updates.properties.type.properties.value = $package_updates_type_value | .firemotd.properties.data.properties.package.properties.updates.properties.type.properties.lastrun = $package_updates_lastrun | .firemotd.properties.data.properties.package.properties.updates.properties.count.properties.value = $package_updates_count_value | .firemotd.properties.data.properties.package.properties.updates.properties.count.properties.lastrun = $package_updates_lastrun' \
     data/firemotd-data.json)
   echo "${package_updates_result}" > data/firemotd-data.json
 }
 
-write_log verbose info "Exploring package updates"
 explore_package_updates
+write_log debug info "Explored package-updates: ${package_updates_type_value} ${package_updates_count_value}"

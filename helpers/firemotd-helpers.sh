@@ -136,28 +136,39 @@ verify_sudo () {
 }
 
 verify_json () {
-  jq_result=$( { cat "$1" | jq empty ; } 2>&1 )
-  exitcode=$?
-  if [ $exitcode -ne 0 ] ; then
-    write_log output error "Invalid json file ${1}: ${jq_result}"
-    exit $exitcode
+  if [ -f "$1" ] ; then
+    jq_result=$( { cat "$1" | jq empty ; } 2>&1 )
+      exitcode=$?
+      if [ $exitcode -ne 0 ] ; then
+        write_log output error "Invalid json file ${1}: ${jq_result}"
+        exit $exitcode
+      fi
+  else
+    write_log output error "Unexisting json file ${1}"
+    exit 2
   fi
 }
 
 explore_data () {
   write_log verbose info "Exploring explorers \"$firemotd_explore\""
-  verify_json "$script_directory/data/firemotd-data.json"
-  write_log verbose info "Found valid data json $script_directory/data/firemotd-data.json"
   for explorer in ${firemotd_explore//,/ } ; do
     write_log debug info "Exploring $explorer"
     source_group $explorer
   done
 }
 
+validate_data () {
+  write_log verbose info "Exploring explorers \"$firemotd_explore\""
+  firemotd_data_path="${script_directory}/data/firemotd-data.json"
+  verify_json "${firemotd_data_path}"
+  write_log verbose info "Found valid data json ${firemotd_data_path}"
+}
+
 validate_theme () {
   write_log verbose info "Validating theme $firemotd_theme"
   firemotd_theme_path="${script_directory}/themes/firemotd-theme-${firemotd_theme}.json"
   verify_json "${firemotd_theme_path}"
+  write_log verbose info "Found valid theme json ${firemotd_theme_path}"
   firemotd_theme_name=$(jq -r '.firemotd.properties.theme.properties.name' "${firemotd_theme_path}")
   firemotd_theme_version=$(jq -r '.firemotd.properties.theme.properties.version' "${firemotd_theme_path}")
   firemotd_theme_creator=$(jq -r '.firemotd.properties.theme.properties.creator' "${firemotd_theme_path}")
@@ -166,6 +177,7 @@ validate_theme () {
 
 print_theme () {
   write_log verbose info "Printing theme $firemotd_theme"
+  write_log verbose info "Looping through rows"
 }
 
 restore_item () {
@@ -196,5 +208,7 @@ load_theme_defaults () {
   write_log debug info "FireMotD default valuecolor: $firemotd_theme_default_valuecolor"
   firemotd_theme_default_highlightcolor=$(jq -r '.firemotd.properties.theme.defaults.highlightcolor' "$firemotd_theme_path")
   write_log debug info "FireMotD default heighlightcolor: $firemotd_theme_default_highlightcolor"
+  firemotd_theme_default_unexisting=$(jq -r '.firemotd.properties.theme.defaults.unexisting' "$firemotd_theme_path")
+  write_log debug info "FireMotD default unexisting: $firemotd_theme_default_unexisting"
 # Optimize with https://unix.stackexchange.com/questions/413878/json-array-to-bash-variables-using-jq
 }

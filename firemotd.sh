@@ -58,10 +58,12 @@ case "$firemotd_action" in
     verify_sudo
     install_firemotd ;;
   explore)
+    validate_data
     explore_data ;;
   restore)
     restore_item ;;
   theme)
+    validate_data
     explore_data
     validate_theme
     load_theme_defaults
