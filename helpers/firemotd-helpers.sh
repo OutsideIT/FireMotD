@@ -154,12 +154,18 @@ explore_data () {
   done
 }
 
+validate_theme () {
+  write_log verbose info "Validating theme $firemotd_theme"
+  firemotd_theme_path="${script_directory}/themes/firemotd-theme-${firemotd_theme}.json"
+  verify_json "${firemotd_theme_path}"
+  firemotd_theme_name=$(jq -r '.firemotd.properties.theme.properties.name' "${firemotd_theme_path}")
+  firemotd_theme_version=$(jq -r '.firemotd.properties.theme.properties.version' "${firemotd_theme_path}")
+  firemotd_theme_creator=$(jq -r '.firemotd.properties.theme.properties.creator' "${firemotd_theme_path}")
+  write_log verbose info "Found valid theme ${firemotd_theme_name} ${firemotd_theme_version} by ${firemotd_theme_creator}"
+}
+
 print_theme () {
   write_log verbose info "Printing theme $firemotd_theme"
-  verify_json "${script_directory}/themes/firemotd-theme-${firemotd_theme}.json"
-  firemotd_theme_name=$(jq -r '.firemotd.properties.theme.properties.name' "${script_directory}/themes/firemotd-theme-${firemotd_theme}.json")
-  firemotd_theme_version=$(jq -r '.firemotd.properties.theme.properties.version' "${script_directory}/themes/firemotd-theme-${firemotd_theme}.json")
-  write_log verbose info "Found valid theme $firemotd_theme_name $firemotd_theme_version"
 }
 
 restore_item () {

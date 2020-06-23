@@ -32,5 +32,5 @@ explore_host_ip () {
   echo "${host_ip_result}" > data/firemotd-data.json
 }
 
-write_log debug info "Exploring host ip"
 explore_host_ip
+write_log debug info "Explored host-ip: ${host_ip_value}"

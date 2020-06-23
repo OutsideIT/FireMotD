@@ -3,11 +3,12 @@
     "properties": {
       "theme": {
         "properties": {
-          "name": "ECS Host Basic",
+          "name": "Basic",
           "creator": "Willem D'Haese",
           "created": "2020-06-08",
-          "description": "A basic ECS host template",
-          "version": "0.1"
+          "modified": "2020-06-20",
+          "description": "A basic FireMotd theme",
+          "version": "0.2"
         },
         "defaults": {
           "character": "#",

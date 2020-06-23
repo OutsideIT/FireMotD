@@ -15,5 +15,5 @@ explore_host_name () {
   echo "${host_name_result}" > data/firemotd-data.json
 }
 
-write_log debug info "Exploring host name"
 explore_host_name
+write_log debug info "Explored host-name: ${host_name_value}"

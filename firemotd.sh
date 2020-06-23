@@ -19,7 +19,7 @@
 
 log_level="output"
 firemotd_action="undefined"
-firemotd_explore="undefined"
+firemotd_explore="host-name,host-ip"
 firemotd_restore="undefined"
 script_path="$(readlink -f "$0")"
 script_directory=$(dirname "${script_path}")
@@ -62,8 +62,8 @@ case "$firemotd_action" in
   restore)
     restore_item ;;
   theme)
-#    firemotd_explore="host"
     explore_data
+    validate_theme
     load_theme_defaults
     print_theme ;;
   present)
@@ -71,7 +71,7 @@ case "$firemotd_action" in
   undefined)
     write_log output error "Please provide a valid argument combination" ; exit 2 ;;
   *)
-    write_log output error "Invalid action: \"$firemotd_action\"" ; exit 2 ;;
+    write_log output error "Invalid action: \"${firemotd_action}\"" ; exit 2 ;;
 esac
 
 exit $?

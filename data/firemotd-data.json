@@ -4,14 +4,14 @@
       "name": {
         "properties": {
           "value": "c01",
-          "lastrun": "2020-06-23 21:41:20,472",
+          "lastrun": "2020-06-23 22:06:07,605",
           "type": "keyword"
         }
       },
       "ip": {
         "properties": {
           "value": "172.104.242.86",
-          "lastrun": "2020-06-23 21:41:20,444",
+          "lastrun": "2020-06-23 22:06:07,623",
           "type": "ip"
         }
       },
