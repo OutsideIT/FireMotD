@@ -27,6 +27,7 @@
       {
         "row": {
           "properties": {
+            "type": "dynamic",
             "character": "/",
             "charcolor": "\\e[38;5;54m"
           }
@@ -35,6 +36,7 @@
       {
         "row": {
           "properties": {
+            "type": "dynamic",
             "character": "/",
             "charcolor": "\\e[38;5;54m",
             "data": "${host.name}"
@@ -44,6 +46,7 @@
       {
         "row": {
           "properties": {
+            "type": "dynamic",
             "character": "/",
             "charcolor": "\\e[38;5;54m"
           }
@@ -52,15 +55,17 @@
       {
         "row": {
           "properties": {
+            "type": "dynamic",
             "character": "/",
             "charcolor": "\\e[38;5;54m",
-            "data": "${os.updates.count} ${os.updates.type} updates."
+            "data": "${package.updates.count} ${package.updates.type} updates."
           }
         }
       },
       {
         "row": {
           "properties": {
+            "type": "dynamic",
             "character": "/",
             "charcolor": "\\e[38;5;54m"
           }

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  firemotd.sh
-# Version:      v13.01.200610
+# Version:      v13.02.200610
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash framework to dynamically MotD messages
@@ -24,7 +24,7 @@ firemotd_restore="undefined"
 script_path="$(readlink -f "$0")"
 script_directory=$(dirname "${script_path}")
 script_name="$(basename "$script_path")"
-script_version=" $(< "$script_path" grep "# Version: " | head -n1 | awk '{print $3}' | tr -cd '[:digit:.-]' | sed 's/.\{0\}$//') "
+script_version="$(< "$script_path" grep "# Version: " | head -n1 | awk '{print $3}' | tr -cd '[:digit:.-]' | sed 's/.\{0\}$//') "
 LC_ALL="C"
 LC_CTYPE="C"
 LC_NUMERIC="C"
@@ -43,6 +43,7 @@ write_log debug info "script_name: $script_name"
 write_log debug info "script_version: $script_version"
 write_log debug info "log_level: $log_level"
 write_log debug info "firemotd_action: $firemotd_action"
+write_log debug info "firemotd_explore: $firemotd_explore"
 
 case "$firemotd_action" in
   colormap)
@@ -61,7 +62,7 @@ case "$firemotd_action" in
   restore)
     restore_item ;;
   theme)
-    firemotd_explore="host"
+#    firemotd_explore="host"
     explore_data
     load_theme_defaults
     print_theme ;;

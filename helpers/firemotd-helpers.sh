@@ -50,32 +50,24 @@ initialize_arguments () {
         firemotd_action="help" ; shift ;;
       -p|-P|--presentation|--Presentation)
         firemotd_action="present" ; shift ;;
-#      -G|--GenerateCache)
-#        shift ; Action="caches" ; Theme="$1" ; shift ;;
       -i|-I|--install|--Install)
         firemotd_action="install" ; shift ;;
       -e|-E|--explore|--Explore)
-        shift ; firemotd_action="explore" ; firemotd_explore="$1" ; shift ;;
-#      -HV|--hideversion|--HideVersion)
-#        HideVersion=1 ; shift ;;
-#      -sru|-SRU|--skiprepoupdate|--SkipRepoUpdate)
-#        SkipRepoUpdate=1 ; shift ;;
+        shift
+        if [ "$firemotd_action" = "theme" ] ; then
+          firemotd_explore="$1"
+        else
+          firemotd_action="explore" ; firemotd_explore="$1"
+        fi
+        shift ;;
       -t|-T|--theme|--Theme)
         shift ; firemotd_action="theme" ; firemotd_theme="$1" ; shift ;;
-#      -D|--Data|--Template)
-#        shift ; TemplateType="$1" ; shift ;;
       -c|-C|--colortest|--Colortest|--ColorTest|--colorTest)
         firemotd_action="colortest" ; shift ;;
       -m|-M|--colormap|--Colormap|--ColorMap|--colorMap)
         firemotd_action="colormap" ; shift ;;
-#      -E|--ExportFile)
-#        shift ; ExportFile="$1" ; shift ;;
-#      -TF|--TemplateFile)
-#        shift ; Action="template" ; Template="$1" ; shift ;;
-       -r|-R|--restore|--Restore)
-         shift ; firemotd_action="restore" ; firemotd_restore="$1" ; shift ;;
-#      -MT|--MultiThreaded)
-#        MultiThreaded=1 ; shift ;;
+      -r|-R|--restore|--Restore)
+        shift ; firemotd_action="restore" ; firemotd_restore="$1" ; shift ;;
       -*) write_log output error "initialize_arguments: You specified a non-existant option: $1" ; exit 2 ;;
       *) break ;;
     esac
