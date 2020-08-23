@@ -182,9 +182,34 @@ validate_theme () {
   write_log verbose info "Found valid theme ${firemotd_theme_name} ${firemotd_theme_version} by ${firemotd_theme_creator}"
 }
 
+load_row_properties () {
+  firemotd_row_type=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.type" "$firemotd_theme_path")
+  write_log debug info "FireMotD Row $1 Type $firemotd_row_type"
+  firemotd_row_character=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.character" "$firemotd_theme_path")
+  write_log debug info "FireMotD Row $1 Character $firemotd_row_character"
+  firemotd_row_charcolor=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.charcolor" "$firemotd_theme_path")
+  write_log debug info "FireMotD Row $1 Character Color $firemotd_row_charcolor"
+  firemotd_row_length=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.length" "$firemotd_theme_path")
+  write_log debug info "FireMotD Row $1 Length $firemotd_row_length"
+  firemotd_row_charstart=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.data" "$firemotd_theme_path")
+  write_log debug info "FireMotD Row $1 Data $firemotd_row_charcolor"
+}
+
 print_theme () {
   write_log verbose info "Printing theme $firemotd_theme"
-  write_log verbose info "Looping through rows"
+  write_log verbose info "Looping through firemotd data rows in $firemotd_theme_path"
+  firemotd_row_count=$(jq -r '.firemotd.properties.data | length' "$firemotd_theme_path")
+  write_log debug Info "Looping through $firemotd_row_count rows"
+  for (( i = 0 ; i < $firemotd_row_count ; i++ )) ; do
+    write_log debug info "FireMotD Row $i"
+    load_row_properties $i
+    print_dynamic_row
+  done
+}
+
+print_dynamic_row () {
+  echo -en "Test: $firemotd_row_charcolor $firemotd_row_character"
+  echo -en "\n\033[0m"
 }
 
 restore_item () {

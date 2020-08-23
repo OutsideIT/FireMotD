@@ -22,56 +22,56 @@
           "valuecolor": "\\e[38;5;207m",
           "highlightcolor": "\\e[38;5;219m"
         }
-      }
-    },
-    "data": [
-      {
-        "row": {
-          "properties": {
-            "type": "dynamic",
-            "character": "/",
-            "charcolor": "\\e[38;5;54m"
-          }
-        }
       },
-      {
-        "row": {
-          "properties": {
-            "type": "dynamic",
-            "character": "/",
-            "charcolor": "\\e[38;5;54m",
-            "data": "${host.name}"
+      "data": [
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "/",
+              "charcolor": "\\e[38;5;54m"
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "/",
+              "charcolor": "\\e[38;5;54m",
+              "data": "${host.name}"
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "/",
+              "charcolor": "\\e[38;5;54m"
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "/",
+              "charcolor": "\\e[38;5;54m",
+              "data": "${package.updates.count} ${package.updates.type} updates."
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "/",
+              "charcolor": "\\e[38;5;54m"
+            }
           }
         }
-      },
-      {
-        "row": {
-          "properties": {
-            "type": "dynamic",
-            "character": "/",
-            "charcolor": "\\e[38;5;54m"
-          }
-        }
-      },
-      {
-        "row": {
-          "properties": {
-            "type": "dynamic",
-            "character": "/",
-            "charcolor": "\\e[38;5;54m",
-            "data": "${package.updates.count} ${package.updates.type} updates."
-          }
-        }
-      },
-      {
-        "row": {
-          "properties": {
-            "type": "dynamic",
-            "character": "/",
-            "charcolor": "\\e[38;5;54m"
-          }
-        }
-      }
-    ]
+      ]
+    }
 	}
 }
