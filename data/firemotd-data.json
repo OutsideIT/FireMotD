@@ -7,22 +7,22 @@
             "properties": {
               "name": {
                 "properties": {
-                  "value": "undefined",
-                  "lastrun": "never",
+                  "value": "c01",
+                  "lastrun": "2020-08-23 12:45:46,430",
                   "type": "keyword"
                 }
               },
               "ip": {
                 "properties": {
-                  "value": "undefined",
-                  "lastrun": "never",
+                  "value": "172.104.242.86",
+                  "lastrun": "2020-08-23 12:45:46,411",
                   "type": "ip"
                 }
               },
               "architecture": {
                 "properties": {
-                  "value": "undefined",
-                  "lastrun": "never",
+                  "value": "x86_64",
+                  "lastrun": "2020-08-23 12:45:46,396",
                   "type": "keyword"
                 }
               }

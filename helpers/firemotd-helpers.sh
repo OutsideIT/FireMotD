@@ -39,6 +39,19 @@ write_log () {
   fi
 }
 
+verify_firemotd_action () {
+  if [ $firemotd_action = "undefined" ] ; then
+    firemotd_action="$1"
+  elif [[ $firemotd_action =~ (theme) ]] && [[ $1 =~ (explore) ]] ; then
+    firemotd_action="theme"
+  elif [[ $firemotd_action =~ (explore) ]] && [[ $1 =~ (theme) ]] ; then
+    firemotd_action="theme"
+  else
+    write_log output error "You specified multiple arguments linked to an action. Action $firemotd_action and $1 are incompatible."
+    exit 2
+  fi
+}
+
 initialize_arguments () {
   while :; do
     case "$1" in
@@ -47,27 +60,21 @@ initialize_arguments () {
       -d|-D|--debug|--Debug)
         log_level="debug" ; shift ;;
       -h|-H|--help|--Help)
-        firemotd_action="help" ; shift ;;
+        verify_firemotd_action "help" ; shift ;;
       -p|-P|--presentation|--Presentation)
-        firemotd_action="present" ; shift ;;
+        verify_firemotd_action "present" ; shift ;;
       -i|-I|--install|--Install)
-        firemotd_action="install" ; shift ;;
+        verify_firemotd_action "install" ; shift ;;
       -e|-E|--explore|--Explore)
-        shift
-        if [ "$firemotd_action" = "theme" ] ; then
-          firemotd_explore="$1"
-        else
-          firemotd_action="explore" ; firemotd_explore="$1"
-        fi
-        shift ;;
+        shift ; firemotd_explore="$1" ; verify_firemotd_action "explore" ; shift ;;
       -t|-T|--theme|--Theme)
-        shift ; firemotd_action="theme" ; firemotd_theme="$1" ; shift ;;
+        shift ; verify_firemotd_action "theme" ; firemotd_theme="$1" ; shift ;;
       -c|-C|--colortest|--Colortest|--ColorTest|--colorTest)
-        firemotd_action="colortest" ; shift ;;
+        verify_firemotd_action "colortest" ; shift ;;
       -m|-M|--colormap|--Colormap|--ColorMap|--colorMap)
-        firemotd_action="colormap" ; shift ;;
+        verify_firemotd_action "colormap" ; shift ;;
       -r|-R|--restore|--Restore)
-        shift ; firemotd_action="restore" ; firemotd_restore="$1" ; shift ;;
+        shift ; verify_firemotd_action "restore" ; firemotd_restore="$1" ; shift ;;
       -*) write_log output error "initialize_arguments: You specified a non-existant option: $1" ; exit 2 ;;
       *) break ;;
     esac
