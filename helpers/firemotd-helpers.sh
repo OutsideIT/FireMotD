@@ -185,14 +185,72 @@ validate_theme () {
 load_row_properties () {
   firemotd_row_type=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.type" "$firemotd_theme_path")
   write_log debug info "FireMotD Row $1 Type $firemotd_row_type"
+  firemotd_row_length=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.length" "$firemotd_theme_path")
+  write_log debug info "FireMotD Row $1 Length $firemotd_row_length"
+  compare_row_with_defaults firemotd_row_length firemotd_theme_default_length
   firemotd_row_character=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.character" "$firemotd_theme_path")
   write_log debug info "FireMotD Row $1 Character $firemotd_row_character"
   firemotd_row_charcolor=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.charcolor" "$firemotd_theme_path")
   write_log debug info "FireMotD Row $1 Character Color $firemotd_row_charcolor"
-  firemotd_row_length=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.length" "$firemotd_theme_path")
-  write_log debug info "FireMotD Row $1 Length $firemotd_row_length"
-  firemotd_row_charstart=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.data" "$firemotd_theme_path")
-  write_log debug info "FireMotD Row $1 Data $firemotd_row_charcolor"
+  firemotd_row_charstart=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.charstart" "$firemotd_theme_path")
+  if [[ "$firemotd_row_charstart" == "null" ]] ; then
+    if [[ -n "$firemotd_theme_default_charstart" ]] ; then
+      firemotd_row_charstart="$firemotd_theme_default_charstart"
+    fi
+  fi
+  write_log debug info "FireMotD Row $1 Character Start $firemotd_row_charstart"
+  firemotd_row_data=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.data" "$firemotd_theme_path")
+  write_log debug info "FireMotD Row $1 Data $firemotd_row_data"
+}
+
+reset_row_properties () {
+  firemotd_row_length="null"
+  firemotd_row_character="null"
+  firemotd_row_charcolor="null"
+  firemotd_row_charstart="null"
+  firemotd_row_data="null"
+
+}
+
+compare_rows_with_defaults () {
+  write_log debug info "Checking required properties of row $i"
+  if [[ "$firemotd_row_length" == "null" ]] ; then
+    if [[ "$firemotd_theme_default_length" != "null" ]] ; then
+      firemotd_row_length="$firemotd_theme_default_length"
+      write_log debug info "Row $i inherits default length $firemotd_theme_default_length."
+    else
+      write_log output error "FireMotD theme $Firemotd_theme row $i is missing length property."
+      exit 2
+    fi
+  else
+    write_log debug info "Row $i length: $firemotd_row_length"
+  fi
+  if [[ "$firemotd_row_character" == "null" ]] ; then
+    if [[ "$firemotd_theme_default_character" != "null" ]] ; then
+      firemotd_row_character="$firemotd_theme_default_character"
+      write_log debug info "Row $i inherits default length $firemotd_theme_default_character."
+    else
+      write_log output error "FireMotD theme $Firemotd_theme row $i is missing length property."
+      exit 2
+    fi
+  else
+    write_log debug info "Row $i character: $firemotd_row_character"
+  fi
+}
+
+compare_row_with_defaults () {
+  write_log debug info "Checking required properties of row $i"
+  if [[ "${!1}" == "null" ]] ; then
+    if [[ "${!2}" != "null" ]] ; then
+      firemotd_row_length="${!1}"
+      write_log debug info "Row $i inherits default length ${!2}."
+    else
+      write_log output error "FireMotD theme $Firemotd_theme row $i is missing ${!1} property."
+      exit 2
+    fi
+  else
+    write_log debug info "Row $i length: ${!1}"
+  fi
 }
 
 print_theme () {
@@ -207,8 +265,40 @@ print_theme () {
   done
 }
 
+print_colored_characters () {
+  str=$1
+  num=$2
+  col=$3
+  for (( i = 1; i <= num; i++ )) ; do
+    echo -en "$col$str\e[0m"
+  done
+}
+
+print_raw_characters () {
+  str=$1
+  num=$2
+  for (( i = 1; i <= num; i++ )) ; do
+    echo -en "$str"
+  done
+}
+
 print_dynamic_row () {
-  echo -en "Test: $firemotd_row_charcolor $firemotd_row_character"
+  write_log debug info "Printing $firemotd_row_charcolor $firemotd_row_character $firemotd_row_length"
+  raw_row_string=$(print_raw_characters "$firemotd_row_character" "$firemotd_row_length")
+  write_log debug info "Raw row string: $raw_row_string"
+  empty_char_string=$(print_raw_characters " " "$firemotd_row_charstart")
+  exact_row_string=$(echo ${raw_row_string:$firemotd_row_charstart:$firemotd_row_length})
+  exact_row_length=${#exact_row_string}
+  if [ "$firemotd_row_character" = '\' ] ; then
+    write_log debug info "Backslash detected"
+    exact_row_string="${exact_row_string}${exact_row_string}"
+  fi
+  full_row_string="${empty_char_string}${exact_row_string}"
+  full_row_length=${#full_row_string}
+  colored_row_string="${firemotd_row_charcolor}${full_row_string}"
+  colored_row_length=${#colored_row_string}
+  write_log debug info "Exact Row Length: $exact_row_length, Full row length: $full_row_length, Colored row length: $colored_row_length"
+  echo -en "$colored_row_string"
   echo -en "\n\033[0m"
 }
 
@@ -220,14 +310,14 @@ restore_item () {
 load_theme_defaults () {
   write_log verbose info "Loading theme $firemotd_theme defaults"
   firemotd_theme_path="${script_directory}/themes/firemotd-theme-${firemotd_theme}.json"
+  firemotd_theme_default_length=$(jq -r '.firemotd.properties.theme.defaults.length' "$firemotd_theme_path")
+  write_log debug info "FireMotD default length: $firemotd_theme_default_length"
   firemotd_theme_default_character=$(jq -r '.firemotd.properties.theme.defaults.character' "$firemotd_theme_path")
   write_log debug info "FireMotD default character: $firemotd_theme_default_character"
   firemotd_theme_default_charcolor=$(jq -r '.firemotd.properties.theme.defaults.charcolor' "$firemotd_theme_path")
   write_log debug info "FireMotD default charcolor: $firemotd_theme_default_charcolor"
   firemotd_theme_default_charstart=$(jq -r '.firemotd.properties.theme.defaults.charstart' "$firemotd_theme_path")
   write_log debug info "FireMotD default charstart: $firemotd_theme_default_charstart"
-  firemotd_theme_default_length=$(jq -r '.firemotd.properties.theme.defaults.length' "$firemotd_theme_path")
-  write_log debug info "FireMotD default length: $firemotd_theme_default_length"
   firemotd_theme_default_keycolor=$(jq -r '.firemotd.properties.theme.defaults.keycolor' "$firemotd_theme_path")
   write_log debug info "FireMotD default keycolor: $firemotd_theme_default_keycolor"
   firemotd_theme_default_keystart=$(jq -r '.firemotd.properties.theme.defaults.keystart' "$firemotd_theme_path")

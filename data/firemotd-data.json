@@ -8,21 +8,21 @@
               "name": {
                 "properties": {
                   "value": "c01",
-                  "lastrun": "2020-08-23 22:45:33,765",
+                  "lastrun": "2020-08-26 11:26:27,997",
                   "type": "keyword"
                 }
               },
               "ip": {
                 "properties": {
                   "value": "172.104.242.86",
-                  "lastrun": "2020-08-23 22:45:33,748",
+                  "lastrun": "2020-08-26 11:26:27,979",
                   "type": "ip"
                 }
               },
               "architecture": {
                 "properties": {
                   "value": "x86_64",
-                  "lastrun": "2020-08-23 22:45:33,735",
+                  "lastrun": "2020-08-26 11:26:27,967",
                   "type": "keyword"
                 }
               }

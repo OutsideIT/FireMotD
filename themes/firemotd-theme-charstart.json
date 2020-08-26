@@ -29,7 +29,9 @@
             "properties": {
               "type": "dynamic",
               "character": "/",
-              "charcolor": "\\e[38;5;54m"
+              "charcolor": "\\e[38;5;54m",
+              "charstart": 5,
+              "length": 74
             }
           }
         },
@@ -37,7 +39,29 @@
           "row": {
             "properties": {
               "type": "dynamic",
-              "character": "/",
+              "character": "<=",
+              "charcolor": "\\e[38;5;54m",
+              "charstart": 4,
+              "length": 69
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "\\",
+              "charcolor": "\\e[38;5;55m",
+              "charstart": 5,
+              "length": 74
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+							"character": ">",
               "charcolor": "\\e[38;5;54m",
               "data": "${host.name}"
             }
@@ -48,17 +72,9 @@
             "properties": {
               "type": "dynamic",
               "character": "/",
-              "charcolor": "\\e[38;5;54m"
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "/",
-              "charcolor": "\\e[38;5;54m",
-              "data": "${package.updates.count} ${package.updates.type} updates."
+              "charcolor": "\\e[38;5;56m",
+              "charstart": 15,
+              "length": 64
             }
           }
         },
