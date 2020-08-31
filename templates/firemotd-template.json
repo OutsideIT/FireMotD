@@ -5,6 +5,13 @@
         "properties": {
           "host": {
             "properties": {
+              "domain": {
+                "properties": {
+                  "value": "undefined",
+                  "lastrun": "never",
+                  "type": "keyword"
+                }
+              },
               "name": {
                 "properties": {
                   "value": "undefined",

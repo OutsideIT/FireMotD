@@ -32,5 +32,14 @@ explore_host_ip () {
   echo "${host_ip_result}" > data/firemotd-data.json
 }
 
-explore_host_ip
-write_log debug info "Explored host-ip: ${host_ip_value}"
+read_host_ip () {
+  host_ip_value="${firemotd_row_highlightcolor}$(jq -r ".firemotd.properties.data.properties.host.properties.ip.properties.value" "$firemotd_data_path")${firemotd_row_charcolor}"
+}
+
+if [ "$firemotd_explore_realtime" = "true" ] ; then
+  explore_host_ip
+  write_log debug info "Explored host-ip: ${host_ip_value}"
+else
+  read_host_ip
+  write_log debug info "Row $i read host_ip_value $host_ip_value"
+fi

@@ -1,0 +1,198 @@
+{
+  "firemotd": {
+    "properties": {
+      "theme": {
+        "properties": {
+          "name": "Test",
+          "creator": "Willem D'Haese",
+          "created": "2020-06-08",
+          "modified": "2020-06-20",
+          "description": "A basic FireMotd theme",
+          "version": "0.2"
+        },
+        "defaults": {
+          "character": "#",
+          "charcolor": "\\e[38;5;93m",
+          "charstart": 0,
+					"charinit": 2,
+          "charfill": "false",
+          "length": 79,
+          "keycolor": "\\e[38;5;164m",
+          "keystart": 4,
+          "separator": "=>",
+          "separatorcolor": "\\e[38;5;57m",
+          "valuecolor": "\\e[38;5;207m",
+          "highlightcolor": "\\e[38;5;219m"
+        }
+      },
+      "data": [
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "/"
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "//"
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "/",
+              "charstart": 5
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "//",
+							"charstart": 5
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "\\"
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "\\\\"
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "\\",
+              "charstart": 5
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "\\\\",
+              "charstart": 5
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "<=",
+              "charcolor": "\\e[38;5;163m",
+              "charstart": 4,
+              "charinit": 8,
+              "charfill": "true",
+              "separator": "",
+              "variables" : [
+                { "key" : "host-name" },
+                { "key" : "host-domain" }
+              ],
+              "data": "\\*\\* ${host_name_value}.${host_domain_value} \\*\\*"
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "<",
+              "charcolor": "\\e[38;5;163m",
+              "charstart": 0,
+              "charinit": 8,
+              "charfill": "true",
+              "separator": "",
+              "variables" : [
+                { "key" : "host-name" },
+                { "key" : "host-domain" }
+              ],
+              "data": "\\*\\* ${host_name_value}.${host_domain_value} \\*\\*"
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "\\"
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+							"character": ">",
+              "charstart": 0,
+              "charfill": "true",
+              "key" : "Host IP",
+              "variables" : [
+                { "key" : "host-ip" }
+              ],
+              "data": "${host_ip_value}"
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": ">",
+              "charstart": 6,
+              "charfill": "true",
+              "key" : "Host IP",
+              "variables" : [
+                { "key" : "host-ip" }
+              ],
+              "data": "${host_ip_value}"
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": ">",
+              "charstart": 6,
+              "key": "Packages",
+							"variables" : [
+                { "key" : "package" }
+              ],
+              "data": "${package_updates_count_value} ${package_updates_type_value} updates"
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "/",
+              "charcolor": "\\e[38;5;54m",
+              "length": 74
+            }
+          }
+        }
+      ]
+    }
+	}
+}

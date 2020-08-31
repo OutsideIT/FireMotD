@@ -33,7 +33,7 @@ explore_package_updates () {
   elif [[ -x "/usr/bin/apt-get" ]] ; then
     package_updates_type_value="apt"
     package_updates_path_value=$(command -v apt-get 2>/dev/null)
-    package_update_count_value=$($package_updates_path_value update > /dev/null; $package_updates_path_value upgrade -u -s | grep -c -P "^Inst")
+    package_updates_count_value=$($package_updates_path_value update > /dev/null; $package_updates_path_value upgrade -u -s | grep -c -P "^Inst")
   fi
   package_updates_result=$(jq --arg package_updates_type_value "$package_updates_type_value" --arg package_updates_lastrun "$package_updates_lastrun" --arg package_updates_count_value "$package_updates_count_value" \
     '.firemotd.properties.data.properties.package.properties.updates.properties.type.properties.value = $package_updates_type_value | .firemotd.properties.data.properties.package.properties.updates.properties.type.properties.lastrun = $package_updates_lastrun | .firemotd.properties.data.properties.package.properties.updates.properties.count.properties.value = $package_updates_count_value | .firemotd.properties.data.properties.package.properties.updates.properties.count.properties.lastrun = $package_updates_lastrun' \
@@ -41,5 +41,15 @@ explore_package_updates () {
   echo "${package_updates_result}" > data/firemotd-data.json
 }
 
-explore_package_updates
-write_log debug info "Explored package-updates: ${package_updates_type_value} ${package_updates_count_value}"
+read_package_updates () {
+  package_updates_type_value="${firemotd_row_highlightcolor}$(jq -r ".firemotd.properties.data.properties.package.properties.updates.properties.type.properties.value" "$firemotd_data_path")${firemotd_row_charcolor}"
+  package_updates_count_value="${firemotd_row_highlightcolor}$(jq -r ".firemotd.properties.data.properties.package.properties.updates.properties.count.properties.value" "$firemotd_data_path")${firemotd_row_charcolor}"
+}
+
+if [ "$firemotd_explore_realtime" = "true" ] ; then
+  explore_package_updates
+  write_log debug info "Explored package-updates: ${package_updates_type_value} ${package_updates_count_value}"
+else
+  read_package_updates
+  write_log debug info "Row $i read package-updates ${package_updates_type_value} ${package_updates_count_value}"
+fi

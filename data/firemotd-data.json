@@ -5,24 +5,31 @@
         "properties": {
           "host": {
             "properties": {
+              "domain": {
+                "properties": {
+                  "value": "outsideit.net",
+                  "lastrun": "2020-08-31 11:13:02,325",
+                  "type": "keyword"
+                }
+              },
               "name": {
                 "properties": {
                   "value": "c01",
-                  "lastrun": "2020-08-26 11:26:27,997",
+                  "lastrun": "2020-08-31 11:13:02,350",
                   "type": "keyword"
                 }
               },
               "ip": {
                 "properties": {
                   "value": "172.104.242.86",
-                  "lastrun": "2020-08-26 11:26:27,979",
+                  "lastrun": "2020-08-31 11:13:02,336",
                   "type": "ip"
                 }
               },
               "architecture": {
                 "properties": {
                   "value": "x86_64",
-                  "lastrun": "2020-08-26 11:26:27,967",
+                  "lastrun": "2020-08-31 11:13:02,315",
                   "type": "keyword"
                 }
               }
@@ -34,15 +41,15 @@
                 "properties": {
                   "type": {
                     "properties": {
-                      "value": "undefined",
-                      "lastrun": "never",
+                      "value": "dnf",
+                      "lastrun": "2020-08-30 11:01:34,992",
                       "type": "keyword"
                     }
                   },
                   "count": {
                     "properties": {
-                      "value": "undefined",
-                      "lastrun": "never",
+                      "value": "0",
+                      "lastrun": "2020-08-30 11:01:34,992",
                       "type": "integer"
                     }
                   }
