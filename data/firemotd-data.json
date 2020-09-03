@@ -15,7 +15,7 @@
               "name": {
                 "properties": {
                   "value": "c01",
-                  "lastrun": "2020-08-31 11:13:02,350",
+                  "lastrun": "2020-09-02 23:26:08,967",
                   "type": "keyword"
                 }
               },
@@ -29,7 +29,7 @@
               "architecture": {
                 "properties": {
                   "value": "x86_64",
-                  "lastrun": "2020-08-31 11:13:02,315",
+                  "lastrun": "2020-09-02 23:26:08,938",
                   "type": "keyword"
                 }
               }

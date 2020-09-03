@@ -61,12 +61,12 @@ case "$firemotd_action" in
     install_firemotd ;;
   explore)
     validate_data
-    explore_data ;;
+    explore_data write ;;
   restore)
     restore_item ;;
   theme)
     validate_data
-    explore_data
+    explore_data write
     validate_theme
     load_theme_defaults
     print_theme ;;

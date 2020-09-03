@@ -163,12 +163,11 @@ verify_json () {
 }
 
 explore_data () {
-  write_log verbose info "Exploring explorers \"$firemotd_explore\""
+  firemotd_explore_type="$1"
+  write_log verbose info "Exploring explorers \"${firemotd_explore}\" type ${firemotd_explore_type}"
   for explorer in ${firemotd_explore//,/ } ; do
-    write_log debug info "Exploring $explorer"
-    firemotd_explore_realtime="true"
+    write_log debug info "Exploring ${explorer}"
     source_group $explorer
-    firemotd_explore_realtime="false"
   done
 }
 
@@ -375,6 +374,7 @@ print_dynamic_data () {
   for (( j = 0 ; j < $firemotd_row_vars_count ; j++ )) ; do
     firemotd_row_var="$(jq -r ".firemotd.properties.data[$i].row.properties.variables[$j].key" "$firemotd_theme_path")"
     write_log debug info "Row $i variable $firemotd_row_var processing started"
+    firemotd_explore_type="read"
     source_group $firemotd_row_var
   done
   firemotd_row_data_string="$(eval echo "$firemotd_row_data") "
