@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  firemotd.sh
-# Version:      v13.02.200610
+# Version:      v13.03.200921
 # Created on:   10/02/2014
 # Author:       Willem D'Haese
 # Purpose:      Bash framework to dynamically MotD messages
@@ -21,12 +21,16 @@ log_level="output"
 firemotd_action="undefined"
 firemotd_explore="host-name,host-ip"
 firemotd_restore="undefined"
+# Print row, all or cache
+firemotd_print="all"
 script_path="$(readlink -f "$0")"
 script_directory=$(dirname "${script_path}")
 script_name="$(basename "$script_path")"
 script_version="$(< "$script_path" grep "# Version: " | head -n1 | awk '{print $3}' | tr -cd '[:digit:.-]' | sed 's/.\{0\}$//') "
 firemotd_data_directory="$script_directory/data"
 firemotd_data_path="${firemotd_data_directory}/firemotd-data.json"
+firemotd_cache_directory="${script_directory}/cache"
+firemotd_cache_path="${firemotd_cache_directory}/firemotd-cache.motd"
 LC_ALL="C"
 LC_CTYPE="C"
 LC_NUMERIC="C"
@@ -40,6 +44,7 @@ else
 fi
 
 initialize_arguments "$@"
+firemotd_theme_cache_path="${firemotd_cache_directory}/firemotd-cache-test.json"
 write_log debug info "script_directory: $script_directory"
 write_log debug info "script_name: $script_name"
 write_log debug info "script_version: $script_version"
@@ -65,7 +70,8 @@ case "$firemotd_action" in
   restore)
     restore_item ;;
   theme)
-    validate_data
+    validate_cache_path
+    validate_data_path
     explore_data write
     validate_theme
     load_theme_defaults

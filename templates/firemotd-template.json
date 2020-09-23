@@ -3,6 +3,16 @@
     "properties": {
       "data": {
         "properties": {
+          "cpu": {
+            "properties": {
+              "usage": {
+                "properties": {
+                  "value": "undefined",
+                  "lastrun": "never"
+                }
+              }
+            }
+          },
           "host": {
             "properties": {
               "domain": {

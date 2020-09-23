@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  firemotd-explore-host-name.sh
-# Version:      v0.04.200902
+# Version:      v0.05.200923
 # Created on:   09/06/2020
 # Author:       Willem D'Haese
 # Purpose:      Explore Host Information
@@ -8,6 +8,7 @@
 
 explore_host_name () {
   host_name_value="$(hostname)"
+  validate_host_name
 }
 
 write_host_name () {
@@ -19,15 +20,28 @@ write_host_name () {
 }
 
 read_host_name () {
-  host_name_value="${firemotd_row_highlightcolor}$(jq -r ".firemotd.properties.data.properties.host.properties.name.properties.value" "$firemotd_data_path")${firemotd_row_charcolor}"
+  host_name_value="$(jq -r ".firemotd.properties.data.properties.host.properties.name.properties.value" "$firemotd_data_path")"
+  validate_host_name
+  host_name_value="${firemotd_row_highlightcolor}${host_name_value}${firemotd_row_charcolor}"
 }
 
-write_log verbose info "firemotd-explore-host-name.sh - ${firemotd_explore_type}"
+validate_host_name () {
+  if [[ "$host_name_value" =~ ^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9](\.|\_|\-))*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$ ]]; then
+    write_log debug info "${row_string}valid host_name_value \"${host_name_value}\" detected"
+  else
+    write_log output error "${row_string}invalid host_name_value \"${host_name_value}\" detected. Please debug."
+    exit 2
+  fi
+}
+
+row_string=""
+if [ ! -z $i ] ; then
+  row_string="Row $i: "
+fi
+write_log verbose info "${row_string}firemotd-explore-host-name.sh - ${firemotd_explore_type}"
 if [ "${firemotd_explore_type}" = "write" ] ; then
   explore_host_name
   write_host_name
-  write_log debug info "Explored host-name: ${host_name_value}"
 elif [ "${firemotd_explore_type}" = "read" ] ; then
   read_host_name
-  write_log debug info "Row $i read host_name_value $host_name_value"
 fi

@@ -56,17 +56,37 @@ initialize_arguments () {
   while :; do
     case "$1" in
       -v|-V|--verbose|--Verbose)
-        log_level="verbose" ; shift ;;
+        log_level="verbose"
+        shift ;;
       -d|-D|--debug|--Debug)
-        log_level="debug" ; shift ;;
+        log_level="debug"
+        shift ;;
       -h|-H|--help|--Help)
         verify_firemotd_action "help" ; shift ;;
-      -p|-P|--presentation|--Presentation)
-        verify_firemotd_action "present" ; shift ;;
+      -p|-P|--print|--Print)
+        shift
+        firemotd_print="$1"
+        if [[ "$firemotd_print" =~ ^(row|all)$ ]] ; then
+          write_log debug info "valid firemotd_print \"${firemotd_print}\" argument detected"
+        else
+          write_log output error "invalid firemotd_print \"${firemotd_print}\" argument detected"
+          exit 2
+        fi
+        shift ;;
       -i|-I|--install|--Install)
-        verify_firemotd_action "install" ; shift ;;
+        verify_firemotd_action "install"
+        shift ;;
       -e|-E|--explore|--Explore)
-        shift ; firemotd_explore="$1" ; verify_firemotd_action "explore" ; shift ;;
+        shift
+        firemotd_explore="$1"
+        if [[ "$firemotd_explore" =~ ^(host|host_name|cpu_usage)$ ]] ; then
+          write_log debug info "valid firemotd_explore \"$firemotd_explore}\" argument detected"
+        else
+          write_log output error "invalid firemotd_explore \"${firemotd_explore}\" argument detected"
+          exit 2
+        fi
+        verify_firemotd_action "explore"
+        shift ;;
       -t|-T|--theme|--Theme)
         shift ; verify_firemotd_action "theme" ; firemotd_theme="$1" ; shift ;;
       -c|-C|--colortest|--Colortest|--ColorTest|--colorTest)
@@ -89,29 +109,43 @@ usage:
   $script_name -t <firemotd_theme>
 
 options:
-   -h | --help                          shows this help
-   -v | --verbose                       log level verbose
-   -d | --debug                         log level debug
-   -t | --theme <firemotd_theme>        shows the chosen theme
-   -c | --colortest                     shows color test
-   -M | --colormap                      shows color map
-   -e | --explore                       explores the chose explorer
+  -h | --help                          shows this help
+  -v | --verbose                       log level verbose
+  -d | --debug                         log level debug
+  -t | --theme <firemotd_theme>        shows the chosen theme
+  -c | --colortest                     shows color test
+  -M | --colormap                      shows color map
+  -e | --explore                       explore stuff and write to data json
+
+explorers:
+  - host
+    - host-architecture
+    - host-domain
+    - host-name
+    - host-ip
+  - cpu
+    - cpu-cores
+    - cpu-sockets
+    - cpu-usage
+  - package
+    - package-type
+    - package-count
 
 legacy themes:
- - original
- - modern
- - invader
- - clean
+  - original
+  - modern
+  - invader
+  - clean
 
 theme templates:
- - blanco
- - blue
- - digipolis
- - elastic
- - eline
- - gray
- - orange
- - red
+  - blanco
+  - blue
+  - digipolis
+  - elastic
+  - eline
+  - gray
+  - orange
+  - red
 "
   exit 0
 }
@@ -153,28 +187,40 @@ verify_json () {
     jq_result=$( { cat "$1" | jq empty ; } 2>&1 )
       exitcode=$?
       if [ $exitcode -ne 0 ] ; then
-        write_log output error "Invalid json file ${1}: ${jq_result}"
+        write_log output error "invalid json file ${1}: ${jq_result}"
         exit $exitcode
       fi
   else
-    write_log output error "Unexisting json file ${1}"
+    write_log output error "unexisting json file ${1}"
     exit 2
   fi
 }
 
+restore_item () {
+  write_log verbose info "Restoring $firemotd_restore"
+  cp "$script_directory/templates/firemotd-template.json" "$script_directory/data/firemotd-data.json"
+}
+
 explore_data () {
   firemotd_explore_type="$1"
-  write_log verbose info "Exploring explorers \"${firemotd_explore}\" type ${firemotd_explore_type}"
+  write_log verbose info "exploring explorers \"${firemotd_explore}\" type ${firemotd_explore_type}"
   for explorer in ${firemotd_explore//,/ } ; do
-    write_log debug info "Exploring ${explorer}"
+    write_log debug info "exploring ${explorer}"
     source_group $explorer
   done
 }
 
-validate_data () {
-  write_log verbose info "Exploring explorers \"$firemotd_explore\""
+validate_cache_path () {
+  write_log verbose info "preparing print $firemotd_print"
+  if [ "${firemotd_print}" = "all" ] ; then
+    > ${firemotd_cache_path}
+  fi
+}
+
+validate_data_path () {
+  write_log verbose info "exploring explorers \"$firemotd_explore\""
   verify_json "${firemotd_data_path}"
-  write_log verbose info "Found valid data json ${firemotd_data_path}"
+  write_log verbose info "found valid data json ${firemotd_data_path}"
 }
 
 validate_theme () {
@@ -189,7 +235,7 @@ validate_theme () {
 }
 
 load_theme_defaults () {
-  write_log verbose info "Loading theme $firemotd_theme defaults"
+  write_log verbose info "loading theme $firemotd_theme defaults"
   firemotd_theme_path="${script_directory}/themes/firemotd-theme-${firemotd_theme}.json"
   firemotd_theme_default_length=$(jq -r '.firemotd.properties.theme.defaults.length' "$firemotd_theme_path")
   write_log debug info "FireMotD default length: $firemotd_theme_default_length"
@@ -300,6 +346,8 @@ print_theme () {
   write_log debug Info "Looping through $firemotd_row_count rows"
   for (( i = 0 ; i < $firemotd_row_count ; i++ )) ; do
     write_log debug info "Row $i processing started"
+#    if [ "${firemotd_print}" = "cache" ] ; then
+
     load_row_properties $i
     if [ "$firemotd_row_data" = "null" ] ; then
       print_dynamic_row
@@ -308,6 +356,12 @@ print_theme () {
     fi
     reset_row_properties
   done
+  if [ "${firemotd_print}" = "all" ] ; then
+    cat ${firemotd_cache_path}
+  elif [ "${firemotd_print}" = "cache" ] ; then
+    firemotd_cache_motd="$(eval echo "$firemotd_cache_path")"
+    cat ${firemotd_cache_motd}
+  fi
 }
 
 print_colored_characters () {
@@ -344,6 +398,14 @@ load_row_variables () {
   write_log debug info "Row $1 firemotd_row_type $firemotd_row_type"
 }
 
+write_theme_cache_row () {
+  row_number="$1"
+  row_cache="$2"
+  write_log debug info "Row $row_number cache update with $row_cache"
+  theme_cache_row=$(jq --arg row_cache "${row_cache}" --arg row_number "${row_number}" '.firemotd.properties.data[$row_number|tonumber].row.properties.cache = $row_cache' $firemotd_theme_path)
+  echo "${theme_cache_row}" > "$firemotd_theme_cache_path"
+}
+
 print_dynamic_row () {
   write_log debug info "Row $i printing $firemotd_row_charcolor $firemotd_row_character $firemotd_row_length"
   firemotd_row_raw_string=$(print_raw_characters "$firemotd_row_character" "$firemotd_row_length")
@@ -359,17 +421,23 @@ print_dynamic_row () {
   fi
   full_row_string="${firemotd_row_empty_char_string}${firemotd_row_exact_string}"
   colored_row_string="${firemotd_row_charcolor}${full_row_string}"
+  write_theme_cache_row $i "$colored_row_string\n\033[0m"
   write_log verbose info "Row $i length: ${#firemotd_row_exact_string}, full row length: ${#full_row_string}, colored row length: ${#colored_row_string}"
-  echo -en "$colored_row_string"
-  echo -en "\n\033[0m"
+  if [ "${firemotd_print}" = "all" ] ; then
+    echo -en "$colored_row_string\n\033[0m" >> "${firemotd_cache_path}"
+  else
+    echo -en "$colored_row_string"
+    echo -en "\n\033[0m"
+  fi
 }
 
 print_dynamic_data () {
-  write_log debug info "Row $i printing $firemotd_row_charcolor $firemotd_row_character ${firemotd_row_charinit}"
+  write_log debug info "row $i: printing $firemotd_row_charcolor $firemotd_row_character ${firemotd_row_charinit}"
   row_char_string=$(print_raw_characters "$firemotd_row_character" "${firemotd_row_charinit}")
   firemotd_row_empty_char_string=$(print_raw_characters " " "$firemotd_row_charstart")
-  write_log debug info "Row $i loading variables from $firemotd_theme_path"
+  write_log debug info "row $i: loading variables from $firemotd_theme_path"
   firemotd_row_vars_count=$(jq -r ".firemotd.properties.data[$i].row.properties.variables | length" "$firemotd_theme_path")
+  get_row_variables
   write_log debug Info "Row $i looping through $firemotd_row_vars_count variables"
   for (( j = 0 ; j < $firemotd_row_vars_count ; j++ )) ; do
     firemotd_row_var="$(jq -r ".firemotd.properties.data[$i].row.properties.variables[$j].key" "$firemotd_theme_path")"
@@ -406,11 +474,15 @@ print_dynamic_data () {
   [[ "$firemotd_row_key" != "null" ]] && firemotd_row_key=" ${firemotd_row_keycolor}${firemotd_row_key} " || firemotd_row_key=""
   [[ "$firemotd_row_separator" != "null" ]] && firemotd_row_separator="${firemotd_row_separatorcolor}${firemotd_row_separator} " || firemotd_row_separator=""
   colored_row_string="${firemotd_row_empty_char_string}${firemotd_row_charcolor}${row_char_string}${firemotd_row_key}${firemotd_row_separator}${firemotd_row_charcolor}${firemotd_row_data_string}${firemotd_row_leftover_string}"
-  echo -en "$colored_row_string"
-  echo -en "\n\033[0m"
+  write_theme_cache_row $i $colored_row_string
+  if [ "${firemotd_print}" = "all" ] ; then
+    echo -en "$colored_row_string\n\033[0m" >> "${firemotd_cache_path}"
+  else
+    echo -en "$colored_row_string"
+    echo -en "\n\033[0m"
+  fi
 }
 
-restore_item () {
-  write_log verbose info "Restoring $firemotd_restore"
-  cp "$script_directory/templates/firemotd-template.json" "$script_directory/data/firemotd-data.json"
+get_row_variables () {
+   write_log debug info "row $i: getting row variables"
 }
