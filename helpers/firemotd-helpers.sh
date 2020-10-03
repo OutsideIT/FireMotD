@@ -212,8 +212,8 @@ create_explorer () {
   else
     firemotd_object="${firemotd_object_subject%%_*}"
     firemotd_subject="${firemotd_object_subject#*_}"
-    cat "${firemotd_template_directory}/firemotd-explore.template" | sed "s/\${firemotd_object}/${firemotd_object}/" \
-    | sed "s/\${firemotd_subject}/${firemotd_subject}/" > "${firemotd_explorers_directory}/firemotd-explore-${firemotd_object}-${firemotd_subject}.sh"
+    cat "${firemotd_template_directory}/firemotd-explore.template" | sed "s/\${object}/${firemotd_object}/g" \
+    | sed "s/\${subject}/${firemotd_subject}/g" > "${firemotd_explorers_directory}/firemotd-explore-${firemotd_object}-${firemotd_subject}.sh"
   fi
 }
 

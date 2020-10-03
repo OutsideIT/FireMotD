@@ -3,17 +3,17 @@
     "properties": {
       "theme": {
         "properties": {
-          "name": "Test",
+          "name": "Basic",
           "creator": "Willem D'Haese",
           "created": "2020-06-08",
           "modified": "2020-06-20",
-          "description": "A FireMotd Test Theme",
-          "version": "0.3"
+          "description": "A basic FireMotd theme",
+          "version": "0.2"
         },
         "defaults": {
           "character": "#",
           "charcolor": "\\e[38;5;93m",
-          "charstart": 0,
+          "charstart": 5,
           "charinit": 2,
           "charfill": "false",
           "length": 79,
@@ -30,93 +30,7 @@
           "row": {
             "properties": {
               "type": "dynamic",
-              "character": "/",
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "/-",
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "/",
-              "charstart": 5,
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "/-",
-              "charstart": 5,
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "\\",
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "-\\",
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "\\\\",
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "\\",
-              "charstart": 5,
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "\\\\",
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "-\\",
-              "charstart": 5,
-              "cache": ""
+              "character": "/"
             }
           }
         },
@@ -125,28 +39,6 @@
             "properties": {
               "type": "dynamic",
               "character": "<=",
-              "charcolor": "\\e[38;5;163m",
-              "charinit": 8,
-              "charfill": "true",
-              "separator": "",
-              "variables": [
-                {
-                  "key": "host-name"
-                },
-                {
-                  "key": "host-domain"
-                }
-              ],
-              "data": "\\*\\* ${host_name_value}.${host_domain_value} \\*\\*",
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "<",
               "charcolor": "\\e[38;5;163m",
               "charstart": 4,
               "charinit": 8,
@@ -160,8 +52,37 @@
                   "key": "host-domain"
                 }
               ],
-              "data": "\\*\\* ${host_name_value}.${host_domain_value} \\*\\*",
-              "cache": ""
+              "data": "\\*\\* ${host_name_value}.${host_domain_value} \\*\\*"
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "<",
+              "charcolor": "\\e[38;5;163m",
+              "charstart": 0,
+              "charinit": 8,
+              "charfill": "true",
+              "separator": "",
+              "variables": [
+                {
+                  "key": "host-name"
+                },
+                {
+                  "key": "host-domain"
+                }
+              ],
+              "data": "\\*\\* ${host_name_value}.${host_domain_value} \\*\\*"
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "\\"
             }
           }
         },
@@ -178,8 +99,7 @@
                   "key": "host-ip"
                 }
               ],
-              "data": "${host_ip_value}",
-              "cache": ""
+              "data": "${host_ip_value}"
             }
           }
         },
@@ -196,24 +116,7 @@
                   "key": "host-ip"
                 }
               ],
-              "data": "${host_ip_value}",
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": ">",
-              "key": "Packages",
-              "variables": [
-                {
-                  "key": "package"
-                }
-              ],
-              "data": "${package_updates_count_value} ${package_updates_type_value} updates",
-              "cache": ""
+              "data": "${host_ip_value}"
             }
           }
         },
@@ -229,8 +132,7 @@
                   "key": "package"
                 }
               ],
-              "data": "${package_updates_count_value} ${package_updates_type_value} updates",
-              "cache": ""
+              "data": "${package_updates_count_value} ${package_updates_type_value} updates"
             }
           }
         },
@@ -241,7 +143,7 @@
               "character": "/",
               "charcolor": "\\e[38;5;54m",
               "length": 74,
-              "cache": "\\e[38;5;54m//////////////////////////////////////////////////////////////////////////\\n\\033[0m"
+              "cache": "\\e[38;5;54m     /////////////////////////////////////////////////////////////////////\\n\\033[0m"
             }
           }
         }

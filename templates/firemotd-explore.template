@@ -1,0 +1,47 @@
+#!/bin/bash
+# Script name:  firemotd-explore-${object}-${subject}.sh
+# Version:      v0.05.200923
+# Created on:   09/06/2020
+# Author:       Willem D'Haese
+# Purpose:      Explore Host Information
+# On GitHub:    https://github.com/OutsideIT/FireMotD
+
+explore_${object}_${subject} () {
+  ${object}_${subject}_value="$(hostname)"
+  validate_${object}_${subject}
+}
+
+write_${object}_${subject} () {
+  ${object}_${subject}_lastrun=$(date '+%Y-%m-%d %H:%M:%S,%3N')
+  ${object}_${subject}_result=$(jq --arg ${object}_${subject}_value "${${object}_${subject}_value}" --arg ${object}_${subject}_lastrun "${${object}_${subject}_lastrun}" \
+    '.firemotd.properties.data.properties.${object}.properties.${subject}.properties.value = ${${object}_${subject}_value} | .firemotd.properties.data.properties.${object}.properties.${subject}.properties.lastrun = ${${object}_${subject}_lastrun}' \
+    "$firemotd_data_path")
+  echo "${${object}_${subject}_result}" > "$firemotd_data_path"
+}
+
+read_${object}_${subject} () {
+  ${object}_${subject}_value="$(jq -r ".firemotd.properties.data.properties.${object}.properties.${subject}.properties.value" "$firemotd_data_path")"
+  validate_${object}_${subject}
+  ${object}_${subject}_value="${firemotd_row_highlightcolor}${${object}_${subject}_value}${firemotd_row_charcolor}"
+}
+
+validate_${object}_${subject} () {
+  if [[ "$${object}_${subject}_value" =~ ^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9](\.|\_|\-))*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$ ]]; then
+    write_log debug info "${row_string}valid ${object}_${subject}_value \"${${object}_${subject}_value}\" detected"
+  else
+    write_log output error "${row_string}invalid ${object}_${subject}_value \"${${object}_${subject}_value}\" detected. Please debug."
+    exit 2
+  fi
+}
+
+row_string=""
+if [ ! -z $i ] ; then
+  row_string="Row $i: "
+fi
+write_log verbose info "${row_string}firemotd-explore-${object}-${subject}.sh - ${firemotd_explore_type}"
+if [ "${firemotd_explore_type}" = "write" ] ; then
+  explore_${object}_${subject}
+  write_${object}_${subject}
+elif [ "${firemotd_explore_type}" = "read" ] ; then
+  read_${object}_${subject}
+fi
