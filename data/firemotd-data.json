@@ -17,15 +17,15 @@
             "properties": {
               "domain": {
                 "properties": {
-                  "value": "undefined",
-                  "lastrun": "never",
+                  "value": "outsideit.net",
+                  "lastrun": "2020-10-03 10:23:57,492",
                   "type": "keyword"
                 }
               },
               "name": {
                 "properties": {
                   "value": "c01",
-                  "lastrun": "2020-09-23 22:12:06,317",
+                  "lastrun": "2020-10-03 10:23:57,532",
                   "type": "keyword"
                 }
               },
@@ -38,8 +38,8 @@
               },
               "architecture": {
                 "properties": {
-                  "value": "undefined",
-                  "lastrun": "never",
+                  "value": "x86_64",
+                  "lastrun": "2020-10-03 10:23:57,458",
                   "type": "keyword"
                 }
               }

@@ -79,7 +79,7 @@ initialize_arguments () {
       -e|-E|--explore|--Explore)
         shift
         firemotd_explore="$1"
-        if [[ "$firemotd_explore" =~ ^(host|host_name|cpu_usage)$ ]] ; then
+        if [[ "$firemotd_explore" =~ [a-z]* ]] ; then
           write_log debug info "valid firemotd_explore \"$firemotd_explore}\" argument detected"
         else
           write_log output error "invalid firemotd_explore \"${firemotd_explore}\" argument detected"
@@ -94,7 +94,9 @@ initialize_arguments () {
       -m|-M|--colormap|--Colormap|--ColorMap|--colorMap)
         verify_firemotd_action "colormap" ; shift ;;
       -r|-R|--restore|--Restore)
-        shift ; verify_firemotd_action "restore" ; firemotd_restore="$1" ; shift ;;
+        shift ; verify_firemotd_action "restore_data_template" ; firemotd_restore="$1" ; shift ;;
+      -n|-N|--newexplorer|--NewExplorer)
+        shift ; verify_firemotd_action "create_explorer" ; firemotd_object_subject="$1" ; shift ;;
       -*) write_log output error "initialize_arguments: You specified a non-existant option: $1" ; exit 2 ;;
       *) break ;;
     esac
@@ -154,7 +156,7 @@ source_file () {
   if [ -f "$1" ] ; then
     source "$1"
   else
-    write_log output error "Missing $1"
+    write_log output error "source_file $1 does not exist"
     exit 2
   fi
 }
@@ -164,6 +166,7 @@ source_group () {
   findstring="$(find explorers/. -maxdepth 1 -name $group -print)"
   array=( $findstring )
   for f in "${array[@]}"; do
+    write_log debug info "source group file $f"
     [[ -f $f ]] && . $f --source-only || echo "$f not found"
   done
 }
@@ -196,9 +199,22 @@ verify_json () {
   fi
 }
 
-restore_item () {
-  write_log verbose info "Restoring $firemotd_restore"
-  cp "$script_directory/templates/firemotd-template.json" "$script_directory/data/firemotd-data.json"
+restore_data_template () {
+  write_log verbose info "restoring data json ${firemotd_data_path} from template ${firemotd_data_template}"
+  cp "${firemotd_data_template}" "${firemotd_data_path}"
+}
+
+create_explorer () {
+  write_log verbose info "creating explorer for ${firemotd_object_subject}"
+  if [[ ! "${firemotd_object_subject}" =~ ^([a-zA-Z0-9])*\_([a-zA-Z0-9])*$ ]] ; then
+    write_log output error "Invalid object_subject ${firemotd_object_subject}"
+    exit 2
+  else
+    firemotd_object="${firemotd_object_subject%%_*}"
+    firemotd_subject="${firemotd_object_subject#*_}"
+    cat "${firemotd_template_directory}/firemotd-explore.template" | sed "s/\${firemotd_object}/${firemotd_object}/" \
+    | sed "s/\${firemotd_subject}/${firemotd_subject}/" > "${firemotd_explorers_directory}/firemotd-explore-${firemotd_object}-${firemotd_subject}.sh"
+  fi
 }
 
 explore_data () {
@@ -268,45 +284,45 @@ load_theme_defaults () {
 
 load_row_properties () {
   firemotd_row_type=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.type" "$firemotd_theme_path")
-  write_log debug info "Row $1 firemotd_row_type $firemotd_row_type"
+  write_log debug info "${firemotd_log_row_prefix}firemotd_row_type $firemotd_row_type"
   firemotd_row_length=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.length" "$firemotd_theme_path")
   firemotd_row_length=$(compare_row_with_defaults firemotd_row_length firemotd_theme_default_length)
-  write_log debug info "Row $1 firemotd_row_length $firemotd_row_length"
+  write_log debug info "${firemotd_log_row_prefix}firemotd_row_length $firemotd_row_length"
   firemotd_row_varcount=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.variables | length" "$firemotd_theme_path")
-  write_log debug info "Row $1 firemotd_row_varcount $firemotd_row_varcount"
+  write_log debug info "${firemotd_log_row_prefix}firemotd_row_varcount $firemotd_row_varcount"
   firemotd_row_character=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.character" "$firemotd_theme_path")
   firemotd_row_character=$(compare_row_with_defaults firemotd_row_character firemotd_theme_default_character)
-  write_log debug info "Row $1 firemotd_row_character $firemotd_row_character"
+  write_log debug info "${firemotd_log_row_prefix}firemotd_row_character $firemotd_row_character"
   firemotd_row_charcolor=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.charcolor" "$firemotd_theme_path")
   firemotd_row_charcolor=$(compare_row_with_defaults firemotd_row_charcolor firemotd_theme_default_charcolor)
-  write_log debug info "Row $1 firemotd_row_charcolor $firemotd_row_charcolor"
+  write_log debug info "${firemotd_log_row_prefix}firemotd_row_charcolor $firemotd_row_charcolor"
   firemotd_row_charstart=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.charstart" "$firemotd_theme_path")
   firemotd_row_charstart=$(compare_row_with_defaults firemotd_row_charstart firemotd_theme_default_charstart)
-  write_log debug info "Row $1 firemotd_row_charstart $firemotd_row_charstart"
+  write_log debug info "${firemotd_log_row_prefix}firemotd_row_charstart $firemotd_row_charstart"
   firemotd_row_charinit=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.charinit" "$firemotd_theme_path")
   firemotd_row_charinit=$(compare_row_with_defaults firemotd_row_charinit firemotd_theme_default_charinit)
-  write_log debug info "Row $1 firemotd_row_charinit $firemotd_row_charinit"
+  write_log debug info "${firemotd_log_row_prefix}firemotd_row_charinit $firemotd_row_charinit"
   firemotd_row_charfill=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.charfill" "$firemotd_theme_path")
   firemotd_row_charfill=$(compare_row_with_defaults firemotd_row_charfill firemotd_theme_default_charfill)
-  write_log debug info "Row $1 firemotd_row_charfill $firemotd_row_charfill"
+  write_log debug info "${firemotd_log_row_prefix}firemotd_row_charfill $firemotd_row_charfill"
   firemotd_row_data=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.data" "$firemotd_theme_path")
   firemotd_row_key=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.key" "$firemotd_theme_path")
-  write_log debug info "Row $1 firemotd_row_key $firemotd_row_key"
+  write_log debug info "${firemotd_log_row_prefix}firemotd_row_key $firemotd_row_key"
   firemotd_row_keycolor=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.keycolor" "$firemotd_theme_path")
   firemotd_row_keycolor=$(compare_row_with_defaults firemotd_row_keycolor firemotd_theme_default_keycolor)
-  write_log debug info "Row $1 firemotd_row_keycolor $firemotd_row_keycolor"
+  write_log debug info "${firemotd_log_row_prefix}firemotd_row_keycolor $firemotd_row_keycolor"
   firemotd_row_keystart=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.keystart" "$firemotd_theme_path")
   firemotd_row_keystart=$(compare_row_with_defaults firemotd_row_keystart firemotd_theme_default_keystart)
-  write_log debug info "Row $1 firemotd_row_keystart $firemotd_row_keystart"
+  write_log debug info "${firemotd_log_row_prefix}firemotd_row_keystart $firemotd_row_keystart"
   firemotd_row_separator=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.separator" "$firemotd_theme_path")
   firemotd_row_separator=$(compare_row_with_defaults firemotd_row_separator firemotd_theme_default_separator)
-  write_log debug info "Row $1 firemotd_row_separator $firemotd_row_separator"
+  write_log debug info "${firemotd_log_row_prefix}firemotd_row_separator $firemotd_row_separator"
   firemotd_row_separatorcolor=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.separatorcolor" "$firemotd_theme_path")
   firemotd_row_separatorcolor=$(compare_row_with_defaults firemotd_row_separatorcolor firemotd_theme_default_separatorcolor)
-  write_log debug info "Row $1 firemotd_row_separatorcolor $firemotd_row_separatorcolor"
+  write_log debug info "${firemotd_log_row_prefix}firemotd_row_separatorcolor $firemotd_row_separatorcolor"
   firemotd_row_highlightcolor=$(jq -r ".firemotd.properties.data[$1 | tonumber].row.properties.highlightcolor" "$firemotd_theme_path")
   firemotd_row_highlightcolor=$(compare_row_with_defaults firemotd_row_highlightcolor firemotd_theme_default_highlightcolor)
-  write_log debug info "Row $1 firemotd_row_highlightcolor $firemotd_row_highlightcolor"
+  write_log debug info "${firemotd_log_row_prefix}firemotd_row_highlightcolor $firemotd_row_highlightcolor"
 }
 
 reset_row_properties () {
@@ -340,22 +356,22 @@ compare_row_with_defaults () {
 }
 
 print_theme () {
-  write_log verbose info "Printing theme $firemotd_theme"
-  write_log verbose info "Looping through firemotd data rows in $firemotd_theme_path"
+  write_log verbose info "${firemotd_theme} - printing ${firemotd_theme_path}"
   firemotd_row_count=$(jq -r '.firemotd.properties.data | length' "$firemotd_theme_path")
-  write_log debug Info "Looping through $firemotd_row_count rows"
+  write_log debug info "${firemotd_theme} - looping through ${firemotd_row_count} rows"
   for (( i = 0 ; i < $firemotd_row_count ; i++ )) ; do
-    write_log debug info "Row $i processing started"
-#    if [ "${firemotd_print}" = "cache" ] ; then
-
+    firemotd_log_row_prefix="${firemotd_theme} - row $i: "
+    write_log verbose info "${firemotd_log_row_prefix}processing started"
     load_row_properties $i
     if [ "$firemotd_row_data" = "null" ] ; then
       print_dynamic_row
     else
       print_dynamic_data
     fi
+    write_log debug info "${firemotd_log_row_prefix}resetting row properties"
     reset_row_properties
   done
+  write_log debug info "${firemotd_log_row_prefix}printing ${firemotd_print} from ${firemotd_cache_path}"
   if [ "${firemotd_print}" = "all" ] ; then
     cat ${firemotd_cache_path}
   elif [ "${firemotd_print}" = "cache" ] ; then
@@ -399,30 +415,28 @@ load_row_variables () {
 }
 
 write_theme_cache_row () {
-  row_number="$1"
-  row_cache="$2"
-  write_log debug info "Row $row_number cache update with $row_cache"
-  theme_cache_row=$(jq --arg row_cache "${row_cache}" --arg row_number "${row_number}" '.firemotd.properties.data[$row_number|tonumber].row.properties.cache = $row_cache' $firemotd_theme_path)
+  row_cache="$1"
+  write_log debug info "${firemotd_log_row_prefix}cache update with $row_cache"
+  theme_cache_row=$(jq --arg row_cache "${row_cache}" --arg row_number "$i" '.firemotd.properties.data[$row_number|tonumber].row.properties.cache = $row_cache' $firemotd_theme_path)
   echo "${theme_cache_row}" > "$firemotd_theme_cache_path"
 }
 
 print_dynamic_row () {
-  write_log debug info "Row $i printing $firemotd_row_charcolor $firemotd_row_character $firemotd_row_length"
+  write_log debug info "${firemotd_log_row_prefix}printing $firemotd_row_charcolor $firemotd_row_character $firemotd_row_length"
   firemotd_row_raw_string=$(print_raw_characters "$firemotd_row_character" "$firemotd_row_length")
-  write_log debug info "Row $i firemotd_row_raw_string ${firemotd_row_raw_string}"
+  write_log debug info "${firemotd_log_row_prefix}firemotd_row_raw_string ${firemotd_row_raw_string}"
   firemotd_row_empty_char_string=$(print_raw_characters " " "$firemotd_row_charstart")
-  write_log debug info "Row $i firemotd_row_empty_char_string \"$firemotd_row_empty_char_string\""
+  write_log debug info "${firemotd_log_row_prefix}firemotd_row_empty_char_string \"$firemotd_row_empty_char_string\""
   firemotd_row_leftover_string_length=$(( firemotd_row_length - ${#firemotd_row_empty_char_string} ))
-#  firemotd_row_exact_string=$(echo ${firemotd_row_raw_string:$firemotd_row_charstart:$firemotd_row_length})
   firemotd_row_exact_string=$(echo ${firemotd_row_raw_string:$firemotd_row_charstart:$firemotd_row_leftover_string_length})
   if [[ "$firemotd_row_character" =~ (\\|\\\\) ]] ; then
-    write_log debug info "Row $i backslash detected"
+    write_log debug info "${firemotd_log_row_prefix}backslash detected"
     firemotd_row_exact_string="${firemotd_row_exact_string}${firemotd_row_exact_string}"
   fi
   full_row_string="${firemotd_row_empty_char_string}${firemotd_row_exact_string}"
   colored_row_string="${firemotd_row_charcolor}${full_row_string}"
-  write_theme_cache_row $i "$colored_row_string\n\033[0m"
-  write_log verbose info "Row $i length: ${#firemotd_row_exact_string}, full row length: ${#full_row_string}, colored row length: ${#colored_row_string}"
+  write_theme_cache_row "$colored_row_string\n\033[0m"
+  write_log verbose info "${firemotd_log_row_prefix}length: ${#firemotd_row_exact_string}, full row length: ${#full_row_string}, colored row length: ${#colored_row_string}"
   if [ "${firemotd_print}" = "all" ] ; then
     echo -en "$colored_row_string\n\033[0m" >> "${firemotd_cache_path}"
   else
@@ -432,30 +446,30 @@ print_dynamic_row () {
 }
 
 print_dynamic_data () {
-  write_log debug info "row $i: printing $firemotd_row_charcolor $firemotd_row_character ${firemotd_row_charinit}"
+  write_log debug info "${firemotd_log_row_prefix}printing $firemotd_row_charcolor $firemotd_row_character ${firemotd_row_charinit}"
   row_char_string=$(print_raw_characters "$firemotd_row_character" "${firemotd_row_charinit}")
   firemotd_row_empty_char_string=$(print_raw_characters " " "$firemotd_row_charstart")
-  write_log debug info "row $i: loading variables from $firemotd_theme_path"
-  firemotd_row_vars_count=$(jq -r ".firemotd.properties.data[$i].row.properties.variables | length" "$firemotd_theme_path")
+  write_log debug info "${firemotd_log_row_prefix}loading variables from $firemotd_theme_path"
+#  firemotd_row_vars_count=$(jq -r ".firemotd.properties.data[$i].row.properties.variables | length" "$firemotd_theme_path")
   get_row_variables
-  write_log debug Info "Row $i looping through $firemotd_row_vars_count variables"
-  for (( j = 0 ; j < $firemotd_row_vars_count ; j++ )) ; do
-    firemotd_row_var="$(jq -r ".firemotd.properties.data[$i].row.properties.variables[$j].key" "$firemotd_theme_path")"
-    write_log debug info "Row $i variable $firemotd_row_var processing started"
-    firemotd_explore_type="read"
-    source_group $firemotd_row_var
-  done
+#  write_log debug Info "Row $i looping through $firemotd_row_vars_count variables"
+#  for (( j = 0 ; j < $firemotd_row_vars_count ; j++ )) ; do
+#    firemotd_row_var="$(jq -r ".firemotd.properties.data[$i].row.properties.variables[$j].key" "$firemotd_theme_path")"
+#    write_log debug info "Row $i variable $firemotd_row_var processing started"
+#    firemotd_explore_type="read"
+#    source_group $firemotd_row_var
+#  done
   firemotd_row_data_string="$(eval echo "$firemotd_row_data") "
-  write_log verbose info "Row $i firemotd_row_data_string: $firemotd_row_data_string"
+  write_log verbose info "${firemotd_log_row_prefix}firemotd_row_data_string: $firemotd_row_data_string"
   if [ "${firemotd_row_charfill}" = "true" ] ; then
     firemotd_row_charcolor_length=$(( ${firemotd_row_varcount} * ${#firemotd_row_charcolor} ))
-    write_log debug info "Row $i firemotd_row_charcolor_length $firemotd_row_charcolor_length"
+    write_log debug info "${firemotd_log_row_prefix}firemotd_row_charcolor_length $firemotd_row_charcolor_length"
     firemotd_row_highlightcolor_length=$(( ${firemotd_row_varcount} * ${#firemotd_row_highlightcolor} ))
-    write_log debug info "Row $i firemotd_row_highlightcolor_length $firemotd_row_highlightcolor_length"
+    write_log debug info "${firemotd_log_row_prefix}firemotd_row_highlightcolor_length $firemotd_row_highlightcolor_length"
     firemotd_row_data_string_length="${#firemotd_row_data_string}"
-    write_log debug info "Row $i firemotd_row_data_string_length $firemotd_row_data_string_length"
+    write_log debug info "${firemotd_log_row_prefix}firemotd_row_data_string_length $firemotd_row_data_string_length"
     firemotd_row_data_string_length=$((${#firemotd_row_data_string} - firemotd_row_charcolor_length - firemotd_row_highlightcolor_length ))
-    write_log debug info "Row $i firemotd_row_data_string_length $firemotd_row_data_string_length"
+    write_log debug info "${firemotd_log_row_prefix}firemotd_row_data_string_length $firemotd_row_data_string_length"
     if [ "$firemotd_row_key" = "null" ] ; then
       firemotd_row_key_length=0
       firemotd_row_separator_length=0
@@ -464,12 +478,12 @@ print_dynamic_data () {
       firemotd_row_separator_length=$(( ${#firemotd_row_separator} + 2 ))
     fi
     firemotd_row_known_string_lentgh=$(( firemotd_row_data_string_length + ${#row_char_string} + ${#firemotd_row_empty_char_string} + ${firemotd_row_key_length} + ${firemotd_row_separator_length} ))
-    write_log verbose info "Row $i firemotd_row_known_string_lentgh $firemotd_row_known_string_lentgh ($firemotd_row_data_string_length + ${#row_char_string} + ${#firemotd_row_empty_char_string} + ${firemotd_row_key_length} (${firemotd_row_key}) + ${firemotd_row_separator_length} (${firemotd_row_separator})"
+    write_log verbose info "${firemotd_log_row_prefix}firemotd_row_known_string_lentgh $firemotd_row_known_string_lentgh ($firemotd_row_data_string_length + ${#row_char_string} + ${#firemotd_row_empty_char_string} + ${firemotd_row_key_length} (${firemotd_row_key}) + ${firemotd_row_separator_length} (${firemotd_row_separator})"
     firemotd_row_leftover_string_length=$(( firemotd_row_length - firemotd_row_known_string_lentgh - 1 ))
-    write_log debug info "Row $i firemotd_row_leftover_string_length $firemotd_row_leftover_string_length"
+    write_log debug info "${firemotd_log_row_prefix}firemotd_row_leftover_string_length $firemotd_row_leftover_string_length"
     firemotd_row_leftover_string=$(print_raw_characters "$firemotd_row_character" "${firemotd_row_leftover_string_length}")
     firemotd_row_leftover_string=$(echo ${firemotd_row_leftover_string:0:$firemotd_row_leftover_string_length})
-    write_log debug info "Row $i firemotd_row_leftover_string $firemotd_row_leftover_string"
+    write_log debug info "${firemotd_log_row_prefix}firemotd_row_leftover_string $firemotd_row_leftover_string"
   fi
   [[ "$firemotd_row_key" != "null" ]] && firemotd_row_key=" ${firemotd_row_keycolor}${firemotd_row_key} " || firemotd_row_key=""
   [[ "$firemotd_row_separator" != "null" ]] && firemotd_row_separator="${firemotd_row_separatorcolor}${firemotd_row_separator} " || firemotd_row_separator=""
@@ -484,5 +498,13 @@ print_dynamic_data () {
 }
 
 get_row_variables () {
-   write_log debug info "row $i: getting row variables"
+  write_log debug info "${firemotd_log_row_prefix}getting row variables"
+  firemotd_row_vars=($(echo "$firemotd_row_data" | awk -F'$' '{for(i=1;i<=NF;i++) {match($i, /{([^}]*)_value}/, a); print a[1]}}'))
+  for x in "${firemotd_row_vars[@]}" ; do
+    write_log debug info "${firemotd_log_row_prefix}variable $x"
+    firemotd_row_var_name=$(echo "${x/_/-}")
+    firemotd_explore_type="read"
+    firemotd_explorer_path="${firemotd_explorers_directory}/firemotd-explore-$firemotd_row_var_name.sh"
+    [[ -f $firemotd_explorer_path ]] && . $firemotd_explorer_path --source-only || write_log output error "$firemotd_explorer_path not found"
+  done
 }

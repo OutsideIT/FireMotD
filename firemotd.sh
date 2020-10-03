@@ -19,18 +19,21 @@
 
 log_level="output"
 firemotd_action="undefined"
-firemotd_explore="host-name,host-ip"
+firemotd_explore="host"
 firemotd_restore="undefined"
-# Print row, all or cache
 firemotd_print="all"
 script_path="$(readlink -f "$0")"
 script_directory=$(dirname "${script_path}")
-script_name="$(basename "$script_path")"
-script_version="$(< "$script_path" grep "# Version: " | head -n1 | awk '{print $3}' | tr -cd '[:digit:.-]' | sed 's/.\{0\}$//') "
-firemotd_data_directory="$script_directory/data"
+script_name="$(basename "${script_path}")"
+script_version="$(< "${script_path}" grep "# Version: " | head -n1 | awk '{print $3}' | tr -cd '[:digit:.-]' | sed 's/.\{0\}$//') "
+firemotd_template_directory="${script_directory}/templates"
+firemotd_data_template="${firemotd_template_directory}/firemotd-template.json"
+firemotd_data_directory="${script_directory}/data"
 firemotd_data_path="${firemotd_data_directory}/firemotd-data.json"
 firemotd_cache_directory="${script_directory}/cache"
 firemotd_cache_path="${firemotd_cache_directory}/firemotd-cache.motd"
+firemotd_explorers_directory="${script_directory}/explorers"
+firemotd_valid_explorers=("host" "host-name" "host-domain" "host-ip" "host-architecture" "cpu-usage" "package")
 LC_ALL="C"
 LC_CTYPE="C"
 LC_NUMERIC="C"
@@ -65,10 +68,12 @@ case "$firemotd_action" in
     verify_sudo
     install_firemotd ;;
   explore)
-    validate_data
+    validate_data_path
     explore_data write ;;
-  restore)
-    restore_item ;;
+  restore_data_template)
+    restore_data_template ;;
+  create_explorer)
+    create_explorer ;;
   theme)
     validate_cache_path
     validate_data_path
