@@ -133,6 +133,7 @@ ContainsValidIp () {
 }
 
 VersionComparison () {
+  if [[ "$2" == "UNKNOWN" ]]; then echo "unknown"; return 3; fi # https://github.com/OutsideIT/FireMotD/issues/154
   if [[ "$1" == "$2" ]] ; then
     echo "equal"
     return 0
