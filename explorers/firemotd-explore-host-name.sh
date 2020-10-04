@@ -15,7 +15,7 @@ write_host_name () {
   host_name_lastrun=$(date '+%Y-%m-%d %H:%M:%S,%3N')
   host_name_result=$(jq --arg host_name_value "${host_name_value}" --arg host_name_lastrun "${host_name_lastrun}" \
     '.firemotd.properties.data.properties.host.properties.name.properties.value = $host_name_value | .firemotd.properties.data.properties.host.properties.name.properties.lastrun = $host_name_lastrun' \
-    data/firemotd-data.json)
+    "$firemotd_data_path")
   echo "${host_name_result}" > "$firemotd_data_path"
 }
 
@@ -27,18 +27,14 @@ read_host_name () {
 
 validate_host_name () {
   if [[ "$host_name_value" =~ ^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9](\.|\_|\-))*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$ ]]; then
-    write_log debug info "${row_string}valid host_name_value \"${host_name_value}\" detected"
+    write_log verbose info "${firemotd_log_row_prefix}valid host_name_value \"${host_name_value}\" detected"
   else
-    write_log output error "${row_string}invalid host_name_value \"${host_name_value}\" detected. Please debug."
+    write_log output error "${firemotd_log_row_prefix}invalid host_name_value \"${host_name_value}\" detected. Please debug."
     exit 2
   fi
 }
 
-row_string=""
-if [ ! -z $i ] ; then
-  row_string="Row $i: "
-fi
-write_log verbose info "${row_string}firemotd-explore-host-name.sh - ${firemotd_explore_type}"
+write_log verbose info "${firemotd_log_row_prefix}firemotd-explore-host-name.sh - ${firemotd_explore_type}"
 if [ "${firemotd_explore_type}" = "write" ] ; then
   explore_host_name
   write_host_name

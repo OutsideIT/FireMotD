@@ -86,26 +86,8 @@
           "row": {
             "properties": {
               "type": "dynamic",
-              "character": "\\\\",
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
               "character": "\\",
               "charstart": 5,
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "\\\\",
               "cache": ""
             }
           }
@@ -124,15 +106,49 @@
           "row": {
             "properties": {
               "type": "dynamic",
+              "character": "*",
+              "cache": ""
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "\\*",
+              "cache": ""
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "*",
+              "charstart": 5,
+              "cache": ""
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "\\*",
+              "charstart": 5,
+              "cache": ""
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
               "character": "<=",
               "charcolor": "\\e[38;5;163m",
               "charinit": 8,
               "charfill": "true",
               "separator": "",
-              "variables" : [
-                { "key" : "host-name" },
-                { "key" : "host-domain" }
-              ],
               "data": "\\*\\* ${host_name_value}.${host_domain_value} \\*\\*",
               "cache": ""
             }
@@ -148,10 +164,6 @@
               "charinit": 8,
               "charfill": "true",
               "separator": "",
-              "variables" : [
-                { "key" : "host-name" },
-                { "key" : "host-domain" }
-              ],
               "data": "\\*\\* ${host_name_value}.${host_domain_value} \\*\\*",
               "cache": ""
             }
@@ -165,9 +177,6 @@
               "charstart": 0,
               "charfill": "true",
               "key" : "Host IP",
-              "variables" : [
-                { "key" : "host-ip" }
-              ],
               "data": "${host_ip_value}",
               "cache": ""
             }
@@ -181,9 +190,6 @@
               "charstart": 6,
               "charfill": "true",
               "key" : "Host IP",
-              "variables" : [
-                { "key" : "host-ip" }
-              ],
               "data": "${host_ip_value}",
               "cache": ""
             }
@@ -195,10 +201,7 @@
               "type": "dynamic",
               "character": ">",
               "key": "Packages",
-              "variables" : [
-                { "key" : "package" }
-              ],
-              "data": "${package_updates_count_value} ${package_updates_type_value} updates",
+              "data": "${package_updates_value} ${package_manager_value} updates",
               "cache": ""
             }
           }
@@ -210,10 +213,7 @@
               "character": ">",
               "charstart": 6,
               "key": "Packages",
-              "variables" : [
-                { "key" : "package" }
-              ],
-              "data": "${package_updates_count_value} ${package_updates_type_value} updates",
+              "data": "${package_updates_value} ${package_manager_value} updates",
               "cache": ""
             }
           }
@@ -224,6 +224,7 @@
               "type": "dynamic",
               "character": "/",
               "charcolor": "\\e[38;5;54m",
+              "charstart": 6,
               "length": 74,
               "cache": ""
             }

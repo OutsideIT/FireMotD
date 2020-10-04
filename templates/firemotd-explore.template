@@ -14,7 +14,7 @@ explore_${object}_${subject} () {
 write_${object}_${subject} () {
   ${object}_${subject}_lastrun=$(date '+%Y-%m-%d %H:%M:%S,%3N')
   ${object}_${subject}_result=$(jq --arg ${object}_${subject}_value "${${object}_${subject}_value}" --arg ${object}_${subject}_lastrun "${${object}_${subject}_lastrun}" \
-    '.firemotd.properties.data.properties.${object}.properties.${subject}.properties.value = ${${object}_${subject}_value} | .firemotd.properties.data.properties.${object}.properties.${subject}.properties.lastrun = ${${object}_${subject}_lastrun}' \
+    '.firemotd.properties.data.properties.${object}.properties.${subject}.properties.value = $${object}_${subject}_value | .firemotd.properties.data.properties.${object}.properties.${subject}.properties.lastrun = $${object}_${subject}_lastrun' \
     "$firemotd_data_path")
   echo "${${object}_${subject}_result}" > "$firemotd_data_path"
 }
@@ -27,18 +27,14 @@ read_${object}_${subject} () {
 
 validate_${object}_${subject} () {
   if [[ "$${object}_${subject}_value" =~ ^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9](\.|\_|\-))*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$ ]]; then
-    write_log debug info "${row_string}valid ${object}_${subject}_value \"${${object}_${subject}_value}\" detected"
+    write_log verbose info "${firemotd_log_row_prefix}valid ${object}_${subject}_value \"${${object}_${subject}_value}\" detected"
   else
-    write_log output error "${row_string}invalid ${object}_${subject}_value \"${${object}_${subject}_value}\" detected. Please debug."
+    write_log output error "${firemotd_log_row_prefix}invalid ${object}_${subject}_value \"${${object}_${subject}_value}\" detected. Please debug."
     exit 2
   fi
 }
 
-row_string=""
-if [ ! -z $i ] ; then
-  row_string="Row $i: "
-fi
-write_log verbose info "${row_string}firemotd-explore-${object}-${subject}.sh - ${firemotd_explore_type}"
+write_log verbose info "${firemotd_log_row_prefix}firemotd-explore-${object}-${subject}.sh - ${firemotd_explore_type}"
 if [ "${firemotd_explore_type}" = "write" ] ; then
   explore_${object}_${subject}
   write_${object}_${subject}

@@ -48,22 +48,14 @@
           "package": {
             "properties": {
               "updates": {
-                "properties": {
-                  "type": {
-                    "properties": {
-                      "value": "undefined",
-                      "lastrun": "never",
-                      "type": "keyword"
-                    }
-                  },
-                  "count": {
-                    "properties": {
-                      "value": "undefined",
-                      "lastrun": "never",
-                      "type": "integer"
-                    }
-                  }
-                }
+                "value": "undefined",
+                "lastrun": "never",
+                "type": "keyword"
+              },
+              "manager": {
+                "value": "undefined",
+                "lastrun": "never",
+                "type": "integer"
               }
             }
           }
