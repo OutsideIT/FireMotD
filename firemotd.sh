@@ -30,6 +30,7 @@ firemotd_template_directory="${script_directory}/templates"
 firemotd_data_template="${firemotd_template_directory}/firemotd-data.template"
 firemotd_data_directory="${script_directory}/data"
 firemotd_data_path="${firemotd_data_directory}/firemotd-data.json"
+firemotd_theme_directory="${script_directory}/themes"
 firemotd_cache_directory="${script_directory}/cache"
 firemotd_cache_path="${firemotd_cache_directory}/firemotd-cache.motd"
 firemotd_explorers_directory="${script_directory}/explorers"
@@ -68,6 +69,7 @@ case "$firemotd_action" in
     verify_sudo
     install_firemotd ;;
   explore)
+    write_log verbose info "firemotd explore ${firemotd_explore}"
     validate_data_path
     explore_data write ;;
   restore_data_template)
@@ -75,8 +77,10 @@ case "$firemotd_action" in
   create_explorer)
     create_explorer ;;
   theme)
+    write_log verbose info "firemotd theme ${firemotd_theme}"
     validate_cache_path
     validate_data_path
+    write_log verbose info "firemotd theme ${firemotd_theme} explore ${firemotd_explore}"
     explore_data write
     validate_theme
     load_theme_defaults
@@ -84,9 +88,9 @@ case "$firemotd_action" in
   present)
     present_themes ;;
   undefined)
-    write_log output error "Please provide a valid argument combination" ; exit 2 ;;
+    write_log output error "please provide a valid argument combination" ; exit 2 ;;
   *)
-    write_log output error "Invalid action: \"${firemotd_action}\"" ; exit 2 ;;
+    write_log output error "invalid action: \"${firemotd_action}\"" ; exit 2 ;;
 esac
 
 exit $?

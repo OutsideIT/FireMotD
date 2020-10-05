@@ -79,7 +79,7 @@ initialize_arguments () {
       -e|-E|--explore|--Explore)
         shift
         firemotd_explore="$1"
-        if [[ "$firemotd_explore" =~ ^[a-z]{3,10}([-][a-z]{3,10})$ ]] ; then
+        if [[ "$firemotd_explore" =~ ^[a-z]{3,10}([-][a-z]{3,15})$ ]] ; then
           write_log debug info "valid firemotd_explore \"${firemotd_explore}\" argument detected"
         else
           write_log output error "invalid firemotd_explore \"${firemotd_explore}\" argument detected"
@@ -229,27 +229,31 @@ explore_data () {
 }
 
 validate_cache_path () {
-  write_log verbose info "preparing print $firemotd_print"
+  write_log debug info "validating cache path ${firemotd_cache_path}"
   if [ "${firemotd_print}" = "all" ] ; then
+    write_log debug info "clearing ${firemotd_cache_path}"
     > ${firemotd_cache_path}
+    write_log debug info "printing ${firemotd_theme} theme rows all at once"
+  else
+    write_log debug info "printing ${firemotd_theme} theme one row at a time"
   fi
 }
 
 validate_data_path () {
-  write_log verbose info "exploring \"$firemotd_explore\""
+  write_log debug info "validating data path ${firemotd_data_path}"
   verify_json "${firemotd_data_path}"
   write_log debug info "found valid data json ${firemotd_data_path}"
 }
 
 validate_theme () {
-  write_log verbose info "Validating theme $firemotd_theme"
-  firemotd_theme_path="${script_directory}/themes/firemotd-theme-${firemotd_theme}.json"
+  firemotd_theme_path="${firemotd_theme_directory}/firemotd-theme-${firemotd_theme}.json"
+  write_log debug info "validating theme ${firemotd_theme_path}"
   verify_json "${firemotd_theme_path}"
-  write_log verbose info "Found valid theme json ${firemotd_theme_path}"
+  write_log debug info "found valid json ${firemotd_theme_path}"
   firemotd_theme_name=$(jq -r '.firemotd.properties.theme.properties.name' "${firemotd_theme_path}")
   firemotd_theme_version=$(jq -r '.firemotd.properties.theme.properties.version' "${firemotd_theme_path}")
   firemotd_theme_creator=$(jq -r '.firemotd.properties.theme.properties.creator' "${firemotd_theme_path}")
-  write_log verbose info "Found valid theme ${firemotd_theme_name} ${firemotd_theme_version} by ${firemotd_theme_creator}"
+  write_log verbose info "found valid theme ${firemotd_theme_name} ${firemotd_theme_version} by ${firemotd_theme_creator}"
 }
 
 load_theme_defaults () {
@@ -424,13 +428,13 @@ write_theme_cache_row () {
 }
 
 print_dynamic_row () {
+  set -o noglob
   write_log debug info "${firemotd_log_row_prefix}printing $firemotd_row_charcolor $firemotd_row_character $firemotd_row_length"
   firemotd_row_raw_string=$(print_raw_characters "$firemotd_row_character" "$firemotd_row_length")
   write_log debug info "${firemotd_log_row_prefix}firemotd_row_raw_string ${firemotd_row_raw_string}"
   firemotd_row_empty_char_string=$(print_raw_characters " " "$firemotd_row_charstart")
   write_log debug info "${firemotd_log_row_prefix}firemotd_row_empty_char_string \"$firemotd_row_empty_char_string\""
   firemotd_row_leftover_string_length=$(( firemotd_row_length - ${#firemotd_row_empty_char_string} ))
-  set -o noglob
   firemotd_row_exact_string=$(echo ${firemotd_row_raw_string:$firemotd_row_charstart:$firemotd_row_leftover_string_length})
   set +o noglob
   write_log debug info "${firemotd_log_row_prefix}firemotd_row_exact_string ${firemotd_row_exact_string}"
@@ -460,17 +464,11 @@ print_dynamic_row () {
       echo -en "\n\033[0m"
     fi
   fi
-#  write_theme_cache_row "$colored_row_string\n\033[0m"
-#  write_log verbose info "${firemotd_log_row_prefix}length: ${#firemotd_row_exact_string}, full row length: ${#full_row_string}, colored row length: ${#colored_row_string}"
-#  if [ "${firemotd_print}" = "all" ] ; then
-#    echo -en "$colored_row_string\n\033[0m" >> "${firemotd_cache_path}"
-#  else
-#    echo -en "$colored_row_string"
-#    echo -en "\n\033[0m"
-#  fi
+  set +o noglob
 }
 
 print_dynamic_data () {
+  set -o noglob
   write_log debug info "${firemotd_log_row_prefix}printing ${firemotd_row_charcolor} ${firemotd_row_character} ${firemotd_row_charinit}"
   row_char_string=$(print_raw_characters "$firemotd_row_character" "${firemotd_row_charinit}")
   firemotd_row_empty_char_string=$(print_raw_characters " " "$firemotd_row_charstart")
@@ -513,6 +511,7 @@ print_dynamic_data () {
     echo -en "$colored_row_string"
     echo -en "\n\033[0m"
   fi
+  set +o noglob
 }
 
 get_row_variables () {

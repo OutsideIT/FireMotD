@@ -18,28 +18,28 @@
               "domain": {
                 "properties": {
                   "value": "outsideit.net",
-                  "lastrun": "2020-10-04 12:32:02,659",
+                  "lastrun": "2020-10-05 19:32:44,899",
                   "type": "keyword"
                 }
               },
               "name": {
                 "properties": {
                   "value": "c01",
-                  "lastrun": "2020-10-04 12:32:02,714",
+                  "lastrun": "2020-10-05 19:32:44,964",
                   "type": "keyword"
                 }
               },
               "ip": {
                 "properties": {
                   "value": "172.104.242.86",
-                  "lastrun": "2020-10-04 12:32:02,690",
+                  "lastrun": "2020-10-05 19:32:44,935",
                   "type": "ip"
                 }
               },
               "architecture": {
                 "properties": {
-                  "value": "undefined",
-                  "lastrun": "never",
+                  "value": "x86_64",
+                  "lastrun": "2020-10-05 19:32:44,872",
                   "type": "keyword"
                 }
               }

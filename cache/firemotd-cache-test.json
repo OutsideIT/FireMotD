@@ -210,12 +210,11 @@
           "row": {
             "properties": {
               "type": "dynamic",
-              "character": "<=",
+              "character": "=",
               "charcolor": "\\e[38;5;163m",
               "charinit": 8,
-              "charfill": "true",
               "separator": "",
-              "data": "\\*\\* ${host_name_value}.${host_domain_value} \\*\\*",
+              "data": "*- ${host_name_value}.${host_domain_value} -*",
               "cache": ""
             }
           }
@@ -224,13 +223,72 @@
           "row": {
             "properties": {
               "type": "dynamic",
-              "character": "<",
+              "character": "-",
               "charcolor": "\\e[38;5;163m",
-              "charstart": 4,
               "charinit": 8,
               "charfill": "true",
               "separator": "",
-              "data": "\\*\\* ${host_name_value}.${host_domain_value} \\*\\*",
+              "data": "\\>\\> ${host_name_value}.${host_domain_value} \\<\\<",
+              "cache": "19"
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": ":",
+              "charcolor": "\\e[38;5;163m",
+              "charinit": 8,
+              "charfill": "true",
+              "length": 45,
+              "separator": "",
+              "data": "Oo ${host_name_value}.${host_domain_value} oO",
+              "cache": ""
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "=>",
+              "charcolor": "\\e[38;5;163m",
+              "charstart": 5,
+              "charinit": 8,
+              "separator": "",
+              "data": "** ${host_name_value}.${host_domain_value} **",
+              "cache": ""
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "_",
+              "charcolor": "\\e[38;5;163m",
+              "charstart": 5,
+              "charinit": 8,
+              "charfill": "true",
+              "separator": "",
+              "data": "\\\\* ${host_name_value}.${host_domain_value} */",
+              "cache": ""
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "|",
+              "charcolor": "\\e[38;5;163m",
+              "charstart": 5,
+              "charinit": 8,
+              "charfill": "true",
+              "length": 45,
+              "separator": "",
+              "data": "\\$\\$ ${host_name_value}.${host_domain_value} \\$\\$",
               "cache": ""
             }
           }
@@ -240,8 +298,6 @@
             "properties": {
               "type": "dynamic",
               "character": ">",
-              "charstart": 0,
-              "charfill": "true",
               "key": "Host IP",
               "data": "${host_ip_value}",
               "cache": ""
@@ -253,10 +309,8 @@
             "properties": {
               "type": "dynamic",
               "character": ">",
-              "charstart": 6,
-              "charfill": "true",
-              "key": "Host IP",
-              "data": "${host_ip_value}",
+              "key": "Host Architecture",
+              "data": "${host_architecture_value}",
               "cache": ""
             }
           }
@@ -269,30 +323,6 @@
               "key": "Packages",
               "data": "${package_updates_value} ${package_manager_value} updates",
               "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": ">",
-              "charstart": 6,
-              "key": "Packages",
-              "data": "${package_updates_value} ${package_manager_value} updates",
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "/",
-              "charcolor": "\\e[38;5;54m",
-              "charstart": 6,
-              "length": 74,
-              "cache": "\\e[38;5;54m      ////////////////////////////////////////////////////////////////////\\n\\033[0m"
             }
           }
         }

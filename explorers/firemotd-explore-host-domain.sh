@@ -34,7 +34,7 @@ validate_host_domain () {
   fi
 }
 
-write_log verbose info "${firemotd_log_row_prefix}firemotd-explore-host-domain.sh - ${firemotd_explore_type}"
+write_log debug info "${firemotd_log_row_prefix}firemotd-explore-host-domain.sh - ${firemotd_explore_type}"
 if [ "${firemotd_explore_type}" = "write" ] ; then
   explore_host_domain
   write_host_domain

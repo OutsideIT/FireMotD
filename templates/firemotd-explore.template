@@ -34,7 +34,7 @@ validate_${object}_${subject} () {
   fi
 }
 
-write_log verbose info "${firemotd_log_row_prefix}firemotd-explore-${object}-${subject}.sh - ${firemotd_explore_type}"
+write_log debug info "${firemotd_log_row_prefix}firemotd-explore-${object}-${subject}.sh - ${firemotd_explore_type}"
 if [ "${firemotd_explore_type}" = "write" ] ; then
   explore_${object}_${subject}
   write_${object}_${subject}
