@@ -7,8 +7,51 @@
             "properties": {
               "usage": {
                 "properties": {
-                  "value": "undefined",
-                  "lastrun": "never"
+                  "value": "0.00",
+                  "lastrun": "never",
+                  "type": "float"
+                }
+              },
+              "load1": {
+                "properties": {
+                  "value": "0",
+                  "lastrun": "never",
+                  "type": "integer"
+                }
+              },
+              "load5": {
+                "properties": {
+                  "value": "0",
+                  "lastrun": "never",
+                  "type": "integer"
+                }
+              },
+              "sockets": {
+                "properties": {
+                  "value": "0",
+                  "lastrun": "never",
+                  "type": "integer"
+                }
+              },
+              "cores": {
+                "properties": {
+                  "value": "0",
+                  "lastrun": "never",
+                  "type": "integer"
+                }
+              },
+              "threads": {
+                "properties": {
+                  "value": "0",
+                  "lastrun": "never",
+                  "type": "integer"
+                }
+              },
+              "count": {
+                "properties": {
+                  "value": "0",
+                  "lastrun": "never",
+                  "type": "integer"
                 }
               }
             }

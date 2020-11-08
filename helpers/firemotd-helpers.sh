@@ -79,7 +79,7 @@ initialize_arguments () {
       -e|-E|--explore|--Explore)
         shift
         firemotd_explore="$1"
-        if [[ "$firemotd_explore" =~ ^[a-z]{3,10}(([-][a-z]{3,15}))?$ ]] ; then
+        if [[ "$firemotd_explore" =~ ^[a-z]{3,10}(([-][a-z]{3,15}))?(,)?([a-z]{3,10}(([-][a-z]{3,15}))?(,)?)* ]] ; then
           write_log debug info "valid firemotd_explore \"${firemotd_explore}\" argument detected"
         else
           write_log output error "invalid firemotd_explore \"${firemotd_explore}\" argument detected"
@@ -364,11 +364,11 @@ compare_row_with_defaults () {
 }
 
 print_theme () {
-  write_log verbose info "${firemotd_theme} - printing ${firemotd_theme_path}"
+  write_log verbose info "firemotd printer ${firemotd_theme} (${firemotd_theme_path})"
   firemotd_row_count=$(jq -r '.firemotd.properties.data | length' "$firemotd_theme_path")
   write_log debug info "${firemotd_theme} - looping through ${firemotd_row_count} rows"
   for (( i = 0 ; i < $firemotd_row_count ; i++ )) ; do
-    firemotd_log_row_prefix="${firemotd_theme} - row $i: "
+    firemotd_log_row_prefix="firemotd printer ${firemotd_theme} - row $i: "
     write_log verbose info "${firemotd_log_row_prefix}processing started"
     load_row_properties $i
     if [ "$firemotd_row_data" = "null" ] ; then
@@ -478,7 +478,7 @@ print_dynamic_data () {
   get_row_variables
   firemotd_row_data_string="$(eval echo "$firemotd_row_data") "
 #  firemotd_row_data_string="$(echo $firemotd_row_data)"
-  write_log verbose info "${firemotd_log_row_prefix}firemotd_row_data_string: $firemotd_row_data_string"
+  write_log debug info "${firemotd_log_row_prefix}firemotd_row_data_string: $firemotd_row_data_string"
   if [ "${firemotd_row_charfill}" = "true" ] ; then
     firemotd_row_charcolor_length=$(( ${firemotd_row_varcount} * ${#firemotd_row_charcolor} ))
     write_log debug info "${firemotd_log_row_prefix}firemotd_row_charcolor_length $firemotd_row_charcolor_length (${firemotd_row_varcount} * ${#firemotd_row_charcolor})"
@@ -496,9 +496,9 @@ print_dynamic_data () {
       firemotd_row_key_length=${#firemotd_row_key}
       firemotd_row_separator_length=$(( ${#firemotd_row_separator} + 2 ))
     fi
-    firemotd_row_known_string_lentgh=$(( firemotd_row_data_string_length + ${#row_char_string} + ${#firemotd_row_empty_char_string} + ${firemotd_row_key_length} + ${firemotd_row_separator_length} ))
-    write_log verbose info "${firemotd_log_row_prefix}firemotd_row_known_string_lentgh $firemotd_row_known_string_length ($firemotd_row_data_string_length + ${#row_char_string} + ${#firemotd_row_empty_char_string} + ${firemotd_row_key_length} (${firemotd_row_key}) + ${firemotd_row_separator_length} (${firemotd_row_separator})"
-    firemotd_row_leftover_string_length=$(( firemotd_row_length - firemotd_row_known_string_lentgh - 1 ))
+    firemotd_row_known_string_lenght=$(( firemotd_row_data_string_length + ${#row_char_string} + ${#firemotd_row_empty_char_string} + ${firemotd_row_key_length} + ${firemotd_row_separator_length} ))
+    write_log debug info "${firemotd_log_row_prefix}firemotd_row_known_string_lenght $firemotd_row_known_string_length ($firemotd_row_data_string_length + ${#row_char_string} + ${#firemotd_row_empty_char_string} + ${firemotd_row_key_length} (${firemotd_row_key}) + ${firemotd_row_separator_length} (${firemotd_row_separator})"
+    firemotd_row_leftover_string_length=$(( firemotd_row_length - firemotd_row_known_string_lenght - 1 ))
     write_log debug info "${firemotd_log_row_prefix}firemotd_row_leftover_string_length $firemotd_row_leftover_string_length"
     firemotd_row_leftover_string=$(print_raw_characters "$firemotd_row_character" "${firemotd_row_leftover_string_length}")
     firemotd_row_leftover_string=$(echo ${firemotd_row_leftover_string:0:$firemotd_row_leftover_string_length})

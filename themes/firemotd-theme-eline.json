@@ -74,7 +74,7 @@
               "character": ">",
               "charstart": 6,
               "key" : "CPU        ",
-              "data": "${cpu_usage_value}% usage, ${cpu_load1_value} load over ${cpu_count_value} cpu\\(s\\) \\(${cpu_sockets_value}s * ${cpu_cores_value}c * ${cpu_threads_value}t\\)"
+              "data": "${cpu_usage_value}% usage, ${cpu_load1_value} / ${cpu_count_value} load"
             }
           }
         },

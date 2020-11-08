@@ -7,44 +7,51 @@
             "properties": {
               "usage": {
                 "properties": {
-                  "value": "2.13",
-                  "lastrun": "2020-11-08 20:00:04,548"
+                  "value": "2.22",
+                  "lastrun": "2020-11-08 22:17:45,052",
+                  "type": "float"
                 }
               },
               "load1": {
                 "properties": {
-                  "value": "0.33",
-                  "lastrun": "2020-11-08 20:00:04,628"
+                  "value": "0.14",
+                  "lastrun": "2020-11-08 22:17:45,091",
+                  "type": "integer"
                 }
               },
               "load5": {
                 "properties": {
-                  "value": "0.12",
-                  "lastrun": "2020-11-08 20:00:04,661"
+                  "value": "0",
+                  "lastrun": "never",
+                  "type": "integer"
                 }
               },
               "sockets": {
                 "properties": {
-                  "value": "1",
-                  "lastrun": "2020-11-08 20:00:04,687"
+                  "value": "0",
+                  "lastrun": "never",
+                  "type": "integer"
                 }
               },
               "cores": {
                 "properties": {
-                  "value": "1",
-                  "lastrun": "2020-11-08 20:00:04,520"
+                  "value": "0",
+                  "lastrun": "never",
+                  "type": "integer"
                 }
               },
               "threads": {
                 "properties": {
-                  "value": "1",
-                  "lastrun": "2020-11-08 20:00:04,598"
+                  "value": "0",
+                  "lastrun": "never",
+                  "type": "integer"
                 }
               },
               "count": {
                 "properties": {
-                  "value": "1",
-                  "lastrun": "2020-11-08 20:00:04,570"
+                  "value": "0",
+                  "lastrun": "never",
+                  "type": "integer"
                 }
               }
             }
@@ -53,29 +60,29 @@
             "properties": {
               "domain": {
                 "properties": {
-                  "value": "outsideit.net",
-                  "lastrun": "2020-11-08 18:17:30,777",
+                  "value": "undefined",
+                  "lastrun": "never",
                   "type": "keyword"
                 }
               },
               "name": {
                 "properties": {
-                  "value": "c01",
-                  "lastrun": "2020-11-08 18:17:30,827",
+                  "value": "undefined",
+                  "lastrun": "never",
                   "type": "keyword"
                 }
               },
               "ip": {
                 "properties": {
-                  "value": "172.104.242.86",
-                  "lastrun": "2020-11-08 18:17:30,807",
+                  "value": "undefined",
+                  "lastrun": "never",
                   "type": "ip"
                 }
               },
               "architecture": {
                 "properties": {
-                  "value": "x86_64",
-                  "lastrun": "2020-11-08 18:17:30,753",
+                  "value": "undefined",
+                  "lastrun": "never",
                   "type": "keyword"
                 }
               }
@@ -89,17 +96,13 @@
                 "type": "keyword",
                 "properties": {
                   "value": "0",
-                  "lastrun": "2020-11-08 16:16:53,552"
+                  "lastrun": "2020-11-08 22:19:50,623"
                 }
               },
               "manager": {
                 "value": "undefined",
                 "lastrun": "never",
-                "type": "integer",
-                "properties": {
-                  "value": "dnf",
-                  "lastrun": "2020-11-08 16:16:51,522"
-                }
+                "type": "integer"
               }
             }
           }
