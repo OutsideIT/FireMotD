@@ -35,14 +35,14 @@ read_package_manager () {
 
 validate_package_manager () {
   if [[ "${package_manager_value}" =~ ^[a-z]{3,7}$ ]]; then
-    write_log debug info "${firemotd_log_row_prefix}valid package_manager_value \"${package_manager_value}\" detected"
+    write_log debug info "${firemotd_log_row_prefix}firemotd explorer valid package_manager_value \"${package_manager_value}\" detected"
   else
-    write_log output error "${firemotd_log_row_prefix}invalid package_manager_value \"${package_manager_value}\" detected. Please debug."
+    write_log output error "${firemotd_log_row_prefix}firemotd explorer invalid package_manager_value \"${package_manager_value}\" detected. Please debug."
     exit 2
   fi
 }
 
-write_log verbose info "${firemotd_log_row_prefix}firemotd-explore-package-manager.sh - ${firemotd_explore_type}"
+write_log verbose info "${firemotd_log_row_prefix}firemotd explorer firemotd-explore-package-manager.sh - ${firemotd_explore_type}"
 if [ "${firemotd_explore_type}" = "write" ] ; then
   explore_package_manager
   write_package_manager

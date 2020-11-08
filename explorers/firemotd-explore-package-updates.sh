@@ -7,7 +7,29 @@
 # On GitHub:    https://github.com/OutsideIT/FireMotD
 
 explore_package_updates () {
-  package_updates_value="$(hostname)"
+  if [[ -x "/usr/bin/dnf" ]] ; then
+    package_manager_value="dnf"
+    package_manager_exec=$(command -v dnf 2>/dev/null)
+    package_updates_value=$(($($package_manager_exec -d 0 check-update 2>/dev/null | wc -l)-1))
+    if [ $package_updates_value == -1 ]; then
+       package_updates_value=0
+    fi
+  elif [[ -x "/usr/bin/yum" ]] ; then
+    package_manager_value="yum"
+    package_manager_exec=$(command -v yum 2>/dev/null)
+    package_updates_value=$(($($package_manager_exec -d 0 check-update 2>/dev/null | wc -l)-1))
+    if [ $package_updates_value == -1 ]; then
+       package_updates_value=0
+    fi
+  elif [[ -x "/usr/bin/apt-get" ]] ; then
+    package_manager_value="apt"
+    package_manager_exec=$(command -v apt-get 2>/dev/null)
+    package_updates_value=$($package_manager_exec update > /dev/null; $package_manager_exec upgrade -u -s | grep -c -P "^Inst")
+  elif [[ -x "/usr/bin/zypper" ]] ; then
+    package_manager_value="zypper"
+    package_manager_exec=$(command -v zypper 2>/dev/null)
+    package_updates_value=$(($($package_manager_exec list-updates | wc -l)-4))
+  fi
   validate_package_updates
 }
 
@@ -26,15 +48,15 @@ read_package_updates () {
 }
 
 validate_package_updates () {
-  if [[ "$package_updates_value" =~ ^(\d{1,3}|null)$ ]]; then
-    write_log debug info "${firemotd_log_row_prefix}valid package_updates_value \"${package_updates_value}\" detected"
+  if [[ "$package_updates_value" =~ ^([0-9]{1,3}|null)$ ]]; then
+    write_log debug info "${firemotd_log_row_prefix}firemotd explorer valid package_updates_value \"${package_updates_value}\" detected"
   else
-    write_log output error "${firemotd_log_row_prefix}invalid package_updates_value \"${package_updates_value}\" detected. Please debug."
+    write_log output error "${firemotd_log_row_prefix}firemotd explorer invalid package_updates_value \"${package_updates_value}\" detected. Please debug."
     exit 2
   fi
 }
 
-write_log verbose info "${firemotd_log_row_prefix}firemotd-explore-package-updates.sh - ${firemotd_explore_type}"
+write_log verbose info "${firemotd_log_row_prefix}firemotd explorer firemotd-explore-package-updates.sh - ${firemotd_explore_type}"
 if [ "${firemotd_explore_type}" = "write" ] ; then
   explore_package_updates
   write_package_updates

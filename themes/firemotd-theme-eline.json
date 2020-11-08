@@ -44,28 +44,6 @@
               "charinit": 8,
               "charfill": "true",
               "separator": "",
-              "variables" : [
-                { "key" : "host-name" },
-                { "key" : "host-domain" }
-              ],
-              "data": "\\*\\* ${host_name_value}.${host_domain_value} \\*\\*"
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "<",
-              "charcolor": "\\e[38;5;163m",
-              "charstart": 0,
-              "charinit": 8,
-              "charfill": "true",
-              "separator": "",
-              "variables" : [
-                { "key" : "host-name" },
-                { "key" : "host-domain" }
-              ],
               "data": "\\*\\* ${host_name_value}.${host_domain_value} \\*\\*"
             }
           }
@@ -83,12 +61,8 @@
             "properties": {
               "type": "dynamic",
 							"character": ">",
-              "charstart": 0,
-              "charfill": "true",
-              "key" : "Host IP",
-              "variables" : [
-                { "key" : "host-ip" }
-              ],
+              "charstart": 6,
+              "key" : "Network    ",
               "data": "${host_ip_value}"
             }
           }
@@ -99,12 +73,8 @@
               "type": "dynamic",
               "character": ">",
               "charstart": 6,
-              "charfill": "true",
-              "key" : "Host IP",
-              "variables" : [
-                { "key" : "host-ip" }
-              ],
-              "data": "${host_ip_value}"
+              "key" : "CPU        ",
+              "data": "${cpu_usage_value}% usage, ${cpu_load1_value} load over ${cpu_count_value} cpu\\(s\\) \\(${cpu_sockets_value}s * ${cpu_cores_value}c * ${cpu_threads_value}t\\)"
             }
           }
         },
@@ -114,11 +84,8 @@
               "type": "dynamic",
               "character": ">",
               "charstart": 6,
-              "key": "Packages",
-							"variables" : [
-                { "key" : "package" }
-              ],
-              "data": "${package_updates_count_value} ${package_updates_type_value} updates"
+              "key": "Packages   ",
+              "data": "${package_updates_value} ${package_manager_value} updates"
             }
           }
         },
@@ -127,8 +94,7 @@
             "properties": {
               "type": "dynamic",
               "character": "/",
-              "charcolor": "\\e[38;5;54m",
-              "length": 74
+              "charcolor": "\\e[38;5;54m"
             }
           }
         }

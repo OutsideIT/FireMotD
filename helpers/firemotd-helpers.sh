@@ -79,7 +79,7 @@ initialize_arguments () {
       -e|-E|--explore|--Explore)
         shift
         firemotd_explore="$1"
-        if [[ "$firemotd_explore" =~ ^[a-z]{3,10}([-][a-z]{3,15})$ ]] ; then
+        if [[ "$firemotd_explore" =~ ^[a-z]{3,10}(([-][a-z]{3,15}))?$ ]] ; then
           write_log debug info "valid firemotd_explore \"${firemotd_explore}\" argument detected"
         else
           write_log output error "invalid firemotd_explore \"${firemotd_explore}\" argument detected"
@@ -167,21 +167,21 @@ source_group () {
   findstring="$(find explorers/. -maxdepth 1 -name $group -print)"
   array=( $findstring )
   for f in "${array[@]}"; do
-    write_log debug info "source group file $f"
+    write_log debug info "firemotd helper source group file $f"
     [[ -f $f ]] && . $f --source-only || echo "$f not found"
   done
 }
 
 verify_sudo () {
   if [ "$EUID" -ne 0 ]; then
-    write_log output error "FireMotD action $firemotd_action requires root privileges!."
+    write_log output error "firemotd action $firemotd_action requires root privileges!."
     exit 2
   fi
 }
 
 verify_nosudo () {
   if [ "$EUID" -eq 0 ]; then
-    write_log output error "FireMotD $firemotd_action should not be run as root."
+    write_log output error "firemotd $firemotd_action should not be run as root."
     exit 2
   fi
 }
@@ -201,7 +201,7 @@ verify_json () {
 }
 
 restore_data_template () {
-  write_log verbose info "restoring data json ${firemotd_data_path} from template ${firemotd_data_template}"
+  write_log verbose info "firemotd restoring data json ${firemotd_data_path} from template ${firemotd_data_template}"
   cp "${firemotd_data_template}" "${firemotd_data_path}"
 }
 
@@ -221,70 +221,72 @@ create_explorer () {
 
 explore_data () {
   firemotd_explore_type="$1"
-  write_log debug info "exploring \"${firemotd_explore}\" type ${firemotd_explore_type}"
+  write_log verbose info "firemotd helper exploring \"${firemotd_explore}\" type ${firemotd_explore_type}"
   for explorer in ${firemotd_explore//,/ } ; do
-    write_log debug info "exploring ${explorer}"
+    write_log debug info "firemotd helper exploring ${explorer}"
     source_group $explorer
   done
 }
 
 validate_cache_path () {
-  write_log debug info "validating cache path ${firemotd_cache_path}"
-  if [ "${firemotd_print}" = "all" ] ; then
-    write_log debug info "clearing ${firemotd_cache_path}"
-    > ${firemotd_cache_path}
-    write_log debug info "printing ${firemotd_theme} theme rows all at once"
+  write_log debug info "firemotd helper validating cache path ${firemotd_cache_path}"
+  if [ -f "${firemotd_cache_path}" ] ; then
+    if [ "${firemotd_print}" = "all" ] ; then
+      > ${firemotd_cache_path}
+      write_log debug info "firemotd helper found and cleared ${firemotd_cache_path}"
+    else
+      write_log debug info "firemotd helper found valid cache ${firemotd_cache_path}"
+    fi
   else
-    write_log debug info "printing ${firemotd_theme} theme one row at a time"
+    > ${firemotd_cache_path}
+    write_log debug info "firemotd helper created empty cache ${firemotd_cache_path}"
   fi
 }
 
 validate_data_path () {
-  write_log debug info "validating data path ${firemotd_data_path}"
+  write_log debug info "firemotd helper validating data path ${firemotd_data_path}"
   verify_json "${firemotd_data_path}"
-  write_log debug info "found valid data json ${firemotd_data_path}"
+  write_log debug info "firemotd helper found valid data ${firemotd_data_path}"
 }
 
-validate_theme () {
-  firemotd_theme_path="${firemotd_theme_directory}/firemotd-theme-${firemotd_theme}.json"
-  write_log debug info "validating theme ${firemotd_theme_path}"
+validate_theme_path () {
+  write_log debug info "firemotd helper validating theme path ${firemotd_theme_path}"
   verify_json "${firemotd_theme_path}"
-  write_log debug info "found valid json ${firemotd_theme_path}"
   firemotd_theme_name=$(jq -r '.firemotd.properties.theme.properties.name' "${firemotd_theme_path}")
   firemotd_theme_version=$(jq -r '.firemotd.properties.theme.properties.version' "${firemotd_theme_path}")
   firemotd_theme_creator=$(jq -r '.firemotd.properties.theme.properties.creator' "${firemotd_theme_path}")
-  write_log verbose info "found valid theme ${firemotd_theme_name} ${firemotd_theme_version} by ${firemotd_theme_creator}"
+  write_log verbose info "firemotd helper found valid theme ${firemotd_theme_name} ${firemotd_theme_version} by ${firemotd_theme_creator}"
 }
 
 load_theme_defaults () {
-  write_log verbose info "loading theme $firemotd_theme defaults"
+  write_log verbose info "firemotd helper loading theme $firemotd_theme defaults"
   firemotd_theme_path="${script_directory}/themes/firemotd-theme-${firemotd_theme}.json"
   firemotd_theme_default_length=$(jq -r '.firemotd.properties.theme.defaults.length' "$firemotd_theme_path")
-  write_log debug info "FireMotD default length: $firemotd_theme_default_length"
+  write_log debug info "firemotd helper firemotd_theme_default_length: $firemotd_theme_default_length"
   firemotd_theme_default_character=$(jq -r '.firemotd.properties.theme.defaults.character' "$firemotd_theme_path")
-  write_log debug info "FireMotD default character: $firemotd_theme_default_character"
+  write_log debug info "firemotd helper firemotd_theme_default_character: $firemotd_theme_default_character"
   firemotd_theme_default_charcolor=$(jq -r '.firemotd.properties.theme.defaults.charcolor' "$firemotd_theme_path")
-  write_log debug info "FireMotD default charcolor: $firemotd_theme_default_charcolor"
+  write_log debug info "firemotd helper firemotd_theme_default_charcolor: $firemotd_theme_default_charcolor"
   firemotd_theme_default_charstart=$(jq -r '.firemotd.properties.theme.defaults.charstart' "$firemotd_theme_path")
-  write_log debug info "FireMotD default charstart: $firemotd_theme_default_charstart"
+  write_log debug info "firemotd helper firemotd_theme_default_charstart: $firemotd_theme_default_charstart"
   firemotd_theme_default_charinit=$(jq -r '.firemotd.properties.theme.defaults.charinit' "$firemotd_theme_path")
-  write_log debug info "FireMotD default charinit: $firemotd_theme_default_charinit"
+  write_log debug info "firemotd helper firemotd_theme_default_charinit: $firemotd_theme_default_charinit"
   firemotd_theme_default_charfill=$(jq -r '.firemotd.properties.theme.defaults.charfill' "$firemotd_theme_path")
-  write_log debug info "FireMotD default charfill: $firemotd_theme_default_charfill"
+  write_log debug info "firemotd helper firemotd_theme_default_charfill: $firemotd_theme_default_charfill"
   firemotd_theme_default_keycolor=$(jq -r '.firemotd.properties.theme.defaults.keycolor' "$firemotd_theme_path")
-  write_log debug info "FireMotD default keycolor: $firemotd_theme_default_keycolor"
+  write_log debug info "firemotd helper firemotd_theme_default_keycolor: $firemotd_theme_default_keycolor"
   firemotd_theme_default_keystart=$(jq -r '.firemotd.properties.theme.defaults.keystart' "$firemotd_theme_path")
-  write_log debug info "FireMotD default keystart: $firemotd_theme_default_keystart"
+  write_log debug info "firemotd helper firemotd_theme_default_keystart: $firemotd_theme_default_keystart"
   firemotd_theme_default_separator=$(jq -r '.firemotd.properties.theme.defaults.separator' "$firemotd_theme_path")
-  write_log debug info "FireMotD default separator: $firemotd_theme_default_separator"
+  write_log debug info "firemotd helper firemotd_theme_default_separator: $firemotd_theme_default_separator"
   firemotd_theme_default_separatorcolor=$(jq -r '.firemotd.properties.theme.defaults.separatorcolor' "$firemotd_theme_path")
-  write_log debug info "FireMotD default separatorcolor: $firemotd_theme_default_separatorcolor"
+  write_log debug info "firemotd helper firemotd_theme_default_separatorcolor: $firemotd_theme_default_separatorcolor"
   firemotd_theme_default_valuecolor=$(jq -r '.firemotd.properties.theme.defaults.valuecolor' "$firemotd_theme_path")
-  write_log debug info "FireMotD default valuecolor: $firemotd_theme_default_valuecolor"
+  write_log debug info "firemotd helper firemotd_theme_default_valuecolor: $firemotd_theme_default_valuecolor"
   firemotd_theme_default_highlightcolor=$(jq -r '.firemotd.properties.theme.defaults.highlightcolor' "$firemotd_theme_path")
-  write_log debug info "FireMotD default heighlightcolor: $firemotd_theme_default_highlightcolor"
+  write_log debug info "firemotd helper firemotd_theme_default_highlightcolor: $firemotd_theme_default_highlightcolor"
   firemotd_theme_default_unexisting=$(jq -r '.firemotd.properties.theme.defaults.unexisting' "$firemotd_theme_path")
-  write_log debug info "FireMotD default unexisting: $firemotd_theme_default_unexisting"
+  write_log debug info "firemotd helper firemotd_theme_default_unexisting: $firemotd_theme_default_unexisting"
 # Optimize with https://unix.stackexchange.com/questions/413878/json-array-to-bash-variables-using-jq
 }
 
@@ -475,6 +477,7 @@ print_dynamic_data () {
   write_log debug info "${firemotd_log_row_prefix}loading variables from $firemotd_theme_path"
   get_row_variables
   firemotd_row_data_string="$(eval echo "$firemotd_row_data") "
+#  firemotd_row_data_string="$(echo $firemotd_row_data)"
   write_log verbose info "${firemotd_log_row_prefix}firemotd_row_data_string: $firemotd_row_data_string"
   if [ "${firemotd_row_charfill}" = "true" ] ; then
     firemotd_row_charcolor_length=$(( ${firemotd_row_varcount} * ${#firemotd_row_charcolor} ))

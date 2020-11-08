@@ -27,14 +27,14 @@ read_host_domain () {
 
 validate_host_domain () {
   if [[ "$host_domain_value" =~ ^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9](\.|\_|\-))*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$ ]]; then
-    write_log verbose info "${firemotd_log_row_prefix}valid host_domain_value \"${host_domain_value}\" detected"
+    write_log verbose info "${firemotd_log_row_prefix}firemotd explorer valid host_domain_value \"${host_domain_value}\" detected"
   else
-    write_log output error "${firemotd_log_row_prefix}invalid host_domain_value \"${host_domain_value}\" detected. Please debug."
+    write_log output error "${firemotd_log_row_prefix}firemotd explorer invalid host_domain_value \"${host_domain_value}\" detected. Please debug."
     exit 2
   fi
 }
 
-write_log debug info "${firemotd_log_row_prefix}firemotd-explore-host-domain.sh - ${firemotd_explore_type}"
+write_log debug info "${firemotd_log_row_prefix}firemotd explorer firemotd-explore-host-domain.sh - ${firemotd_explore_type}"
 if [ "${firemotd_explore_type}" = "write" ] ; then
   explore_host_domain
   write_host_domain

@@ -27,14 +27,14 @@ read_host_architecture () {
 
 validate_host_architecture () {
   if [[ "$host_architecture_value" =~ ^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9](\.|\_|\-))*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$ ]]; then
-    write_log verbose info "${firemotd_log_row_prefix}valid host_architecture_value \"${host_architecture_value}\" detected"
+    write_log verbose info "${firemotd_log_row_prefix}firemotd explorer valid host_architecture_value \"${host_architecture_value}\" detected"
   else
-    write_log output error "${firemotd_log_row_prefix}invalid host_architecture_value \"${host_architecture_value}\" detected. Please debug."
+    write_log output error "${firemotd_log_row_prefix}firemotd explorer invalid host_architecture_value \"${host_architecture_value}\" detected. Please debug."
     exit 2
   fi
 }
 
-write_log debug info "${firemotd_log_row_prefix}firemotd-explore-host-architecture.sh - ${firemotd_explore_type}"
+write_log debug info "${firemotd_log_row_prefix}firemotd explorer firemotd-explore-host-architecture.sh - ${firemotd_explore_type}"
 if [ "${firemotd_explore_type}" = "write" ] ; then
   explore_host_architecture
   write_host_architecture

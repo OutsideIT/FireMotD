@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script name:  firemotd-explore-${object}-${subject}.sh
-# Version:      v0.05.200923
+# Version:      v0.06.201108
 # Created on:   09/06/2020
 # Author:       Willem D'Haese
 # Purpose:      Explore Host Information
@@ -27,14 +27,14 @@ read_${object}_${subject} () {
 
 validate_${object}_${subject} () {
   if [[ "$${object}_${subject}_value" =~ ^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9](\.|\_|\-))*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$ ]]; then
-    write_log verbose info "${firemotd_log_row_prefix}valid ${object}_${subject}_value \"${${object}_${subject}_value}\" detected"
+    write_log verbose info "${firemotd_log_row_prefix}firemotd explorer valid ${object}_${subject}_value \"${${object}_${subject}_value}\" detected"
   else
-    write_log output error "${firemotd_log_row_prefix}invalid ${object}_${subject}_value \"${${object}_${subject}_value}\" detected. Please debug."
+    write_log output error "${firemotd_log_row_prefix}firemotd explorer invalid ${object}_${subject}_value \"${${object}_${subject}_value}\" detected. Please debug."
     exit 2
   fi
 }
 
-write_log debug info "${firemotd_log_row_prefix}firemotd-explore-${object}-${subject}.sh - ${firemotd_explore_type}"
+write_log debug info "${firemotd_log_row_prefix}firemotd explorer firemotd-explore-${object}-${subject}.sh - ${firemotd_explore_type}"
 if [ "${firemotd_explore_type}" = "write" ] ; then
   explore_${object}_${subject}
   write_${object}_${subject}

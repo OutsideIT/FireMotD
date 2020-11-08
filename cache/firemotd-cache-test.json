@@ -3,17 +3,17 @@
     "properties": {
       "theme": {
         "properties": {
-          "name": "Test",
+          "name": "Basic",
           "creator": "Willem D'Haese",
           "created": "2020-06-08",
           "modified": "2020-06-20",
-          "description": "A FireMotd Test Theme",
-          "version": "0.3"
+          "description": "A basic FireMotd theme",
+          "version": "0.2"
         },
         "defaults": {
           "character": "#",
           "charcolor": "\\e[38;5;93m",
-          "charstart": 0,
+          "charstart": 5,
           "charinit": 2,
           "charfill": "false",
           "length": 79,
@@ -30,8 +30,7 @@
           "row": {
             "properties": {
               "type": "dynamic",
-              "character": "/",
-              "cache": ""
+              "character": "/"
             }
           }
         },
@@ -39,197 +38,13 @@
           "row": {
             "properties": {
               "type": "dynamic",
-              "character": "/-",
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "/",
-              "charstart": 5,
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "/-",
-              "charstart": 5,
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "/",
-              "charstart": 10,
-              "length": 74,
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "/-",
-              "charstart": 10,
-              "length": 74,
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "\\",
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "-\\",
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "\\",
-              "charstart": 5,
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "-\\",
-              "charstart": 5,
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "\\",
-              "charstart": 10,
-              "length": 74,
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "-\\",
-              "charstart": 10,
-              "length": 74,
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "*",
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "\\*",
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "*",
-              "charstart": 5,
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "\\*",
-              "charstart": 5,
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "*",
-              "charstart": 10,
-              "length": 74,
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "\\*",
-              "charstart": 10,
-              "length": 74,
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "=",
+              "character": "<=",
               "charcolor": "\\e[38;5;163m",
-              "charinit": 8,
-              "separator": "",
-              "data": "*- ${host_name_value}.${host_domain_value} -*",
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "-",
-              "charcolor": "\\e[38;5;163m",
+              "charstart": 4,
               "charinit": 8,
               "charfill": "true",
               "separator": "",
-              "data": "\\>\\> ${host_name_value}.${host_domain_value} \\<\\<",
-              "cache": "19"
+              "data": "\\*\\* ${host_name_value}.${host_domain_value} \\*\\*"
             }
           }
         },
@@ -237,59 +52,7 @@
           "row": {
             "properties": {
               "type": "dynamic",
-              "character": ":",
-              "charcolor": "\\e[38;5;163m",
-              "charinit": 8,
-              "charfill": "true",
-              "length": 45,
-              "separator": "",
-              "data": "Oo ${host_name_value}.${host_domain_value} oO",
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "=>",
-              "charcolor": "\\e[38;5;163m",
-              "charstart": 5,
-              "charinit": 8,
-              "separator": "",
-              "data": "** ${host_name_value}.${host_domain_value} **",
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "_",
-              "charcolor": "\\e[38;5;163m",
-              "charstart": 5,
-              "charinit": 8,
-              "charfill": "true",
-              "separator": "",
-              "data": "\\\\* ${host_name_value}.${host_domain_value} */",
-              "cache": ""
-            }
-          }
-        },
-        {
-          "row": {
-            "properties": {
-              "type": "dynamic",
-              "character": "|",
-              "charcolor": "\\e[38;5;163m",
-              "charstart": 5,
-              "charinit": 8,
-              "charfill": "true",
-              "length": 45,
-              "separator": "",
-              "data": "\\$\\$ ${host_name_value}.${host_domain_value} \\$\\$",
-              "cache": ""
+              "character": "\\"
             }
           }
         },
@@ -298,9 +61,9 @@
             "properties": {
               "type": "dynamic",
               "character": ">",
-              "key": "Host IP",
-              "data": "${host_ip_value}",
-              "cache": ""
+              "charstart": 6,
+              "key": "Network    ",
+              "data": "${host_ip_value}"
             }
           }
         },
@@ -309,9 +72,9 @@
             "properties": {
               "type": "dynamic",
               "character": ">",
-              "key": "Host Architecture",
-              "data": "${host_architecture_value}",
-              "cache": ""
+              "charstart": 6,
+              "key": "CPU        ",
+              "data": "${cpu_usage_value}% usage, ${cpu_load1_value} load over ${cpu_count_value} cpu\\(s\\) \\(${cpu_sockets_value}s * ${cpu_cores_value}c * ${cpu_threads_value}t\\)"
             }
           }
         },
@@ -320,9 +83,19 @@
             "properties": {
               "type": "dynamic",
               "character": ">",
-              "key": "Packages",
-              "data": "${package_updates_value} ${package_manager_value} updates",
-              "cache": ""
+              "charstart": 6,
+              "key": "Packages   ",
+              "data": "${package_updates_value} ${package_manager_value} updates"
+            }
+          }
+        },
+        {
+          "row": {
+            "properties": {
+              "type": "dynamic",
+              "character": "/",
+              "charcolor": "\\e[38;5;54m",
+              "cache": "\\e[38;5;54m     //////////////////////////////////////////////////////////////////////////\\n\\033[0m"
             }
           }
         }
