@@ -334,9 +334,9 @@ ExplorePlatform () {
 ExploreUptime () {
   ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
   UptimeDays=$(awk '{print int($1/86400)}' /proc/uptime)
-  UptimeHours=$(awk '{print int($1%86400/3600)}' /proc/uptime)
-  UptimeMinutes=$(awk '{print int(($1%3600)/60)}' /proc/uptime)
-  UptimeSeconds=$(awk '{print int($1%60)}' /proc/uptime)
+  UptimeHours=$(awk '{printf("%02d", int($1%86400/3600))}' /proc/uptime)
+  UptimeMinutes=$(awk '{printf("%02d", int(($1%3600)/60))}' /proc/uptime)
+  UptimeSeconds=$(awk '{printf("%02d", int($1%60))}' /proc/uptime)
   tmp=$(mktemp)
   jq ".Uptime.Days = \"$UptimeDays\" |\
       .Uptime.Hours = \"$UptimeHours\" |\
@@ -1310,7 +1310,6 @@ RenderUptime () {
     if [[ "$RenderTime" == "live" ]] ; then
       UptimeRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${UptimeDays} ${ValueColor}day(s). ${HighlightColor}$(jq -r ".Uptime.Hours" $ExportFile)${ValueColor}:${HighlightColor}$(jq -r ".Uptime.Minutes" $ExportFile)${ValueColor}:${HighlightColor}$(jq -r .Uptime.Seconds $ExportFile)"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      #UptimeRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r .Uptime.Days $ExportFile) ${ValueColor}day(s). ${HighlightColor}\$(jq -r .Uptime.Hours $ExportFile)${ValueColor}:${HighlightColor}\$(jq -r .Uptime.Minutes $ExportFile)${ValueColor}:${HighlightColor}\$(jq -r .Uptime.Seconds $ExportFile)"
       UptimeRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r \".Uptime | .Days + \\\" ${ValueColor}day(s). ${HighlightColor}\\\" + .Hours + \\\"${ValueColor}:${HighlightColor}\\\" + .Minutes + \\\"${ValueColor}:${HighlightColor}\\\" + .Seconds\" $ExportFile)"
     fi
     echo "${UptimeRender}"
@@ -1327,7 +1326,6 @@ RenderCpuUsage () {
     if [[ "$RenderTime" == "live" ]] ; then
       CpuUsageRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${CpuUsageAverage}%${ValueColor} avg over ${HighlightColor}$(jq -r ".CpuUsage.CpuCount" $ExportFile) ${ValueColor}cpu(s) (${HighlightColor}$(jq -r ".CpuUsage.CoreCount" $ExportFile) ${ValueColor}core(s) x ${HighlightColor}$(jq -r ".CpuUsage.SocketCount" $ExportFile) ${ValueColor}socket(s))"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      #CpuUsageRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r .CpuUsage.Average $ExportFile)%${ValueColor} avg over ${HighlightColor}\$(jq -r .CpuUsage.CpuCount $ExportFile) ${ValueColor}cpu(s) (${HighlightColor}\$(jq -r .CpuUsage.CoreCount $ExportFile) ${ValueColor}core(s) x ${HighlightColor}\$(jq -r .CpuUsage.SocketCount $ExportFile) ${ValueColor}socket(s))"
       CpuUsageRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r \".CpuUsage | .Average + \\\"% ${ValueColor}avg over ${HighlightColor}\\\" + .CpuCount + \\\" ${ValueColor}cpu(s) (${HighlightColor}\\\" + .CoreCount + \\\" ${ValueColor}core(s) x ${HighlightColor}\\\" + .SocketCount + \\\" ${ValueColor}socket(s))\\\" \" $ExportFile)"
     fi
     echo "${CpuUsageRender}"
@@ -1360,7 +1358,6 @@ RenderMemory () {
     if [[ "$RenderTime" == "live" ]] ; then
       MemoryRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}$(jq -r .Memory.FreeGB $ExportFile)GB${ValueColor} (${HighlightColor}$(jq -r .Memory.FreePerc $ExportFile)%${ValueColor}), Used: ${HighlightColor}$(jq -r .Memory.UsedGB $ExportFile)GB${ValueColor} (${HighlightColor}$(jq -r .Memory.UsedPerc $ExportFile)%${ValueColor}), Total: ${HighlightColor}$(jq -r .Memory.TotalGB $ExportFile)GB${ValueColor}"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      #MemoryRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}\$(jq -r .Memory.FreeGB ${ExportFile})GB${ValueColor} (${HighlightColor}\$(jq -r .Memory.FreePerc ${ExportFile})%${ValueColor}), Used: ${HighlightColor}\$(jq -r .Memory.UsedGB ${ExportFile})GB${ValueColor} (${HighlightColor}\$(jq -r .Memory.UsedPerc ${ExportFile})%${ValueColor}), Total: ${HighlightColor}\$(jq -r .Memory.TotalGB ${ExportFile})GB${ValueColor}"
       MemoryRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}\$(jq -r \".Memory | .FreeGB + \\\"GB${ValueColor} (${HighlightColor}\\\" + .FreePerc + \\\"%${ValueColor}), Used: ${HighlightColor}\\\" + .UsedGB + \\\"GB${ValueColor} (${HighlightColor}\\\" + .UsedPerc + \\\"%${ValueColor}), Total: ${HighlightColor}\\\" + .TotalGB + \\\"GB${ValueColor}\\\"\" ${ExportFile})"
     fi
     echo "${MemoryRender}"
@@ -1377,7 +1374,6 @@ RenderSwap () {
     if [[ "$RenderTime" == "live" ]] ; then
       SwapRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}$(jq -r .Swap.FreeGB ${ExportFile})GB ${ValueColor}(${HighlightColor}$(jq -r .Swap.FreePerc ${ExportFile})%${ValueColor}), Used: ${HighlightColor}$(jq -r .Swap.UsedGB ${ExportFile})GB ${ValueColor}(${HighlightColor}$(jq -r .Swap.UsedPerc ${ExportFile})%${ValueColor}), Total: ${HighlightColor}$(jq -r .Swap.TotalGB ${ExportFile})GB"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      #SwapRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}\$(jq -r .Swap.FreeGB ${ExportFile})GB ${ValueColor}(${HighlightColor}\$(jq -r .Swap.FreePerc ${ExportFile})%${ValueColor}), Used: ${HighlightColor}\$(jq -r .Swap.UsedGB ${ExportFile})GB ${ValueColor}(${HighlightColor}\$(jq -r .Swap.UsedPerc ${ExportFile})%${ValueColor}), Total: ${HighlightColor}\$(jq -r .Swap.TotalGB ${ExportFile})GB"
       SwapRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}\$(jq -r \".Swap | .FreeGB + \\\"GB${ValueColor} (${HighlightColor}\\\" + .FreePerc + \\\"%${ValueColor}), Used: ${HighlightColor}\\\" + .UsedGB + \\\"GB${ValueColor} (${HighlightColor}\\\" + .UsedPerc + \\\"%${ValueColor}), Total: ${HighlightColor}\\\" + .TotalGB + \\\"GB${ValueColor}\\\"\" ${ExportFile})"
     fi
     echo "${SwapRender}"
@@ -1394,7 +1390,6 @@ RenderRoot () {
     if [[ "$RenderTime" == "live" ]] ; then
       DiskRootRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}$(jq -r .DiskRoot.FreeGB ${ExportFile})GB ${ValueColor}(${HighlightColor}$(jq -r .DiskRoot.FreePerc ${ExportFile})%${ValueColor}), Used: ${HighlightColor}$(jq -r .DiskRoot.UsedGB ${ExportFile})GB ${ValueColor}(${HighlightColor}$(jq -r .DiskRoot.UsedPerc ${ExportFile})%${ValueColor}), Total: ${HighlightColor}$(jq -r .DiskRoot.TotalGB ${ExportFile})GB"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      #DiskRootRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}\$(jq -r .DiskRoot.FreeGB ${ExportFile})GB ${ValueColor}(${HighlightColor}\$(jq -r .DiskRoot.FreePerc ${ExportFile})%${ValueColor}), Used: ${HighlightColor}\$(jq -r .DiskRoot.UsedGB ${ExportFile})GB ${ValueColor}(${HighlightColor}\$(jq -r .DiskRoot.UsedPerc ${ExportFile})%${ValueColor}), Total: ${HighlightColor}\$(jq -r .DiskRoot.TotalGB ${ExportFile})GB"
       DiskRootRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}\$(jq -r \".DiskRoot | .FreeGB + \\\"GB${ValueColor} (${HighlightColor}\\\" + .FreePerc + \\\"%${ValueColor}), Used: ${HighlightColor}\\\" + .UsedGB + \\\"GB${ValueColor} (${HighlightColor}\\\" + .UsedPerc + \\\"%${ValueColor}), Total: ${HighlightColor}\\\" + .TotalGB + \\\"GB${ValueColor}\\\"\" ${ExportFile})"
     fi
     echo "${DiskRootRender}"
@@ -1506,9 +1501,9 @@ RenderPostgres () {
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
     PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
-    PostgresRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: $(jq -r .Postgres.Version ${ExportFile})"
+      PostgresRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: $(jq -r .Postgres.Version ${ExportFile})"
     elif [[ "$RenderTime" == "cache" ]] ; then
-    PostgresRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: \$(jq -r .Postgres.Version ${ExportFile})"
+      PostgresRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: \$(jq -r .Postgres.Version ${ExportFile})"
     fi
     echo "${PostgresRender}"
   fi
