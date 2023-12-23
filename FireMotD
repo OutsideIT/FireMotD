@@ -202,8 +202,8 @@ ExploreHostName () {
   ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
   HostName="$(hostname)"
   tmp=$(mktemp)
-  jq ".HostName.Value = \"$HostName\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".HostName.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".HostName.Value = \"$HostName\" |\
+      .HostName.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
@@ -237,8 +237,8 @@ ExploreHostIp () {
         fi
     fi
     tmp=$(mktemp)
-    jq ".HostIp.Value = \"$HostIp\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-    jq ".HostIp.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+    jq ".HostIp.Value = \"$HostIp\" |\
+        .HostIp.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
     rm $tmp
 }
 
@@ -262,8 +262,8 @@ ExploreRelease () {
     Release="$(echo "$ReleaseFull" | grep 'DISTRIB_DESCRIPTION' | cut -f2 -d'"')"
   fi
   tmp=$(mktemp)
-  jq ".Release.Value = \"$Release\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Release.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".Release.Value = \"$Release\" |\
+      .Release.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
@@ -271,8 +271,8 @@ ExploreKernel () {
   ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
   Kernel="$(uname -rs)"
   tmp=$(mktemp)
-  jq ".Kernel.Value = \"$Kernel\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Kernel.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".Kernel.Value = \"$Kernel\" |\
+      .Kernel.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
@@ -326,25 +326,23 @@ ExplorePlatform () {
     Platform="Unknown"
   fi
   tmp=$(mktemp)
-  jq ".Platform.Value = \"$Platform\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Platform.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".Platform.Value = \"$Platform\" |\
+      .Platform.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
 ExploreUptime () {
   ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
   UptimeDays=$(awk '{print int($1/86400)}' /proc/uptime)
-  UptimeHours=$(awk '{print int($1%86400/3600)}' /proc/uptime)
-  UptimeMinutes=$(awk '{print int(($1%3600)/60)}' /proc/uptime)
-  UptimeSeconds=$(awk '{print int($1%60)}' /proc/uptime)
+  UptimeHours=$(awk '{printf("%02d", int($1%86400/3600))}' /proc/uptime)
+  UptimeMinutes=$(awk '{printf("%02d", int(($1%3600)/60))}' /proc/uptime)
+  UptimeSeconds=$(awk '{printf("%02d", int($1%60))}' /proc/uptime)
   tmp=$(mktemp)
-  jq ".Uptime.Days = \"$UptimeDays\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Uptime.Hours = \"$UptimeHours\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Uptime.Minutes = \"$UptimeMinutes\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Uptime.Seconds = \"$UptimeSeconds\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-#  jq --arg us "$UptimeSeconds" ".Uptime.Seconds = $us" < $ExportFile
-#  UpdateUptimeLastRun=$(cat $ExportFile | jq ".Uptime.LastRun = [\"$ExportTime\"]")
-  jq ".Uptime.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".Uptime.Days = \"$UptimeDays\" |\
+      .Uptime.Hours = \"$UptimeHours\" |\
+      .Uptime.Minutes = \"$UptimeMinutes\" |\
+      .Uptime.Seconds = \"$UptimeSeconds\" |\
+      .Uptime.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
@@ -355,14 +353,14 @@ ExploreInstallDate () {
     InstallDate=$(rpm -qi basesystem | grep "Install Date" | sed 's/Install Date: //g' | sed 's/Build Host: .*//g')
   fi
   tmp=$(mktemp)
-  jq ".InstallDate.Value = \"$InstallDate\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".InstallDate.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".InstallDate.Value = \"$InstallDate\" |\
+      .InstallDate.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
 ExploreCpuUsage () {
   ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
-  CpuUsageAverage="$(LANG=en_GB.UTF-8 mpstat 1 1 | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
+  CpuUsageAverage="$(LANG=en_GB.UTF-8 mpstat | awk '$2 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $2 ~ /all/ { print 100 - $field}' | tail -1)"
   CpuUsageCpuCount="$(< /proc/cpuinfo grep -c processor)"
   if [[ "$(jq -r ".Platform.Value" $ExportFile)" == "OpenVZ" ]] ; then
     CpuUsageSocketCount="$(< /proc/cpuinfo grep "physical id" | sort -u | wc -l)"
@@ -372,11 +370,11 @@ ExploreCpuUsage () {
     CpuUsageCoreCount="$(lscpu | grep 'Core(s) per socket:' | head -1 | awk -F " " '{print $4}')"
   fi
   tmp=$(mktemp)
-  jq ".CpuUsage.Average = \"$CpuUsageAverage\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".CpuUsage.CpuCount = \"$CpuUsageCpuCount\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".CpuUsage.CoreCount = \"$CpuUsageCoreCount\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".CpuUsage.SocketCount = \"$CpuUsageSocketCount\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".CpuUsage.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".CpuUsage.Average = \"$CpuUsageAverage\" |\
+      .CpuUsage.CpuCount = \"$CpuUsageCpuCount\" |\
+      .CpuUsage.CoreCount = \"$CpuUsageCoreCount\" |\
+      .CpuUsage.SocketCount = \"$CpuUsageSocketCount\" |\
+      .CpuUsage.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
@@ -384,8 +382,8 @@ ExploreCpuLoad () {
   ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
   CpuLoad="$(uptime | grep -ohe '[s:][: ].*' | awk '{print "1m: "$2 " 5m: "$3 " 15m: " $4}')"
   tmp=$(mktemp)
-  jq ".CpuLoad.Value = \"$CpuLoad\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".CpuLoad.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".CpuLoad.Value = \"$CpuLoad\" |\
+      .CpuLoad.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
@@ -410,12 +408,12 @@ ExploreMemory () {
   MemFreePerc="$(LC_NUMERIC=C printf "%.0f" "$MemFreePerc")"
   MemUsedPerc=$(echo "100-$MemFreePerc" | bc)
   tmp=$(mktemp)
-  jq ".Memory.TotalGB = \"$MemTotalGB\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Memory.FreeGB = \"$MemFreeGB\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Memory.UsedGB = \"$MemUsedGB\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Memory.FreePerc = \"$MemFreePerc\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Memory.UsedPerc = \"$MemUsedPerc\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Memory.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".Memory.TotalGB = \"$MemTotalGB\" |\
+      .Memory.FreeGB = \"$MemFreeGB\" |\
+      .Memory.UsedGB = \"$MemUsedGB\" |\
+      .Memory.FreePerc = \"$MemFreePerc\" |\
+      .Memory.UsedPerc = \"$MemUsedPerc\" |\
+      .Memory.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
@@ -431,12 +429,12 @@ ExploreSwap () {
   SwapFreePerc="$(LC_NUMERIC=C printf "%.0f" "$SwapFreePerc")"
   SwapUsedPerc=$(echo "100-$SwapFreePerc" | bc)
   tmp=$(mktemp)
-  jq ".Swap.TotalGB = \"$SwapTotalGB\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Swap.FreeGB = \"$SwapFreeGB\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Swap.UsedGB = \"$SwapUsedGB\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Swap.FreePerc = \"$SwapFreePerc\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Swap.UsedPerc = \"$SwapUsedPerc\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Swap.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".Swap.TotalGB = \"$SwapTotalGB\" |\
+      .Swap.FreeGB = \"$SwapFreeGB\" |\
+      .Swap.UsedGB = \"$SwapUsedGB\" |\
+      .Swap.FreePerc = \"$SwapFreePerc\" |\
+      .Swap.UsedPerc = \"$SwapUsedPerc\" |\
+      .Swap.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
@@ -451,12 +449,12 @@ ExploreDiskRoot () {
   DiskRootUsedPerc="$(df -kP / | tail -1 | awk '{print $5}'| sed s'/%$//')"
   DiskRootFreePerc="$((100 - DiskRootUsedPerc))"
   tmp=$(mktemp)
-  jq ".DiskRoot.TotalGB = \"$DiskRootTotalGB\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".DiskRoot.FreeGB = \"$DiskRootFreeGB\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".DiskRoot.UsedGB = \"$DiskRootUsedGB\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".DiskRoot.FreePerc = \"$DiskRootFreePerc\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".DiskRoot.UsedPerc = \"$DiskRootUsedPerc\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".DiskRoot.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".DiskRoot.TotalGB = \"$DiskRootTotalGB\" |\
+      .DiskRoot.FreeGB = \"$DiskRootFreeGB\" |\
+      .DiskRoot.UsedGB = \"$DiskRootUsedGB\" |\
+      .DiskRoot.FreePerc = \"$DiskRootFreePerc\" |\
+      .DiskRoot.UsedPerc = \"$DiskRootUsedPerc\" |\
+      .DiskRoot.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
@@ -485,9 +483,9 @@ ExploreUpdates () {
     fi
   fi
   tmp=$(mktemp)
-  jq ".Updates.Type = \"$UpdateType\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Updates.Count = \"$UpdateCount\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Updates.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".Updates.Type = \"$UpdateType\" |\
+      .Updates.Count = \"$UpdateCount\" |\
+      .Updates.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
@@ -495,8 +493,8 @@ ExploreSessions () {
   ExportTime=$(date '+%Y-%m-%d %H:%M:%S,%3N')
   SessionCount="$(who | grep -c "$USER")"
   tmp=$(mktemp)
-  jq ".Sessions.Count = \"$SessionCount\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Sessions.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".Sessions.Count = \"$SessionCount\" |\
+      .Sessions.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
@@ -515,9 +513,9 @@ ExploreProcesses () {
   fi
   ProcessMax="$($SysctlPath -n kernel.pid_max)"
   tmp=$(mktemp)
-  jq ".Processes.Count = \"$ProcessCount\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Processes.Max = \"$ProcessMax\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Processes.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".Processes.Count = \"$ProcessCount\" |\
+      .Processes.Max = \"$ProcessMax\" |\
+      .Processes.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
@@ -530,8 +528,8 @@ ExploreHttpd () {
     HttpdVersion="$(${HttpdPath} -v 2>/dev/null | grep "Server version" | sed -e 's/.*[^0-9]\([0-9].[0-9]\+.[0-9]\+\)[^0-9]*$/\1/')"
   fi
   tmp=$(mktemp)
-  jq ".Httpd.Version = \"$HttpdVersion\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Httpd.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".Httpd.Version = \"$HttpdVersion\" |\
+      .Httpd.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
@@ -544,8 +542,8 @@ ExploreNginx () {
     NginxVersion="$(echo "$NginxString" | awk -F"/" '{print $2}')"
   fi
   tmp=$(mktemp)
-  jq ".Nginx.Version = \"$NginxVersion\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Nginx.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".Nginx.Version = \"$NginxVersion\" |\
+      .Nginx.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
@@ -560,9 +558,9 @@ ExploreMysql () {
     MysqlDistribution="$(echo "$MysqlString" | awk '{print $5}' | tr -d ',')"
   fi
   tmp=$(mktemp)
-  jq ".Mysql.Version = \"$MysqlVersion\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Mysql.Distribution = \"$MysqlDistribution\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Mysql.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".Mysql.Version = \"$MysqlVersion\" |\
+      .Mysql.Distribution = \"$MysqlDistribution\" |\
+      .Mysql.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
@@ -575,8 +573,8 @@ ExplorePostgres () {
     PostgresVersion="$(echo "$PostgresString"  | head -n1 | awk '{print $3}')"
   fi
   tmp=$(mktemp)
-  jq ".Postgres.Version = \"$PostgresVersion\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Postgres.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".Postgres.Version = \"$PostgresVersion\" |\
+      .Postgres.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
@@ -595,9 +593,9 @@ ExplorePhp () {
     fi
   fi
   tmp=$(mktemp)
-  jq ".Php.Version = \"$PhpVersion\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Php.MaxMemory = \"$PhpMaxMemory\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Php.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".Php.Version = \"$PhpVersion\" |\
+      .Php.MaxMemory = \"$PhpMaxMemory\" |\
+      .Php.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
@@ -612,8 +610,8 @@ ExploreElasticsearch () {
     ElasticsearchVersion="Unknown"
   fi
   tmp=$(mktemp)
-  jq ".Elasticsearch.Version = \"$ElasticsearchVersion\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Elasticsearch.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".Elasticsearch.Version = \"$ElasticsearchVersion\" |\
+      .Elasticsearch.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
@@ -628,8 +626,8 @@ ExploreLogstash () {
     LogstashVersion="Unknown"
   fi
   tmp=$(mktemp)
-  jq ".Logstash.Version = \"$LogstashVersion\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Logstash.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".Logstash.Version = \"$LogstashVersion\" |\
+      .Logstash.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
@@ -644,8 +642,8 @@ ExploreKibana () {
     KibanaVersion="Unknown"
   fi
   tmp=$(mktemp)
-  jq ".Kibana.Version = \"$KibanaVersion\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
-  jq ".Kibana.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
+  jq ".Kibana.Version = \"$KibanaVersion\" |\
+      .Kibana.LastRun = \"$ExportTime\"" $ExportFile > "$tmp" && cp "$tmp" $ExportFile
   rm $tmp
 }
 
@@ -1310,9 +1308,9 @@ RenderUptime () {
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
     PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
-     UptimeRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${UptimeDays} ${ValueColor}day(s). ${HighlightColor}$(jq -r ".Uptime.Hours" $ExportFile)${ValueColor}:${HighlightColor}$(jq -r ".Uptime.Minutes" $ExportFile)${ValueColor}:${HighlightColor}$(jq -r .Uptime.Seconds $ExportFile)"
+      UptimeRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${UptimeDays} ${ValueColor}day(s). ${HighlightColor}$(jq -r ".Uptime.Hours" $ExportFile)${ValueColor}:${HighlightColor}$(jq -r ".Uptime.Minutes" $ExportFile)${ValueColor}:${HighlightColor}$(jq -r .Uptime.Seconds $ExportFile)"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      UptimeRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r .Uptime.Days $ExportFile) ${ValueColor}day(s). ${HighlightColor}\$(jq -r .Uptime.Hours $ExportFile)${ValueColor}:${HighlightColor}\$(jq -r .Uptime.Minutes $ExportFile)${ValueColor}:${HighlightColor}\$(jq -r .Uptime.Seconds $ExportFile)"
+      UptimeRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r \".Uptime | .Days + \\\" ${ValueColor}day(s). ${HighlightColor}\\\" + .Hours + \\\"${ValueColor}:${HighlightColor}\\\" + .Minutes + \\\"${ValueColor}:${HighlightColor}\\\" + .Seconds\" $ExportFile)"
     fi
     echo "${UptimeRender}"
   fi
@@ -1326,9 +1324,9 @@ RenderCpuUsage () {
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
     PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
-    CpuUsageRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${CpuUsageAverage}%${ValueColor} avg over ${HighlightColor}$(jq -r ".CpuUsage.CpuCount" $ExportFile) ${ValueColor}cpu(s) (${HighlightColor}$(jq -r ".CpuUsage.CoreCount" $ExportFile) ${ValueColor}core(s) x ${HighlightColor}$(jq -r ".CpuUsage.SocketCount" $ExportFile) ${ValueColor}socket(s))"
+      CpuUsageRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}${CpuUsageAverage}%${ValueColor} avg over ${HighlightColor}$(jq -r ".CpuUsage.CpuCount" $ExportFile) ${ValueColor}cpu(s) (${HighlightColor}$(jq -r ".CpuUsage.CoreCount" $ExportFile) ${ValueColor}core(s) x ${HighlightColor}$(jq -r ".CpuUsage.SocketCount" $ExportFile) ${ValueColor}socket(s))"
     elif [[ "$RenderTime" == "cache" ]] ; then
-    CpuUsageRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r .CpuUsage.Average $ExportFile)%${ValueColor} avg over ${HighlightColor}\$(jq -r .CpuUsage.CpuCount $ExportFile) ${ValueColor}cpu(s) (${HighlightColor}\$(jq -r .CpuUsage.CoreCount $ExportFile) ${ValueColor}core(s) x ${HighlightColor}\$(jq -r .CpuUsage.SocketCount $ExportFile) ${ValueColor}socket(s))"
+      CpuUsageRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r \".CpuUsage | .Average + \\\"% ${ValueColor}avg over ${HighlightColor}\\\" + .CpuCount + \\\" ${ValueColor}cpu(s) (${HighlightColor}\\\" + .CoreCount + \\\" ${ValueColor}core(s) x ${HighlightColor}\\\" + .SocketCount + \\\" ${ValueColor}socket(s))\\\" \" $ExportFile)"
     fi
     echo "${CpuUsageRender}"
   fi
@@ -1360,7 +1358,7 @@ RenderMemory () {
     if [[ "$RenderTime" == "live" ]] ; then
       MemoryRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}$(jq -r .Memory.FreeGB $ExportFile)GB${ValueColor} (${HighlightColor}$(jq -r .Memory.FreePerc $ExportFile)%${ValueColor}), Used: ${HighlightColor}$(jq -r .Memory.UsedGB $ExportFile)GB${ValueColor} (${HighlightColor}$(jq -r .Memory.UsedPerc $ExportFile)%${ValueColor}), Total: ${HighlightColor}$(jq -r .Memory.TotalGB $ExportFile)GB${ValueColor}"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      MemoryRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}\$(jq -r .Memory.FreeGB ${ExportFile})GB${ValueColor} (${HighlightColor}\$(jq -r .Memory.FreePerc ${ExportFile})%${ValueColor}), Used: ${HighlightColor}\$(jq -r .Memory.UsedGB ${ExportFile})GB${ValueColor} (${HighlightColor}\$(jq -r .Memory.UsedPerc ${ExportFile})%${ValueColor}), Total: ${HighlightColor}\$(jq -r .Memory.TotalGB ${ExportFile})GB${ValueColor}"
+      MemoryRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}\$(jq -r \".Memory | .FreeGB + \\\"GB${ValueColor} (${HighlightColor}\\\" + .FreePerc + \\\"%${ValueColor}), Used: ${HighlightColor}\\\" + .UsedGB + \\\"GB${ValueColor} (${HighlightColor}\\\" + .UsedPerc + \\\"%${ValueColor}), Total: ${HighlightColor}\\\" + .TotalGB + \\\"GB${ValueColor}\\\"\" ${ExportFile})"
     fi
     echo "${MemoryRender}"
   fi
@@ -1376,7 +1374,7 @@ RenderSwap () {
     if [[ "$RenderTime" == "live" ]] ; then
       SwapRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}$(jq -r .Swap.FreeGB ${ExportFile})GB ${ValueColor}(${HighlightColor}$(jq -r .Swap.FreePerc ${ExportFile})%${ValueColor}), Used: ${HighlightColor}$(jq -r .Swap.UsedGB ${ExportFile})GB ${ValueColor}(${HighlightColor}$(jq -r .Swap.UsedPerc ${ExportFile})%${ValueColor}), Total: ${HighlightColor}$(jq -r .Swap.TotalGB ${ExportFile})GB"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      SwapRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}\$(jq -r .Swap.FreeGB ${ExportFile})GB ${ValueColor}(${HighlightColor}\$(jq -r .Swap.FreePerc ${ExportFile})%${ValueColor}), Used: ${HighlightColor}\$(jq -r .Swap.UsedGB ${ExportFile})GB ${ValueColor}(${HighlightColor}\$(jq -r .Swap.UsedPerc ${ExportFile})%${ValueColor}), Total: ${HighlightColor}\$(jq -r .Swap.TotalGB ${ExportFile})GB"
+      SwapRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}\$(jq -r \".Swap | .FreeGB + \\\"GB${ValueColor} (${HighlightColor}\\\" + .FreePerc + \\\"%${ValueColor}), Used: ${HighlightColor}\\\" + .UsedGB + \\\"GB${ValueColor} (${HighlightColor}\\\" + .UsedPerc + \\\"%${ValueColor}), Total: ${HighlightColor}\\\" + .TotalGB + \\\"GB${ValueColor}\\\"\" ${ExportFile})"
     fi
     echo "${SwapRender}"
   fi
@@ -1392,7 +1390,7 @@ RenderRoot () {
     if [[ "$RenderTime" == "live" ]] ; then
       DiskRootRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}$(jq -r .DiskRoot.FreeGB ${ExportFile})GB ${ValueColor}(${HighlightColor}$(jq -r .DiskRoot.FreePerc ${ExportFile})%${ValueColor}), Used: ${HighlightColor}$(jq -r .DiskRoot.UsedGB ${ExportFile})GB ${ValueColor}(${HighlightColor}$(jq -r .DiskRoot.UsedPerc ${ExportFile})%${ValueColor}), Total: ${HighlightColor}$(jq -r .DiskRoot.TotalGB ${ExportFile})GB"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      DiskRootRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}\$(jq -r .DiskRoot.FreeGB ${ExportFile})GB ${ValueColor}(${HighlightColor}\$(jq -r .DiskRoot.FreePerc ${ExportFile})%${ValueColor}), Used: ${HighlightColor}\$(jq -r .DiskRoot.UsedGB ${ExportFile})GB ${ValueColor}(${HighlightColor}\$(jq -r .DiskRoot.UsedPerc ${ExportFile})%${ValueColor}), Total: ${HighlightColor}\$(jq -r .DiskRoot.TotalGB ${ExportFile})GB"
+      DiskRootRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Free: ${HighlightColor}\$(jq -r \".DiskRoot | .FreeGB + \\\"GB${ValueColor} (${HighlightColor}\\\" + .FreePerc + \\\"%${ValueColor}), Used: ${HighlightColor}\\\" + .UsedGB + \\\"GB${ValueColor} (${HighlightColor}\\\" + .UsedPerc + \\\"%${ValueColor}), Total: ${HighlightColor}\\\" + .TotalGB + \\\"GB${ValueColor}\\\"\" ${ExportFile})"
     fi
     echo "${DiskRootRender}"
   fi
@@ -1408,7 +1406,7 @@ RenderUpdates () {
     if [[ "$RenderTime" == "live" ]] ; then
       UpdatesRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}$(jq -r .Updates.Count ${ExportFile}) $(jq -r .Updates.Type ${ExportFile}) ${ValueColor}updates available."
     elif [[ "$RenderTime" == "cache" ]] ; then
-      UpdatesRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r .Updates.Count ${ExportFile}) \$(jq -r .Updates.Type ${ExportFile}) ${ValueColor}updates available."
+      UpdatesRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r \".Updates | .Count + \\\" \\\" + .Type\" ${ExportFile}) ${ValueColor}updates available."
     fi
     echo "${UpdatesRender}"
   fi
@@ -1441,7 +1439,7 @@ RenderProcesses () {
     if [[ "$RenderTime" == "live" ]] ; then
       ProcessesRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}$(jq -r .Processes.Count ${ExportFile}) ${ValueColor}running processes of ${HighlightColor}$(jq -r .Processes.Max ${ExportFile}) ${ValueColor}maximum processes"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      ProcessesRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r .Processes.Count ${ExportFile}) ${ValueColor}running processes of ${HighlightColor}\$(jq -r .Processes.Max ${ExportFile}) ${ValueColor}maximum processes"
+      ProcessesRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${HighlightColor}\$(jq -r \".Processes | .Count + \\\" ${ValueColor}running processes of ${HighlightColor}\\\" + .Max + \\\" ${ValueColor}maximum processes\\\"\" ${ExportFile})"
     fi
     echo "${ProcessesRender}"
   fi
@@ -1489,7 +1487,7 @@ RenderMysql () {
     if [[ "$RenderTime" == "live" ]] ; then
       MysqlRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: $(jq -r .Mysql.Version ${ExportFile}), Distribution: $(jq -r .Mysql.Distribution ${ExportFile})"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      MysqlRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: \$(jq -r .Mysql.Version ${ExportFile}), Distribution: \$(jq -r .Mysql.Distribution ${ExportFile})"
+      MysqlRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: \$(jq -r \".Mysql | .Version + \\\", Distribution: \\\" + .Distribution\" ${ExportFile})"
     fi
     echo "${MysqlRender}"
   fi
@@ -1503,9 +1501,9 @@ RenderPostgres () {
     PreKeySpace=$(( SeparatorSpace - ${#InfoKey} ))
     PreKeyString="$(PrintChar " " "$PreKeySpace" "$CharColor")"
     if [[ "$RenderTime" == "live" ]] ; then
-    PostgresRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: $(jq -r .Postgres.Version ${ExportFile})"
+      PostgresRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: $(jq -r .Postgres.Version ${ExportFile})"
     elif [[ "$RenderTime" == "cache" ]] ; then
-    PostgresRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: \$(jq -r .Postgres.Version ${ExportFile})"
+      PostgresRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: \$(jq -r .Postgres.Version ${ExportFile})"
     fi
     echo "${PostgresRender}"
   fi
@@ -1522,7 +1520,7 @@ RenderPhp () {
     if [[ "$RenderTime" == "live" ]] ; then
       PhpRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${HighlightColor}$(jq -r .Php.Version ${ExportFile})${ValueColor}, Memory Limit: ${HighlightColor}$(jq -r .Php.MaxMemory ${ExportFile})"
     elif [[ "$RenderTime" == "cache" ]] ; then
-      PhpRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${HighlightColor}\$(jq -r .Php.Version ${ExportFile})${ValueColor}, Memory Limit: ${HighlightColor}\$(jq -r .Php.MaxMemory ${ExportFile})"
+      PhpRender="${PreKeyString}${KeyColor}${InfoKey} ${SeparatorColor}${Separator} ${ValueColor}Version: ${HighlightColor}\$(jq -r \".Php | .Version + \\\"${ValueColor}, Memory Limit: ${HighlightColor}\\\" + .MaxMemory\" ${ExportFile})"
     fi
     echo "${PhpRender}"
   fi
